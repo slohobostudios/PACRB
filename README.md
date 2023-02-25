@@ -1,2 +1,2 @@
 # PACRB
-PACRB: Pixel Art Color Ramping Builder
+PPCR: Pixel Art Color Ramping Builder

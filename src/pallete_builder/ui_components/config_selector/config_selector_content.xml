@@ -1,0 +1,118 @@
+<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+    <Background
+         type="Fixed3x3RepeatableBackground"
+         asset="dark_blue_background.png"
+         position="t:15,l:15"
+         size="x:300,y:850"
+         frame_id="0">
+        <Text font_size="48" position="t:15">
+            CONFIGURATION
+        </Text>
+        <Grid
+             pagination_size="x:1,y:5"
+             grid_layout="x:1,y:5"
+             size="x:263,y:750"
+             position="t:50"
+             font_size="36"
+             scale="3">
+            <Grid
+                 pagination_size="x:2,y:1"
+                 grid_layout="x:2,y:1"
+                 size="x:263,y:0"
+                 position="b:0">
+                <Button
+                    type="BooleanImageButton"
+                    asset="check_box_button.png"
+                    position="l:0"
+                    truth_frame_id="0"
+                    truth_hover_frame_id="1"
+                    truth_click_frame_id="2"
+                    false_frame_id="3"
+                    false_hover_frame_id="4"
+                    false_click_frame_id="5"
+                    event_id="1"
+                    sync_id="1"
+                    />
+                <Text position="l:-70">
+                    Auto Ramping
+                </Text>
+            </Grid>
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+                <Text position="l:1,b:5">
+                    Hue Shift:
+                </Text>
+                <Slider 
+                    type="IncrementPointerSlider"
+                    position="b:0"
+                    increment="1"
+                    min="-32"
+                    max="32"
+                    asset="slider.png"
+                    frame_id="0"
+                    hover_frame_id="1"
+                    click_frame_id="2"
+                    size="x:150,y:0"
+                    event_id="2"
+                    sync_id="2"
+                    />
+            </Grid>
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+                <Text position="l:1,b:5">
+                    Saturation shift:
+                </Text>
+                <Slider 
+                    type="IncrementPointerSlider"
+                    position="b:0"
+                    increment="1"
+                    min="-32"
+                    max="32"
+                    asset="slider.png"
+                    frame_id="0"
+                    hover_frame_id="1"
+                    click_frame_id="2"
+                    size="x:150,y:0"
+                    event_id="4"
+                    sync_id="4"
+                    />
+            </Grid>
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+                <Text position="l:1,b:5">
+                    Value shift:
+                </Text>
+                <Slider 
+                    type="IncrementPointerSlider"
+                    position="b:0"
+                    increment="1"
+                    min="-32"
+                    max="32"
+                    asset="slider.png"
+                    frame_id="0"
+                    hover_frame_id="1"
+                    click_frame_id="2"
+                    size="x:150,y:0"
+                    event_id="5"
+                    sync_id="5"
+                    />
+            </Grid>
+           <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+                <Text position="l:0,b:5">
+                   Num of Shades: 
+                </Text>
+                <Slider 
+                    type="IncrementPointerSlider"
+                    position="b:0"
+                    increment="1"
+                    min="0"
+                    max="32"
+                    asset="slider.png"
+                    frame_id="0"
+                    hover_frame_id="1"
+                    click_frame_id="2"
+                    size="x:150,y:0"
+                    event_id="3"
+                    sync_id="3"
+                    />
+            </Grid>
+        </Grid>
+    </Background>
+</RootNode>

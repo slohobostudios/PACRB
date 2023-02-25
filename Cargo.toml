@@ -1,0 +1,18 @@
+[package]
+name = "pacrb"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde_json = "1.0.91"
+serde = { version = "1.0.152", features = ["derive"] }
+minidom = "0.15.0"
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
+tracing-appender = "0.2.2"
+
+[dependencies.sfml]
+git = "https://github.com/jeremyletang/rust-sfml"
+features = ["serde"]

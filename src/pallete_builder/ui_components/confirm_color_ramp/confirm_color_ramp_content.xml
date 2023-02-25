@@ -1,0 +1,26 @@
+<RootNode scale="4" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+  <Button
+    type="TilingButton"
+    asset="3x3_tilable_standalone_button.png"
+    position="b:200"
+    size="x:200,y:175"
+    frame_id="0"
+    hover_frame_id="1"
+    click_frame_id="2">
+    <Text>
+      Orientation
+    </Text>
+  </Button>
+  <Button
+    type="TilingButton"
+    asset="3x3_tilable_standalone_button.png"
+    position="b:15"
+    size="x:200,y:175"
+    frame_id="0"
+    hover_frame_id="1"
+    click_frame_id="2">
+    <Text>
+      Confirm Ramp Complete
+    </Text>
+  </Button>
+</RootNode>
