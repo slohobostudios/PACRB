@@ -1,0 +1,26 @@
+<RootNode scale="8" font_size="48" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+  <Background
+    type="Fixed3x3RepeatableBackground"
+    asset="dark_blue_background.png"
+    position="b:15,r:455"
+    size="x:200,y:60"
+    frame_id="0">
+    <Grid size="x:200,y:75" pagination_size="x:2,y:1" scale="3">
+      <Button
+        position="l:4,r:6"
+        type="BooleanImageButton"
+        asset="check_box_button.png"
+        truth_frame_id="0"
+        truth_hover_frame_id="1"
+        truth_click_frame_id="2"
+        false_frame_id="3"
+        false_hover_frame_id="4"
+        false_click_frame_id="5"        
+        event_id="1"
+        sync_id="1"/>
+      <Text position="t:3,b:7,l:-20">
+        Erase
+      </Text>
+    </Grid>
+  </Background>
+</RootNode>

@@ -1,0 +1,48 @@
+{ "frames": [
+   {
+    "filename": "slider 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 42, "h": 24 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 24 },
+    "sourceSize": { "w": 42, "h": 24 },
+    "duration": 100
+   },
+   {
+    "filename": "slider 1.aseprite",
+    "frame": { "x": 42, "y": 0, "w": 42, "h": 24 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 24 },
+    "sourceSize": { "w": 42, "h": 24 },
+    "duration": 100
+   },
+   {
+    "filename": "slider 2.aseprite",
+    "frame": { "x": 84, "y": 0, "w": 42, "h": 24 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 42, "h": 24 },
+    "sourceSize": { "w": 42, "h": 24 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3-beta21-x64",
+  "image": "slider.png",
+  "format": "RGBA8888",
+  "size": { "w": 126, "h": 24 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "slices": [
+   { "name": "decrement", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 10, "w": 14, "h": 14 } }, { "frame": 1, "bounds": {"x": 0, "y": 10, "w": 14, "h": 14 } }, { "frame": 2, "bounds": {"x": 0, "y": 10, "w": 14, "h": 14 } }] },
+   { "name": "increment", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 28, "y": 10, "w": 14, "h": 14 } }, { "frame": 1, "bounds": {"x": 28, "y": 10, "w": 14, "h": 14 } }, { "frame": 2, "bounds": {"x": 28, "y": 10, "w": 14, "h": 14 } }] },
+   { "name": "cursor", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 16, "y": 0, "w": 10, "h": 10 } }, { "frame": 1, "bounds": {"x": 16, "y": 0, "w": 10, "h": 10 } }, { "frame": 2, "bounds": {"x": 16, "y": 0, "w": 10, "h": 10 } }] },
+   { "name": "left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 16, "y": 12, "w": 4, "h": 10 } }, { "frame": 1, "bounds": {"x": 16, "y": 12, "w": 4, "h": 10 } }, { "frame": 2, "bounds": {"x": 16, "y": 12, "w": 4, "h": 10 } }] },
+   { "name": "right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 22, "y": 12, "w": 4, "h": 10 } }, { "frame": 1, "bounds": {"x": 22, "y": 12, "w": 4, "h": 10 } }, { "frame": 2, "bounds": {"x": 22, "y": 12, "w": 4, "h": 10 } }] },
+   { "name": "middle", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 20, "y": 12, "w": 2, "h": 10 } }, { "frame": 1, "bounds": {"x": 20, "y": 12, "w": 2, "h": 10 } }, { "frame": 2, "bounds": {"x": 20, "y": 12, "w": 2, "h": 10 } }] }
+  ]
+ }
+}
