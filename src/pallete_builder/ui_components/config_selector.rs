@@ -35,7 +35,6 @@ impl Default for Config {
 pub struct ConfigSelector {
     config_selector_dom: DomController,
     current_config: Config,
-    config_changed: bool,
 }
 
 impl ConfigSelector {
@@ -51,7 +50,6 @@ impl ConfigSelector {
         Self {
             config_selector_dom,
             current_config: new_config,
-            config_changed: true,
         }
     }
 
@@ -67,12 +65,10 @@ impl DomControllerInterface for ConfigSelector {
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event> {
-        let previous_config = self.current_config;
         let events = self
             .config_selector_dom
             .event_handler(window, ui_settings, event);
         config_selector_content::perform_events(&events, &mut self.current_config);
-        self.config_changed = previous_config != self.current_config;
         events
     }
 

@@ -92,6 +92,16 @@ impl PalleteBuilder {
                 .event_handler(window, ui_settings, event),
         );
 
+        match self.current_mode {
+            Mode::NormalMode(_) if self.config_selector.current_config().auto_ramping => {
+                self.current_mode = Mode::RampMode(RampMode::default())
+            }
+            Mode::RampMode(_) if !self.config_selector.current_config().auto_ramping => {
+                self.current_mode = Mode::NormalMode(NormalMode::default())
+            }
+            _ => {}
+        }
+
         if events.len() > 0 {
             return;
         }
@@ -130,6 +140,7 @@ impl PalleteBuilder {
         self.config_selector.update(resource_manager);
         self.hsv_selector.update(resource_manager);
         self.erase_mode.update(resource_manager);
+        self.confirm_color_ramp.update(resource_manager);
         self.color_grid.update();
     }
 
@@ -138,6 +149,7 @@ impl PalleteBuilder {
         self.color_grid.render(window);
 
         self.config_selector.render(window);
+        self.confirm_color_ramp.render(window);
         self.erase_mode.render(window);
         self.hsv_selector.render(window);
     }

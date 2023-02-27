@@ -40,6 +40,51 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
         }
 
         self.set_hover(ui_settings.cursor_position);
+        match event {
+            SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
+                if ui_settings.binds.is_bind_released_and_binded(
+                    PossibleInputs::from(button),
+                    PossibleBinds::Select,
+                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+            {
+                events.push(EMPTY_EVENT)
+            }
+            SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
+                if ui_settings.binds.is_bind_released_and_binded(
+                    PossibleInputs::from(button),
+                    PossibleBinds::Select,
+                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+            {
+                events.push(EMPTY_EVENT)
+            }
+            SFMLEvent::KeyReleased {
+                code,
+                alt: _,
+                ctrl: _,
+                shift: _,
+                system: _,
+            } if ui_settings
+                .binds
+                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
+                && self.global_bounds().contains(ui_settings.cursor_position) =>
+            {
+                events.push(EMPTY_EVENT)
+            }
+            SFMLEvent::KeyPressed {
+                code,
+                alt: _,
+                ctrl: _,
+                shift: _,
+                system: _,
+            } if ui_settings
+                .binds
+                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
+                && self.global_bounds().contains(ui_settings.cursor_position) =>
+            {
+                events.push(EMPTY_EVENT)
+            }
+            _ => {}
+        }
 
         events
     }

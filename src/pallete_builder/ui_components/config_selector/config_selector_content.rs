@@ -26,8 +26,8 @@ fn perform_event(event: &Event, config: &mut Config) {
 }
 
 fn event1(event: Event, config: &mut Config) {
-    if event.event == Events::BooleanEvent(true) {
-        config.auto_ramping = !config.auto_ramping;
+    if let Events::BooleanEvent(val) = event.event {
+        config.auto_ramping = val
     }
 }
 fn event2(event: Event, config: &mut Config) {

@@ -1,5 +1,12 @@
 use tracing::error;
 
+#[macro_export]
+macro_rules! clamp_to_primitive_bounds {
+    ( $to:ty, $input:expr ) => {
+        $input.clamp(<$to>::MIN.into(), <$to>::MAX.into()) as $to
+    };
+}
+
 pub fn i32_ceil_div(a: i32, b: i32) -> i32 {
     (a + b - 1) / b
 }

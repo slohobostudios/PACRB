@@ -2,12 +2,14 @@
   <Button
     type="TilingButton"
     asset="3x3_tilable_standalone_button.png"
-    position="b:200"
-    size="x:200,y:175"
+    position="b:100"
+    size="x:225,y:50"
     frame_id="0"
     hover_frame_id="1"
-    click_frame_id="2">
-    <Text>
+    click_frame_id="2"
+    event_id="2"
+    sync_id="0">
+    <Text position="t:4,b:6">
       Orientation
     </Text>
   </Button>
@@ -15,11 +17,13 @@
     type="TilingButton"
     asset="3x3_tilable_standalone_button.png"
     position="b:15"
-    size="x:200,y:175"
+    size="x:225,y:50"
     frame_id="0"
     hover_frame_id="1"
-    click_frame_id="2">
-    <Text>
+    click_frame_id="2"
+    event_id="1"
+    sync_id="0">
+    <Text position="t:4,b:6">
       Confirm Ramp Complete
     </Text>
   </Button>

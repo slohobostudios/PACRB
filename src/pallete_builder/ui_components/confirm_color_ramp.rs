@@ -56,6 +56,10 @@ impl ConfirmColorRamp {
         confirm_color_ramp_content::sync_events(&mut self.confirm_color_ramp_dom, enable);
     }
 
+    pub fn is_enabled(&self) -> bool {
+        self.enable
+    }
+
     pub fn orientation(&self) -> Orientation {
         self.orientation
     }
@@ -70,7 +74,7 @@ impl DomControllerInterface for ConfirmColorRamp {
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event> {
-        if !self.enable {
+        if !matches!(event, SFMLEvent::Resized { .. }) && !self.enable {
             return Default::default();
         }
         let events = self
