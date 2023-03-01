@@ -116,7 +116,7 @@ pub trait DomControllerInterface {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event>;
     fn event_handler(
         &mut self,
-        _window: &mut RenderWindow,
+        window: &mut RenderWindow,
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event>;
