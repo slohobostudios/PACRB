@@ -128,19 +128,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
-name = "pacrb"
-version = "0.1.0"
-dependencies = [
- "minidom",
- "serde",
- "serde_json",
- "sfml",
- "tracing",
- "tracing-appender",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "pin-project-lite"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -394,10 +381,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "ui"
+version = "0.1.0"
+dependencies = [
+ "minidom",
+ "serde",
+ "serde_json",
+ "sfml",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84a22b9f218b40614adcb3f4ff08b703773ad44fa9423e4e0d346d5db86e4ebc"
+
+[[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sfml",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "valuable"

@@ -4,3 +4,5 @@ pub mod elements;
 pub mod events;
 pub mod ui_settings;
 pub mod utils;
+
+fn main() {}
