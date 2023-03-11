@@ -1,8 +1,9 @@
 use sfml::graphics::{
     Color, IntRect, RectangleShape, RenderTarget, RenderWindow, Shape, Transformable,
 };
+use utils::center_of_rect;
 
-use crate::{center_of_rect, pallete_builder::hsv_color::HSV};
+use crate::pallete_builder::hsv_color::HSV;
 
 #[derive(Debug, Clone)]
 pub struct FullCell {

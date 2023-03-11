@@ -1,13 +1,10 @@
 use sfml::{graphics::RenderWindow, window::Event as SFMLEvent};
-
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::Event,
-        ui_settings::UISettings,
-    },
+use ui::{
+    dom_controller::{DomController, DomControllerInterface},
+    events::Event,
+    ui_settings::UISettings,
 };
+use utils::resource_manager::ResourceManager;
 
 use self::erase_mode_content::{perform_events, sync_events};
 

@@ -4,8 +4,9 @@ use sfml::{
     graphics::{IntRect, RenderWindow},
     system::{Vector2, Vector2i, Vector2u},
 };
+use utils::sfml_util_functions::vector2i_from_vector2u;
 
-use crate::{pallete_builder::hsv_color::HSV, utils::sfml_util_functions::vector2i_from_vector2u};
+use crate::pallete_builder::hsv_color::HSV;
 
 use self::{empty_cell::EmptyCell, full_cell::FullCell};
 

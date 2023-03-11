@@ -3,8 +3,6 @@ use sfml::{
     window::{mouse::Button, Event},
 };
 
-use crate::clamp_to_primitive_bounds;
-
 use self::color_ramper::ColorRamper;
 
 use super::{

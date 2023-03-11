@@ -1,12 +1,10 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::*,
-        ui_settings::UISettings,
-    },
-};
 use sfml::{graphics::RenderWindow, window::Event as SFMLEvent};
+use ui::{
+    dom_controller::{DomController, DomControllerInterface},
+    events::Event,
+    ui_settings::UISettings,
+};
+use utils::resource_manager::ResourceManager;
 
 mod config_selector_content;
 
