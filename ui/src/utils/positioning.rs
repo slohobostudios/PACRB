@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
-use crate::utils::{simple_error::SimpleError, string_util_functions::*};
 use sfml::{graphics::IntRect, system::Vector2i};
-use tracing::error;
+use tracing::{error, warn};
+use utils::{simple_error::SimpleError, string_util_functions::get_tuple_list_from_string};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
 pub struct UIPosition {
@@ -16,17 +16,20 @@ impl UIPosition {
     // Align the dimension evenly by percentage.
     // Percentage is calculated by a / (a + b).
     fn by_percent(a: Option<i32>, b: Option<i32>, ra: i32, rb: i32) -> i32 {
-        let ca: f32;
-        let cb: f32;
-
         // Special cases. This means to center it
-        if (a.is_none() && b.is_none()) || (a.unwrap() == 0 && b.unwrap() == 0) {
-            ca = 1.;
-            cb = 1.;
+        let (ca, cb) = if matches!((a, b), (None, None) | (Some(0), Some(0))) {
+            (1., 1.)
+        } else if let (Some(a), Some(b)) = (a, b) {
+            // Normal situation
+            (a as f32, b as f32)
         } else {
-            ca = a.unwrap() as f32;
-            cb = b.unwrap() as f32;
-        }
+            // Failed to parse. Center it
+            warn!(
+                "Unable to parse by percent. Centering object {:?} {:?} {} {}",
+                a, b, ra, rb
+            );
+            (1., 1.)
+        };
 
         let percent = ca / (ca + cb);
 
@@ -34,73 +37,70 @@ impl UIPosition {
     }
 
     fn by_pixel(a: Option<i32>, b: Option<i32>, ra: i32, rb: i32) -> i32 {
-        if a.is_some() {
-            ra + a.unwrap()
+        if let Some(a) = a {
+            ra + a
+        } else if let Some(b) = b {
+            (ra + rb) - b
         } else {
-            (ra + rb) - b.unwrap()
+            error!("Failed computing by_pixel ui position. Both a and b is none!");
+            ra
         }
     }
 
     pub fn rcoords(&self, relative_rect: IntRect) -> Vector2i {
-        let x: i32;
-        let y: i32;
-
-        if self.top.xor(self.bottom) == None {
-            y = UIPosition::by_percent(
+        let y = if self.top.xor(self.bottom).is_none() {
+            UIPosition::by_percent(
                 self.top,
                 self.bottom,
                 relative_rect.top,
                 relative_rect.height,
-            );
+            )
         } else {
-            y = UIPosition::by_pixel(
+            UIPosition::by_pixel(
                 self.top,
                 self.bottom,
                 relative_rect.top,
                 relative_rect.height,
-            );
-        }
+            )
+        };
 
-        if self.left.xor(self.right).is_none() {
-            x = UIPosition::by_percent(
+        let x = if self.left.xor(self.right).is_none() {
+            UIPosition::by_percent(
                 self.left,
                 self.right,
                 relative_rect.left,
                 relative_rect.width,
-            );
+            )
         } else {
-            x = UIPosition::by_pixel(
+            UIPosition::by_pixel(
                 self.left,
                 self.right,
                 relative_rect.left,
                 relative_rect.width,
-            );
-        }
+            )
+        };
 
         Vector2i::new(x, y)
     }
 
     pub fn center(&self, relative_rect: IntRect, size: Vector2i) -> Vector2i {
-        let x: i32;
-        let y: i32;
-
         let rcoord = self.rcoords(relative_rect);
 
-        if self.left.xor(self.right).is_none() {
-            x = rcoord.x - (size.x / 2);
+        let x = if self.left.xor(self.right).is_none() {
+            rcoord.x - (size.x / 2)
         } else if self.left.is_none() {
-            x = rcoord.x - size.x;
+            rcoord.x - size.x
         } else {
-            x = rcoord.x;
-        }
+            rcoord.x
+        };
 
-        if self.top.xor(self.bottom).is_none() {
-            y = rcoord.y - (size.y / 2);
+        let y = if self.top.xor(self.bottom).is_none() {
+            rcoord.y - (size.y / 2)
         } else if self.top.is_none() {
-            y = rcoord.y - size.y;
+            rcoord.y - size.y
         } else {
-            y = rcoord.y;
-        }
+            rcoord.y
+        };
 
         Vector2i { x, y }
     }
@@ -109,22 +109,13 @@ impl UIPosition {
         IntRect::from_vecs(self.center(relative_rect, size), size)
     }
 
-    pub fn inherit(self, optb: Self) -> UIPosition {
-        UIPosition {
-            top: self.top.or(optb.top),
-            bottom: self.bottom.or(optb.bottom),
-            left: self.left.or(optb.left),
-            right: self.right.or(optb.right),
-        }
-    }
+    pub fn padded_inner_rect(&self, relative_rect: IntRect) -> IntRect {
+        let top = relative_rect.top + self.top.unwrap_or_default();
+        let left = relative_rect.left + self.left.unwrap_or_default();
+        let bottom = relative_rect.top + relative_rect.height - self.bottom.unwrap_or_default();
+        let right = relative_rect.left + relative_rect.width - self.right.unwrap_or_default();
 
-    pub fn add_margins_to_rect(&self, rect: IntRect) -> IntRect {
-        IntRect {
-            left: self.left.unwrap_or(0) + rect.left,
-            top: self.top.unwrap_or(0) + rect.top,
-            width: self.left.unwrap_or(0) + self.right.unwrap_or(0) + rect.width,
-            height: self.bottom.unwrap_or(0) + self.bottom.unwrap_or(0) + rect.height,
-        }
+        IntRect::new(left, top, right - left, bottom - top)
     }
 }
 
@@ -175,13 +166,15 @@ impl FromStr for UIPosition {
 
             for tuple in get_tuple_list_from_string(s) {
                 let Ok((side, amt)) = tuple else {
-                    error!("Unable to retrieve tuple from string list: {:#?}", tuple);
-                    return Ok(Default::default());
+                    let err_str = format!("Unable to retrieve tuple from string list: {:#?}", tuple);
+                    error!(err_str);
+                    return Err(SimpleError::new(err_str));
                 };
 
                 let Ok(amt) = amt.parse::<i32>() else {
-                    error!("Unable to parse i32 from amt: {}", amt);
-                    return Ok(Default::default());
+                    let err_str = format!("Unable to parse i32 from amt: {}", amt);
+                    error!(err_str);
+                    return Err(SimpleError::new(err_str));
                 };
 
                 match side.to_lowercase().as_str() {
@@ -190,15 +183,17 @@ impl FromStr for UIPosition {
                     "l" => position.left = Some(amt),
                     "r" => position.right = Some(amt),
                     _ => {
-                        error!("Invalid side ({}) while parsing UIPosition string", side);
-                        return Ok(Default::default());
+                        let err_str =
+                            format!("Invalid side ({}) while parsing UIPosition string", side);
+                        error!(err_str);
+                        return Err(SimpleError::new(err_str));
                     }
                 }
             }
 
             Ok(position)
         } else {
-            Ok(match s {
+            Ok(match s.to_lowercase().as_str() {
                 "start" => UIPosition {
                     top: None,
                     bottom: None,
@@ -223,7 +218,13 @@ impl FromStr for UIPosition {
                     left: None,
                     right: None,
                 },
-                "center" | _ => Default::default(),
+                "center" => Default::default(),
+                _ => {
+                    return Err(SimpleError::new(format!(
+                        "Invalid UIPosition string: {}",
+                        s
+                    )))
+                }
             })
         }
     }
@@ -587,7 +588,7 @@ mod test {
         assert!(UIPosition::from_str(test_str).is_err());
 
         let test_str = "center";
-        assert!(UIPosition::from_str(test_str).is_err());
+        assert!(UIPosition::from_str(test_str).is_ok());
 
         let test_str = "no string should fit this from_str";
         assert!(UIPosition::from_str(test_str).is_err());

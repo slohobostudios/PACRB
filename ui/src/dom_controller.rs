@@ -1,18 +1,15 @@
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_loader::dom_loader,
-        elements::{traits::Element as ElementTrait, Element},
-        events::*,
-        ui_settings::UISettings,
-    },
-    vector_to_rect_with_zeroed_origin,
+    dom_loader::dom_loader,
+    elements::{traits::Element as ElementTrait, Element},
+    events::*,
+    ui_settings::UISettings,
 };
 use sfml::{
     graphics::{Color, Rect, RenderTarget, RenderTexture, RenderWindow, Sprite, View},
     window::Event as SFMLEvent,
     SfBox,
 };
+use utils::{resource_manager::ResourceManager, vector_to_rect_with_zeroed_origin};
 
 #[derive(Default, Debug)]
 pub struct DomController {

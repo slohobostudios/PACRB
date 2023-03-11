@@ -1,8 +1,10 @@
-use crate::{
-    center_of_rect,
-    ui::{dom_controller::DomController, events::*},
-};
 use tracing::{error, warn};
+use ui::{
+    dom_controller::DomController,
+    elements::{traits::Element as ElementTrait, Element},
+    events::{Event, Events},
+};
+use utils::center_of_rect;
 
 pub fn perform_events(events: &Vec<Event>, erase_enabled: &mut bool) {
     for event in events {
@@ -26,7 +28,6 @@ fn event1(event: &Event, erase_enabled: &mut bool) {
     }
 }
 
-use crate::ui::elements::{traits::Element as ElementTrait, Element};
 pub fn sync_events(dom_controller: &mut DomController, erase_enabled: bool) {
     dom_controller
         .root_node

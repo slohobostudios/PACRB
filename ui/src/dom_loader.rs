@@ -1,15 +1,15 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::elements::{root_node::RootNode, traits::Element as ElementTrait},
-};
+use crate::elements::{root_node::RootNode, traits::Element as ElementTrait};
+use ::utils::resource_manager::ResourceManager;
 use element_loader::*;
 use sfml::graphics::{Color, IntRect};
 use std::error::Error;
 use tracing::error;
-use utils::*;
+
+use self::utils::{get_color_attribute_or_default, get_font_size_or_default, get_scale_or_default};
 
 mod background_loader;
 mod button_loader;
+mod div_loader;
 mod element_loader;
 mod grid_loader;
 mod missing_texture_loader;
@@ -19,9 +19,14 @@ mod utils;
 
 /// This function is how loading ui elements from an xml document will work. Returns empty document on failure.
 ///
+/// # Args
+/// - resource_manager: ResourceManager,
+/// - relative_rect: Typically the screen size
+/// - xml_doc: &str representing the xml doc
+///
 /// # Usage
 ///
-/// ```no_run
+/// ```ignore
 /// let xml_doc = r##"
 /// <RootNode scale="4" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
 ///   <Background
@@ -66,7 +71,7 @@ fn try_page_loader(
         .children()
         .map(|child_node| {
             element_loader(
-                &resource_manager,
+                resource_manager,
                 &child_node,
                 default_scale,
                 default_font_size,
@@ -76,7 +81,7 @@ fn try_page_loader(
         .collect();
 
     Ok(RootNode::new(
-        &resource_manager,
+        resource_manager,
         root_elements,
         relative_rect,
     ))

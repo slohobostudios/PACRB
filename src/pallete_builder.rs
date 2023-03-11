@@ -7,11 +7,8 @@ use sfml::{
     },
     SfBox,
 };
-
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{dom_controller::DomControllerInterface, ui_settings::UISettings},
-};
+use ui::{dom_controller::DomControllerInterface, ui_settings::UISettings};
+use utils::resource_manager::ResourceManager;
 
 use self::{
     color_grid::{color_cell::CELL_SIZE, undo_redo::UndoRedoCell, ColorGrid},
@@ -56,10 +53,10 @@ impl PalleteBuilder {
         let color_grid = ColorGrid::new();
         Self {
             current_mode: Mode::NormalMode(Default::default()),
-            hsv_selector: HSVSelector::new(&resource_manager, &ui_settings),
-            config_selector: ConfigSelector::new(&resource_manager, &ui_settings),
-            confirm_color_ramp: ConfirmColorRamp::new(&resource_manager, &ui_settings),
-            erase_mode: EraseMode::new(&resource_manager, &ui_settings),
+            hsv_selector: HSVSelector::new(resource_manager, ui_settings),
+            config_selector: ConfigSelector::new(resource_manager, ui_settings),
+            confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
+            erase_mode: EraseMode::new(resource_manager, ui_settings),
             is_dragging_erase: false,
             is_dragging_screen: false,
             previous_mouse_position: Default::default(),

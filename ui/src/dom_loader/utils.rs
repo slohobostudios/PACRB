@@ -1,8 +1,14 @@
-use crate::{ui::utils::positioning::UIPosition, utils::sfml_util_functions::*};
+use crate::{elements::Element as UIElement, utils::positioning::UIPosition};
 use minidom::Element;
 use serde::ser::StdError;
 use sfml::{graphics::Color, system::Vector2};
 use std::{error::Error, str::FromStr};
+use utils::{
+    resource_manager::ResourceManager,
+    sfml_util_functions::{color_from_str, vector2_from_str},
+};
+
+use super::element_loader;
 
 pub fn get_generic_attribute<T: std::default::Default + std::str::FromStr>(
     ele: &Element,
@@ -69,4 +75,24 @@ pub fn get_sync_id_or_default(ele: &Element) -> u16 {
         .unwrap_or("0")
         .parse::<u16>()
         .unwrap_or_default()
+}
+
+pub fn collect_children_as_vector(
+    resource_manager: &ResourceManager,
+    ele: &Element,
+    default_scale: f32,
+    default_font_size: u32,
+    default_color: Color,
+) -> Vec<UIElement> {
+    ele.children()
+        .map(|child_node| {
+            element_loader(
+                resource_manager,
+                child_node,
+                default_scale,
+                default_font_size,
+                default_color,
+            )
+        })
+        .collect()
 }

@@ -1,7 +1,8 @@
-use crate::{ui::ui_settings::UISettingOptions, utils::simple_error::SimpleError};
+use crate::ui_settings::UISettingOptions;
 use serde::{Deserialize, Serialize};
 use sfml::system::Vector2;
 use std::{collections::LinkedList, error::Error};
+use utils::simple_error::SimpleError;
 
 // Look into docs/UI/scaling.lorien for an explanation
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]

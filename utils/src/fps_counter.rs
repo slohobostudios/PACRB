@@ -1,6 +1,8 @@
 use sfml::graphics::RcText;
 use std::{collections::LinkedList, time::Instant};
 
+use crate::resource_manager::ResourceManager;
+
 #[derive(Clone, Debug)]
 pub struct FPSCounter {
     instances: LinkedList<Instant>,

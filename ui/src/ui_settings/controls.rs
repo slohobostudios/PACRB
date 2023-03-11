@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use sfml::window::Event;
 use std::collections::HashMap;
 
 pub mod possible_binds;
@@ -28,6 +29,32 @@ pub struct Bindings {
 }
 
 impl Bindings {
+    pub fn event_handler(&mut self, event: Event) {
+        match event {
+            Event::MouseButtonPressed { button, x: _, y: _ } => {
+                self.input_pressed(PossibleInputs::from(button))
+            }
+            Event::MouseButtonReleased { button, x: _, y: _ } => {
+                self.input_released(PossibleInputs::from(button))
+            }
+            Event::KeyPressed {
+                code,
+                alt: _,
+                ctrl: _,
+                shift: _,
+                system: _,
+            } => self.input_pressed(PossibleInputs::from(code)),
+            Event::KeyReleased {
+                code,
+                alt: _,
+                ctrl: _,
+                shift: _,
+                system: _,
+            } => self.input_released(PossibleInputs::from(code)),
+            _ => {}
+        }
+    }
+
     pub fn is_bind_released_and_binded(&self, input: PossibleInputs, bind: PossibleBinds) -> bool {
         self.is_bind_and_input_binded(input, bind) && self.is_bind_released(bind)
     }

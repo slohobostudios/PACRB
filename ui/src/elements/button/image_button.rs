@@ -1,18 +1,16 @@
 use super::traits::*;
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::traits::Element,
-        events::*,
-        ui_settings::UISettings,
-        utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
-    },
+    elements::traits::Element,
+    events::*,
+    ui_settings::UISettings,
+    utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
 use sfml::{
     graphics::{IntRect, RcSprite, RenderTarget, RenderTexture, Transformable},
     system::{Vector2, Vector2i},
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 const CLICK_BOUNDS_SLICE_NAME: &str = "click";
 
@@ -167,12 +165,11 @@ impl Button for ImageButton {
 
 impl Element for ImageButton {
     fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
-        if self.rerender {
-            self.rerender = false;
-            Vec::from([EMPTY_EVENT])
+        Vec::from(if self.rerender {
+            &[EMPTY_EVENT][..]
         } else {
-            Default::default()
-        }
+            &[][..]
+        })
     }
 
     fn update_size(&mut self) {
@@ -192,6 +189,7 @@ impl Element for ImageButton {
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
+        self.rerender = false;
         window.draw(self.current_sprite());
     }
 

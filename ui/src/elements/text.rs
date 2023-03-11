@@ -1,6 +1,10 @@
 use super::traits::Element;
-use crate::{assets::resource_manager::ResourceManager, ui::utils::positioning::UIPosition};
-use sfml::graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable};
+use crate::utils::positioning::UIPosition;
+use sfml::{
+    graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable},
+    system::Vector2,
+};
+use utils::resource_manager::ResourceManager;
 
 #[derive(Debug, Clone)]
 pub struct Text {
@@ -8,6 +12,7 @@ pub struct Text {
     global_bounds: IntRect,
     text: RcText,
     pub color: Color,
+    disable_padding: bool,
 }
 
 impl Default for Text {
@@ -17,6 +22,7 @@ impl Default for Text {
             global_bounds: Default::default(),
             text: Default::default(),
             color: Color::WHITE,
+            disable_padding: true,
         }
     }
 }
@@ -26,6 +32,7 @@ impl Text {
         resource_manager: &ResourceManager,
         position: UIPosition,
         text: &str,
+        disable_padding: bool,
         font_size: u32,
         color: Color,
     ) -> Self {
@@ -34,6 +41,7 @@ impl Text {
             text: RcText::new(text, resource_manager.fetch_current_font(), font_size),
             global_bounds: Default::default(),
             color,
+            disable_padding,
         };
         t.update_size();
 
@@ -52,6 +60,12 @@ impl Element for Text {
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
+        if self.disable_padding {
+            self.text.set_origin(Vector2::new(
+                self.text.local_bounds().left,
+                self.text.local_bounds().top,
+            ))
+        }
         self.global_bounds = self
             .position
             .center_with_size(relative_rect, self.global_bounds.size());

@@ -1,10 +1,21 @@
+use serde::{
+    de::{self, Visitor},
+    Deserialize,
+};
 use sfml::graphics::{IntRect, RcSprite, RcTexture};
 use std::fmt;
 use tracing::error;
 
+use crate::{
+    resource_manager::{load_missing_texture, ASSETS_PATH},
+    simple_error::SimpleError,
+};
+
+use super::aseperite_parse::{frame::Frame, frame_tag::FrameTag, meta::Meta};
+
 pub struct Asset {
-    meta: Meta,
-    frames: Vec<Frame>,
+    pub(super) meta: Meta,
+    pub(super) frames: Vec<Frame>,
     pub(super) texture: RcTexture,
 }
 
@@ -132,5 +143,93 @@ impl fmt::Debug for Asset {
             .field("meta", &self.meta)
             .field("frames", &self.frames)
             .finish()
+    }
+}
+
+impl<'de> Deserialize<'de> for Asset {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        enum Field {
+            Meta,
+            Frames,
+        }
+
+        impl<'de> Deserialize<'de> for Field {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct FieldVisitor;
+                impl<'de> Visitor<'de> for FieldVisitor {
+                    type Value = Field;
+
+                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                        formatter.write_str("`meta` or `frames`")
+                    }
+
+                    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match v {
+                            "meta" => Ok(Field::Meta),
+                            "frames" => Ok(Field::Frames),
+                            _ => Err(de::Error::unknown_field(v, FIELDS)),
+                        }
+                    }
+                }
+
+                deserializer.deserialize_identifier(FieldVisitor)
+            }
+        }
+
+        struct AssetVisitor;
+
+        impl<'de> Visitor<'de> for AssetVisitor {
+            type Value = Asset;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct Asset")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: de::MapAccess<'de>,
+            {
+                let mut meta = None;
+                let mut frames = None;
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        Field::Meta if meta.is_some() => {
+                            return Err(de::Error::duplicate_field("meta"))
+                        }
+                        Field::Meta => meta = Some(map.next_value()?),
+                        Field::Frames if frames.is_some() => {
+                            return Err(de::Error::duplicate_field("meta"))
+                        }
+                        Field::Frames => frames = Some(map.next_value()?),
+                    }
+                }
+                let meta: Meta = meta.ok_or_else(|| de::Error::missing_field("meta"))?;
+                let frames = frames.ok_or_else(|| de::Error::missing_field("frames"))?;
+                Ok(Asset {
+                    texture: match RcTexture::from_file(
+                        &format!("{}{}", ASSETS_PATH, meta.image.clone())[..],
+                    ) {
+                        Ok(v) => v,
+                        Err(e) => {
+                            error!("Failed reading image file {}\n\n{}", meta.image.clone(), e);
+                            RcTexture::from_texture(load_missing_texture())
+                        }
+                    },
+                    meta,
+                    frames,
+                })
+            }
+        }
+        const FIELDS: &'static [&'static str] = &["meta", "frames"];
+        deserializer.deserialize_struct("Asset", FIELDS, AssetVisitor)
     }
 }

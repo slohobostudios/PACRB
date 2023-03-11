@@ -1,20 +1,16 @@
 use super::traits::*;
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::{
-            button::{
-                image_button::ImageButton, repeatable_sprite_button::RepeatableSpritesButton,
-                traits::*,
-            },
-            text::Text,
-            tiling_sprites::repeatable_3x1_sprite::Repeatable3x1Sprite,
-            traits::Element,
+    elements::{
+        button::{
+            image_button::ImageButton, repeatable_sprite_button::RepeatableSpritesButton, traits::*,
         },
-        events::*,
-        ui_settings::UISettings,
-        utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
+        text::Text,
+        tiling_sprites::repeatable_3x1_sprite::Repeatable3x1Sprite,
+        traits::Element,
     },
+    events::*,
+    ui_settings::UISettings,
+    utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
 use sfml::{
     graphics::{Color, IntRect, RenderTexture},
@@ -25,6 +21,7 @@ use std::{
     any::Any,
     time::{Duration, Instant},
 };
+use utils::resource_manager::ResourceManager;
 
 const INCREMENT_BUTTON_POSITION: UIPosition = UIPosition {
     top: Some(100),
@@ -148,7 +145,7 @@ impl IncrementDecrementPointerSlider {
             sync_id,
             increment_decrement_click_state: IncrementDecrementClickState::NoneClicking,
             decrement_button: ImageButton::with_texture_bounds(
-                &resource_manager,
+                resource_manager,
                 DECREMENT_BUTTON_POSITION,
                 &asset_id,
                 resource_manager
@@ -165,7 +162,7 @@ impl IncrementDecrementPointerSlider {
                 0,
             ),
             increment_button: ImageButton::with_texture_bounds(
-                &resource_manager,
+                resource_manager,
                 INCREMENT_BUTTON_POSITION,
                 &asset_id,
                 resource_manager
@@ -182,7 +179,7 @@ impl IncrementDecrementPointerSlider {
                 0,
             ),
             pointer: ImageButton::with_texture_bounds(
-                &resource_manager,
+                resource_manager,
                 POINTER_POSITION,
                 &asset_id,
                 resource_manager
@@ -199,7 +196,7 @@ impl IncrementDecrementPointerSlider {
                 0,
             ),
             slider: RepeatableSpritesButton::new(
-                &resource_manager,
+                resource_manager,
                 SLIDER_POSITION,
                 Box::new(Repeatable3x1Sprite::new(
                     &resource_manager,
@@ -230,6 +227,7 @@ impl IncrementDecrementPointerSlider {
                 &resource_manager,
                 Default::default(),
                 "NaN",
+                false,
                 font_size,
                 color,
             ),

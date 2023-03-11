@@ -1,14 +1,5 @@
 use sfml::graphics::RenderWindow;
 
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::Event,
-        ui_settings::UISettings,
-    },
-};
-
 mod confirm_color_ramp_content;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -66,6 +57,10 @@ impl ConfirmColorRamp {
 }
 
 use sfml::window::Event as SFMLEvent;
+use ui::dom_controller::{DomController, DomControllerInterface};
+use ui::events::Event;
+use ui::ui_settings::UISettings;
+use utils::resource_manager::ResourceManager;
 
 impl DomControllerInterface for ConfirmColorRamp {
     fn event_handler(

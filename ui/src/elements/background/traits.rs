@@ -1,15 +1,13 @@
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::{traits::Element as ElementTrait, Element},
-        events::*,
-        ui_settings::{
-            controls::{possible_binds::*, possible_inputs::*},
-            UISettings,
-        },
+    elements::{traits::Element as ElementTrait, Element},
+    events::*,
+    ui_settings::{
+        controls::{possible_binds::*, possible_inputs::*},
+        UISettings,
     },
 };
 use sfml::{graphics::RenderTexture, system::Vector2i, window::Event as SFMLEvent};
+use utils::resource_manager::ResourceManager;
 
 pub trait Background {
     fn is_hover(&self) -> bool;
@@ -111,7 +109,7 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.update(&resource_manager));
+            events.append(&mut ele.update(resource_manager));
         }
         events
     }

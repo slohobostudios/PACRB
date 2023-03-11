@@ -1,13 +1,14 @@
-use crate::{
-    pallete_builder::hsv_color::HSV,
-    ui::{
-        dom_controller::DomController,
-        elements::{slider::quad_color_picker::QuadColorPicker, Element},
-        events::*,
-    },
-};
 use sfml::system::Vector2f;
 use tracing::{error, warn};
+use ui::{
+    dom_controller::DomController,
+    elements::{
+        slider::quad_color_picker::QuadColorPicker, traits::Element as ElementTrait, Element,
+    },
+    events::{Event, Events},
+};
+
+use crate::pallete_builder::hsv_color::HSV;
 
 pub fn perform_events(events: &Vec<Event>, dom_controller: &mut DomController, hsv: &mut HSV) {
     for event in events {
@@ -57,7 +58,6 @@ fn event2(dom_controller: &mut DomController, event: &Event, hsv: &mut HSV) {
     sync_events(dom_controller, *hsv)
 }
 
-use crate::ui::elements::traits::Element as ElementTrait;
 pub fn sync_events(dom_controller: &mut DomController, hsv: HSV) {
     dom_controller
         .root_node

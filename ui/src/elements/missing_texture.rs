@@ -1,11 +1,9 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{elements::traits::Element, utils::positioning::UIPosition},
-};
+use crate::{elements::traits::Element, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RcSprite, RenderTarget, RenderTexture},
     system::{Vector2, Vector2u},
 };
+use utils::resource_manager::ResourceManager;
 
 // Allows custom placement of a missing texture.
 #[derive(Clone, Debug)]

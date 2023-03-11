@@ -4,8 +4,7 @@ use sfml::{
     graphics::{Color, IntRect, RectangleShape, RenderTarget, RenderWindow, Shape, Transformable},
     system::Vector2,
 };
-
-use crate::center_of_rect;
+use utils::center_of_rect;
 
 const OUTLINE_THICKNESS: f32 = 1f32;
 const PLUS_THICKNESS: f32 = 1f32;

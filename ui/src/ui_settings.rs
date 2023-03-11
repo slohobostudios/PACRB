@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use sfml::system::{Vector2, Vector2i};
+use sfml::{
+    system::{Vector2, Vector2i},
+    window::Event,
+};
 use std::{error::Error, fs::File, io::BufReader};
 use tracing::error;
 
@@ -63,6 +66,26 @@ impl UISettings {
                                                                // overwritten
         serde_json::to_writer(&File::create(SETTINGS_LOCK_FILE_NAME)?, &self)?;
         Ok(())
+    }
+
+    pub fn event_handler(&mut self, event: Event) {
+        self.binds.event_handler(event);
+        match event {
+            Event::Resized { width, height } => {
+                self.aspect_ratio.current_resolution = Vector2::new(width, height).as_other();
+                self.aspect_ratio.compute_resolution();
+            }
+            Event::MouseButtonPressed { button: _, x, y } => {
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+            }
+            Event::MouseButtonReleased { button: _, x, y } => {
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+            }
+            Event::MouseMoved { x, y } => {
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+            }
+            _ => {}
+        }
     }
 }
 

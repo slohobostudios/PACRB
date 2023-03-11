@@ -1,9 +1,11 @@
 use super::Config;
-use crate::{
-    center_of_rect,
-    ui::{dom_controller::DomController, events::*},
-};
+
 use tracing::{error, warn};
+use ui::{
+    dom_controller::DomController,
+    elements::{traits::Element as ElementTrait, Element},
+    events::{Event, Events},
+};
 
 pub fn perform_events(events: &Vec<Event>, config: &mut Config) {
     for event in events {
@@ -51,8 +53,8 @@ fn event5(event: Event, config: &mut Config) {
     }
 }
 
-use crate::ui::elements::{traits::Element as ElementTrait, Element};
 use sfml::system::Vector2;
+use utils::center_of_rect;
 pub fn sync_events(dom_controller: &mut DomController, config: &Config) {
     dom_controller
         .root_node

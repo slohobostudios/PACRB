@@ -5,19 +5,17 @@ use sfml::{
     system::{Vector2f, Vector2i, Vector2u},
     window::Event as SFMLEvent,
 };
+use utils::{
+    arithmetic_util_functions::{i32_from_u32, i32_from_usize, u16_from_usize},
+    quads::Quad,
+    sfml_util_functions::vector2i_from_vector2u,
+};
 
 use crate::{
-    ui::{
-        elements::{traits::Element as ElementTrait, Element},
-        events::{Event, Events},
-        ui_settings::UISettings,
-        utils::positioning::UIPosition,
-    },
-    utils::{
-        arithmetic_util_functions::{i32_from_u32, i32_from_usize, u16_from_usize},
-        quads::Quad,
-        sfml_util_functions::vector2i_from_vector2u,
-    },
+    elements::{traits::Element as ElementTrait, Element},
+    events::{Event, Events},
+    ui_settings::UISettings,
+    utils::positioning::UIPosition,
 };
 
 use super::traits::{Slider, SliderElement};

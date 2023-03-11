@@ -1,16 +1,15 @@
+use crate::elements::Element;
+
 use super::{
-    background_loader::background_loader, button_loader::button_loader, grid_loader::grid_loader,
-    missing_texture_loader::missing_texture_loader, slider_loader::slider_loader,
-    text_loader::text_loader,
-};
-use crate::{
-    assets::resource_manager::ResourceManager, ui::elements::Element,
-    utils::simple_error::SimpleError,
+    background_loader::background_loader, button_loader::button_loader, div_loader::div_loader,
+    grid_loader::grid_loader, missing_texture_loader::missing_texture_loader,
+    slider_loader::slider_loader, text_loader::text_loader,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
 use std::error::Error;
 use tracing::error;
+use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 
 fn print_error_and_return_missing_texture(
     resource_manager: &ResourceManager,
@@ -56,6 +55,16 @@ pub fn element_loader(
                 Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
             }
         }
+        "Div" => match div_loader(
+            resource_manager,
+            ele,
+            default_scale,
+            default_font_size,
+            default_color
+        ) {
+            Ok(v) => Element::Div(v),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+        }
         "Grid" => match grid_loader(
             &resource_manager,
             &ele,
@@ -69,7 +78,7 @@ pub fn element_loader(
         "Background" => match background_loader(resource_manager, &ele, default_scale, default_font_size, default_color) {
             Ok(v) => Element::Background(v),
                 Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
-        }
+        },
         "Text" => Element::Text(text_loader(resource_manager, &ele, default_font_size, default_color)),
         "Empty" => Element::Empty(()),
         _ => print_error_and_return_missing_texture(resource_manager,

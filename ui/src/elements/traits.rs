@@ -1,17 +1,16 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{events::Event, ui_settings::UISettings, utils::positioning::UIPosition},
-};
+use crate::{events::Event, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 pub trait Element {
     /// Gets the global bounds of an element
     fn global_bounds(&self) -> IntRect;
 
     /// Handles events from SFML and returns a linked list of the events that has occured
+    #[allow(unused_variables)]
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         Default::default()
     }
@@ -27,6 +26,7 @@ pub trait Element {
 
     /// Runs an update event on the element
     /// Returns a linked list of events that has occured
+    #[allow(unused_variables)]
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         Default::default()
     }

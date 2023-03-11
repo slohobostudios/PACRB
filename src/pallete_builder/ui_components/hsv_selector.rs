@@ -1,20 +1,18 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    pallete_builder::hsv_color::HSV,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::*,
-        ui_settings::UISettings,
-        utils::positioning::UIPosition,
-    },
-    utils::quads::Quad,
-};
 use sfml::{
     graphics::{FloatRect, IntRect, PrimitiveType, RenderStates, RenderTarget, RenderWindow},
     system::Vector2,
     window::Event as SFMLEvent,
 };
 use std::str::FromStr;
+use ui::{
+    dom_controller::{DomController, DomControllerInterface},
+    events::Event,
+    ui_settings::UISettings,
+    utils::positioning::UIPosition,
+};
+use utils::{quads::Quad, resource_manager::ResourceManager};
+
+use crate::pallete_builder::hsv_color::HSV;
 
 use self::hsv_selector_content::{perform_events, sync_events};
 

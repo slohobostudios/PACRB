@@ -1,9 +1,9 @@
+use crate::elements::missing_texture::MissingTexture;
+
 use super::utils::*;
-use crate::{
-    assets::resource_manager::ResourceManager, ui::elements::missing_texture::MissingTexture,
-};
 use minidom::Element as MinidomElement;
 use sfml::system::Vector2;
+use utils::resource_manager::ResourceManager;
 
 /// # Usage
 ///

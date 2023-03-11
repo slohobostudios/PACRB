@@ -1,17 +1,17 @@
 use super::{element_loader::element_loader, utils::*};
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::elements::slider::{
-        hue_color_picker::HueColorPicker,
-        increment_decrement_pointer_slider::IncrementDecrementPointerSlider,
-        quad_color_picker::QuadColorPicker, traits::*,
-    },
-    utils::{sfml_util_functions::color_from_str, simple_error::SimpleError},
+use crate::elements::slider::{
+    hue_color_picker::HueColorPicker,
+    increment_decrement_pointer_slider::IncrementDecrementPointerSlider,
+    quad_color_picker::QuadColorPicker, traits::*,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
 use std::error::Error;
 use tracing::warn;
+use utils::{
+    resource_manager::ResourceManager, sfml_util_functions::color_from_str,
+    simple_error::SimpleError,
+};
 
 /// # Usage
 ///
@@ -41,7 +41,7 @@ fn increment_decrement_pointer_slider_loader(
     default_color: Color,
 ) -> Result<IncrementDecrementPointerSlider, Box<dyn Error>> {
     Ok(IncrementDecrementPointerSlider::new(
-        &resource_manager,
+        resource_manager,
         get_ui_position(&minidom_element)?,
         get_scale_or_default(&minidom_element, default_scale),
         &get_asset_id(&minidom_element)?,

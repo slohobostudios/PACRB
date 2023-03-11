@@ -1,5 +1,6 @@
 pub mod background;
 pub mod button;
+pub mod div;
 pub mod grid;
 pub mod missing_texture;
 pub mod root_node;
@@ -15,6 +16,7 @@ pub enum Element {
     Slider(Box<dyn slider::traits::SliderElement>),
     TilingSprite(Box<dyn tiling_sprites::traits::TilingSpriteElement>),
     Background(Box<dyn background::traits::BackgroundElement>),
+    Div(div::Div),
     Grid(grid::Grid),
     Text(text::Text),
     RootNode(root_node::RootNode),
@@ -30,6 +32,7 @@ impl Element {
             Slider(_) => "Slider",
             TilingSprite(_) => "TilingSprite",
             Background(_) => "Background",
+            Div(_) => "Div",
             Grid(_) => "Grid",
             Text(_) => "Text",
             RootNode(_) => "RootNode",
@@ -45,6 +48,7 @@ impl Element {
             Slider(ele) => Some(Box::new(ele.as_element())),
             TilingSprite(ele) => Some(Box::new(ele.as_element())),
             Background(ele) => Some(Box::new(ele.as_element())),
+            Div(ele) => Some(Box::new(ele)),
             Grid(ele) => Some(Box::new(ele)),
             Text(ele) => Some(Box::new(ele)),
             RootNode(ele) => Some(Box::new(ele)),
@@ -60,6 +64,7 @@ impl Element {
             Slider(ele) => Some(Box::new(ele.as_mut_element())),
             TilingSprite(ele) => Some(Box::new(ele.as_mut_element())),
             Background(ele) => Some(Box::new(ele.as_mut_element())),
+            Div(ele) => Some(Box::new(ele)),
             Grid(ele) => Some(Box::new(ele)),
             Text(ele) => Some(Box::new(ele)),
             RootNode(ele) => Some(Box::new(ele)),
@@ -74,17 +79,22 @@ impl Element {
         match self {
             RootNode(ele) => {
                 for ele in ele.mut_children() {
-                    ele.traverse_dom_mut(&mut *sync_element);
+                    ele.traverse_dom_mut(&mut *sync_element)
                 }
             }
             Background(ele) => {
                 for ele in ele.mut_children() {
-                    ele.traverse_dom_mut(&mut *sync_element);
+                    ele.traverse_dom_mut(&mut *sync_element)
                 }
             }
             Grid(ele) => {
                 for ele in ele.mut_children() {
-                    ele.traverse_dom_mut(&mut *sync_element);
+                    ele.traverse_dom_mut(&mut *sync_element)
+                }
+            }
+            Div(ele) => {
+                for ele in ele.mut_children() {
+                    ele.traverse_dom_mut(&mut *sync_element)
                 }
             }
             _ => {}
@@ -98,14 +108,12 @@ impl Default for Element {
     }
 }
 
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{events::*, ui_settings::UISettings, utils::positioning::UIPosition},
-};
+use crate::{events::*, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 impl traits::Element for Element {
     fn global_bounds(&self) -> IntRect {

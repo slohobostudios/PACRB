@@ -1,9 +1,3 @@
-use crate::ui::events::Event;
-use crate::ui::ui_settings::controls::possible_binds::PossibleBinds;
-use crate::ui::ui_settings::UISettings;
-use crate::ui::{
-    elements::traits::Element, ui_settings::controls::possible_inputs::PossibleInputs,
-};
 use sfml::graphics::IntRect;
 use sfml::{
     system::{Vector2, Vector2f, Vector2i},
@@ -49,6 +43,12 @@ impl Clone for Box<dyn Slider> {
 }
 
 use std::fmt::Debug;
+
+use crate::elements::traits::Element;
+use crate::events::Event;
+use crate::ui_settings::controls::possible_binds::PossibleBinds;
+use crate::ui_settings::controls::possible_inputs::PossibleInputs;
+use crate::ui_settings::UISettings;
 pub trait SliderElement: Slider + Element + Debug {
     fn as_mut_element(&mut self) -> &mut dyn Element;
     fn as_mut_slider(&mut self) -> &mut dyn Slider;

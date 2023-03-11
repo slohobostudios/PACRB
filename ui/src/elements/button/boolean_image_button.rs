@@ -1,18 +1,16 @@
 use super::{image_button::ImageButton, traits::*};
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::traits::Element,
-        events::*,
-        ui_settings::UISettings,
-        utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
-    },
+    elements::traits::Element,
+    events::*,
+    ui_settings::UISettings,
+    utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
     system::{Vector2, Vector2i},
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 #[derive(Clone, Debug, Default)]
 pub struct BooleanImageButton {
@@ -42,7 +40,7 @@ impl BooleanImageButton {
         sync_id: u16,
     ) -> Self {
         let truth_button = ImageButton::new(
-            &resource_manager,
+            resource_manager,
             UIPosition::CENTER,
             &asset_id,
             truth_frame_id,
@@ -53,7 +51,7 @@ impl BooleanImageButton {
             0, // 0 sync_id means this event doesn't need to be synced
         );
         let false_button = ImageButton::new(
-            &resource_manager,
+            resource_manager,
             UIPosition::CENTER,
             &asset_id,
             false_frame_id,
@@ -116,8 +114,8 @@ impl Button for BooleanImageButton {
     fn bind_released(&mut self, mouse_pos: Vector2i) {
         self.truth_button.bind_released(mouse_pos);
         self.false_button.bind_released(mouse_pos);
-        self.set_hover(mouse_pos);
 
+        self.set_hover(mouse_pos);
         if self.is_hover() {
             self.state = !self.state;
         }

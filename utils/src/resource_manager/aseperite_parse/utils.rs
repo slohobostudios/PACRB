@@ -1,113 +1,69 @@
-use serde::{de::Visitor, Deserialize};
+use std::fmt;
+
+use serde::{
+    de::{self, Unexpected, Visitor},
+    Deserialize, Deserializer,
+};
 use sfml::{graphics::Rect, system::Vector2};
 
-pub(super) fn parse_aseprite_size_vector(
-    vec: &serde_json::Map<String, serde_json::Value>,
-) -> Vector2<u64> {
-    Vector2::new(
-        vec["w"].as_u64().unwrap_or(0),
-        vec["h"].as_u64().unwrap_or(0),
-    )
+#[derive(Deserialize)]
+#[serde(remote = "Vector2")]
+pub(super) struct Vector2SizeDef<T> {
+    #[serde(rename = "w")]
+    x: T,
+    #[serde(rename = "h")]
+    y: T,
 }
 
-impl<'de> Deserialize<'de> for Vector2<T> {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        enum Field {
-            w,
-            h,
-        };
+#[derive(Deserialize)]
+#[serde(remote = "Rect")]
+pub(super) struct RectDef<T> {
+    #[serde(rename = "y")]
+    top: T,
+    #[serde(rename = "x")]
+    left: T,
+    #[serde(rename = "w")]
+    width: T,
+    #[serde(rename = "h")]
+    height: T,
+}
 
-        impl<'de> Deserialize<'de> for Field {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct FieldVisitor;
-
-                impl<'de> Visitor<'de> for FieldVisitor {
-                    type Value = Field;
-
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                        formatter.write_str("`w` or `h`")
-                    }
-
-                    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "w" => Ok(Field::w),
-                            "h" => Ok(Field::h),
-                            _ => Err(de::Error::unknown_field(value, FIELDS)),
-                        }
-                    }
-                }
-            }
+#[track_caller]
+pub fn string_as_f32<'de, D>(deserializer: D) -> Result<f32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct F32Visitor;
+    impl<'de> Visitor<'de> for F32Visitor {
+        type Value = f32;
+        #[track_caller]
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a string representation of a f32")
         }
-
-        struct VectorVisitor;
-
-        impl<'de> Visitor<'de> for VectorVisitor {
-            type Value = Vector2<T>;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("struct Vector2<T>")
-            }
-
-            fn visit_seq<A>(self, seq: A) -> Result<Self::Value, A::Error>
-            where
-                A: serde::de::SeqAccess<'de>,
-            {
-                let w = seq
-                    .next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-                let h = seq
-                    .next_element()
-                    .ok_or_else(|| de::Error::invalid_length(1, &self))?;
-                Ok(Vector2::new(w, h));
-            }
-
-            fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
-            where
-                A: serde::de::MapAccess<'de>,
-            {
-                let mut w = None;
-                let mut h = None;
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        Field::w => {
-                            if w.is_some() {
-                                return Err(de::Error::duplicate_field("w"));
-                            }
-                            w = Some(map.next_value()?);
-                        }
-                        Field::h => {
-                            if h.is_some() {
-                                return Err(de::Error::duplicate_field("h"));
-                            }
-                            h = Some(map.next_value()?);
-                        }
-                    }
-                }
-                let w = w.ok_or_else(|| de::Error::missing_field("w"))?;
-                let h = h.ok_or_else(|| de::Error::missing_field("h"))?;
-                Ok(Vector2::new(w, h))
-            }
+        #[track_caller]
+        fn visit_str<E>(self, value: &str) -> Result<f32, E>
+        where
+            E: de::Error,
+        {
+            value.parse::<f32>().map_err(|err| {
+                E::invalid_value(Unexpected::Str(value), &format!("{}", err).as_str())
+            })
         }
-
-        const FIELDS: &'static [&'static str] = &["w", "h"];
-        deserializer.deserialize_struct("Vector2", FIELDS, DurationVisitor)
+        #[track_caller]
+        fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            v.parse::<f32>()
+                .map_err(|err| E::invalid_value(Unexpected::Str(&v), &format!("{}", err).as_str()))
+        }
+        #[track_caller]
+        fn visit_f32<E>(self, v: f32) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(v)
+        }
     }
-}
-
-pub(super) fn parse_aseprite_rect(rect: &serde_json::Map<String, serde_json::Value>) -> Rect<i64> {
-    Rect::new(
-        rect["x"].as_i64().unwrap_or(0),
-        rect["y"].as_i64().unwrap_or(0),
-        rect["w"].as_i64().unwrap_or(0),
-        rect["h"].as_i64().unwrap_or(0),
-    )
+    deserializer.deserialize_str(F32Visitor)
 }

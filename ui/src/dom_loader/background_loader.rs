@@ -1,15 +1,12 @@
 use super::{element_loader::element_loader, utils::*};
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::elements::background::{
-        fixed_size_repeatable_3x3_background::FixedSizeRepeatable3x3Background,
-        traits::BackgroundElement,
-    },
-    utils::simple_error::SimpleError,
+use crate::elements::background::{
+    fixed_size_repeatable_3x3_background::FixedSizeRepeatable3x3Background,
+    traits::BackgroundElement,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
 use std::error::Error;
+use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 
 /// # Usage
 ///
@@ -31,18 +28,13 @@ fn fixed_size_repeatable_3x3_background(
 ) -> Result<FixedSizeRepeatable3x3Background, Box<dyn Error>> {
     Ok(FixedSizeRepeatable3x3Background::new(
         resource_manager,
-        minidom_element
-            .children()
-            .map(|child_node| {
-                element_loader(
-                    resource_manager,
-                    child_node,
-                    default_scale,
-                    default_font_size,
-                    default_color,
-                )
-            })
-            .collect(),
+        collect_children_as_vector(
+            resource_manager,
+            minidom_element,
+            default_scale,
+            default_font_size,
+            default_color,
+        ),
         get_ui_position(minidom_element).unwrap_or_default(),
         &get_asset_id(minidom_element)?,
         minidom_element

@@ -1,16 +1,14 @@
-use super::{traits::Element as ElementTrait, Element};
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{events::*, ui_settings::UISettings, utils::positioning::UIPosition},
-};
+use super::{div::Div, traits::Element as ElementTrait, Element};
+use crate::{events::*, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
     window::Event as SFMLEvent,
 };
+use utils::{resource_manager::ResourceManager, sfml_util_functions::vector2u_from_vector2i};
 
 #[derive(Default, Clone, Debug)]
 pub struct RootNode {
-    children: Vec<Element>,
+    div: Div,
     relative_rect: IntRect,
 }
 
@@ -21,7 +19,13 @@ impl RootNode {
         relative_rect: IntRect,
     ) -> Self {
         let mut w = Self {
-            children,
+            div: Div::new(
+                resource_manager,
+                Default::default(),
+                children,
+                Default::default(),
+                relative_rect.size().try_into_other().ok(),
+            ),
             relative_rect,
         };
 
@@ -31,32 +35,24 @@ impl RootNode {
     }
 
     pub fn mut_children(&mut self) -> impl Iterator<Item = &mut Element> {
-        self.children.iter_mut()
-    }
-
-    pub fn children(&self) -> impl Iterator<Item = &Element> {
-        self.children.iter()
+        self.div.mut_children()
     }
 }
 
 impl ElementTrait for RootNode {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let mut events = Vec::new();
-        for ele in self.mut_children() {
-            events.append(&mut ele.update(&resource_manager));
-        }
-
-        events
+        self.div.update(resource_manager)
     }
 
     fn update_size(&mut self) {
-        self.mut_children().for_each(|ele| ele.update_size());
+        self.div.update_size()
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
         self.relative_rect = relative_rect;
-        self.mut_children()
-            .for_each(|ele| ele.update_position(relative_rect));
+        self.div
+            .set_size(vector2u_from_vector2i(self.relative_rect.size()));
+        self.div.update_position(relative_rect);
     }
 
     fn global_bounds(&self) -> IntRect {
@@ -64,18 +60,11 @@ impl ElementTrait for RootNode {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        let mut events = Vec::new();
-        for ele in self.mut_children() {
-            events.append(&mut ele.event_handler(&ui_settings, event));
-        }
-
-        events
+        self.div.event_handler(ui_settings, event)
     }
 
-    fn render(&mut self, window: &mut RenderTexture) {
-        for ele in self.mut_children() {
-            ele.render(window);
-        }
+    fn render(&mut self, render_texture: &mut RenderTexture) {
+        self.div.render(render_texture)
     }
 
     fn box_clone(&self) -> Box<dyn ElementTrait> {

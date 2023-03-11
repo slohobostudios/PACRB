@@ -1,11 +1,8 @@
-use sfml::graphics::{RcFont, RcTexture, Texture};
+use sfml::graphics::{RcFont, Texture};
 use std::{collections::HashMap, fs, process::exit};
 use tracing::{error, warn};
 
-use crate::{
-    resource_manager::aseperite_parse::{frame::Frame, meta::Meta},
-    simple_error::SimpleError,
-};
+use crate::simple_error::SimpleError;
 
 use self::asset::Asset;
 
@@ -28,6 +25,17 @@ pub fn load_sfml_logo() -> sfml::SfBox<Texture> {
     }
 }
 
+pub fn load_missing_texture() -> sfml::SfBox<Texture> {
+    let file_name = &format!("{}{}", ASSETS_PATH, MISSING_TEXTURE_ID)[..];
+    match Texture::from_file(file_name) {
+        Ok(v) => v,
+        Err(e) => {
+            error!("Failed to load missing texture! {}", e);
+            exit(10);
+        }
+    }
+}
+
 pub type Assets = HashMap<String, Asset>;
 pub type Fonts = HashMap<String, RcFont>;
 
@@ -44,6 +52,10 @@ impl ResourceManager {
             fonts: ResourceManager::load_fonts(),
             current_font_id: DEFAULT_FONT_ID.to_owned(),
         }
+    }
+
+    pub fn asset_keys_iter(&self) -> impl Iterator<Item = &str> {
+        self.assets.keys().into_iter().map(|s| s.as_str())
     }
 
     fn get_all_file_names_in_assets() -> Vec<String> {
@@ -71,85 +83,29 @@ impl ResourceManager {
                 json_files.push(path);
             }
         }
-        let mut sprite_jsons: Vec<(String, serde_json::Value)> = Vec::new();
+
+        let mut num_of_aborted_files = 0;
         for json_file in json_files {
+            num_of_aborted_files += 1;
+
             let file = match fs::File::open(&format!("{}{}", ASSETS_PATH, json_file)[..]) {
                 Ok(v) => v,
                 Err(e) => {
-                    error!("Problem opening {}. Error: {}", json_file, e);
+                    error!("{} {}", json_file, e);
                     continue;
                 }
             };
-            let json = match serde_json::from_reader(file) {
+            let mut asset: Asset = match serde_json::from_reader(&file) {
                 Ok(v) => v,
                 Err(e) => {
-                    error!("Problem parsing json file from_reader: {}", e);
+                    error!("{:?} {}", file, e);
                     continue;
                 }
-            };
-            sprite_jsons.push((json_file, json));
-        }
-
-        let mut num_of_aborted_files = 0;
-        for (json_file, json) in sprite_jsons {
-            num_of_aborted_files += 1;
-            let meta = match json["meta"]
-                .as_object()
-                .map(|metadata| Meta::parse(metadata, &json_file))
-            {
-                Some(Ok(meta)) => meta,
-                Some(Err(e)) => {
-                    error!("Unable to parse meta data for json {}\n\n{}", json_file, e);
-                    continue;
-                }
-                None => {
-                    error!("No meta data found for json {}!", json_file);
-                    continue;
-                }
-            };
-
-            fn parse_frames(frames_data: &Vec<serde_json::Value>, file_name: &str) -> Vec<Frame> {
-                let mut parsed_frames: Vec<Frame> = Vec::new();
-                for frame_data in frames_data {
-                    match Frame::parse(frame_data, &file_name.to_string()) {
-                        Ok(v) => parsed_frames.push(v),
-                        Err(e) => error!("{}", e),
-                    }
-                }
-                parsed_frames.shrink_to_fit();
-
-                parsed_frames
-            }
-
-            let frames = match json["frames"]
-                .as_array()
-                .map(|frames_data| parse_frames(frames_data, &json_file))
-            {
-                Some(frames) => frames,
-                None => {
-                    error!("No frames data for json {}!", json_file);
-                    continue;
-                }
-            };
-
-            let image_name = meta.image.clone();
-            let mut asset = Asset {
-                frames,
-                texture: match RcTexture::from_file(
-                    &format!("{}{}", ASSETS_PATH, meta.image.clone())[..],
-                ) {
-                    Ok(v) => v,
-                    Err(e) => {
-                        error!("Failed reading image file {}\n\n{}", meta.image.clone(), e);
-                        continue;
-                    }
-                },
-                meta,
             };
 
             asset.texture.set_smooth(false);
 
-            assets.insert(image_name, asset);
+            assets.insert(asset.meta.image.clone(), asset);
 
             num_of_aborted_files -= 1;
         }
@@ -196,10 +152,12 @@ impl ResourceManager {
     pub fn fetch_asset(&self, id: &str) -> &Asset {
         match self.assets.get(id) {
             Some(v) => v,
-            None => self
-                .assets
-                .get(MISSING_TEXTURE_ID)
-                .expect("No missing texture available!"),
+            None => {
+                error!("No asset with asset_id: {}", id);
+                self.assets
+                    .get(MISSING_TEXTURE_ID)
+                    .expect("No missing texture available!")
+            }
         }
     }
 
@@ -263,15 +221,26 @@ impl Default for ResourceManager {
 
 #[cfg(test)]
 mod test {
+    use crate::tracing_subscriber_setup::setup_tracing_subscriber_with_no_logging;
+
     use super::*;
     #[test]
     fn test_load_sfml_logo() {
+        setup_tracing_subscriber_with_no_logging();
         let _texture = load_sfml_logo();
         assert!(true);
     }
 
     #[test]
+    fn test_load_missing_texture() {
+        setup_tracing_subscriber_with_no_logging();
+        let _texture = load_missing_texture();
+        assert!(true);
+    }
+
+    #[test]
     fn test_load_resources() {
+        setup_tracing_subscriber_with_no_logging();
         let resource_manager = ResourceManager::new();
         assert!(resource_manager.assets.keys().len() >= 1);
         assert!(resource_manager.fonts.keys().len() >= 1);
@@ -279,6 +248,7 @@ mod test {
 
     #[test]
     fn test_default() {
+        setup_tracing_subscriber_with_no_logging();
         let resource_manager: ResourceManager = Default::default();
         assert!(resource_manager.fonts.len() >= 1);
     }

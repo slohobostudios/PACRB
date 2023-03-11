@@ -28,38 +28,62 @@ use sfml::{
 use std::{error::Error, ops::Add, str::FromStr};
 use tracing::error;
 
-// Converts hash #FFFFFF or #FFFFFFFF to SFML::Color
-pub fn try_from_color_hash_string_to_sfml_color(
-    color_hash: &str,
-) -> Result<Color, Box<(dyn Error + 'static)>> {
-    let color_hash = if color_hash.chars().next() == Some('#') {
-        color_hash
-            .chars()
-            .skip(1)
-            .take(color_hash.len() - 1)
-            .collect::<String>()
-    } else {
-        color_hash.to_string()
-    }
-    .trim()
-    .to_string();
-
-    if color_hash.len() != 8 && color_hash.len() != 6 {
-        return Err(Box::new(SimpleError::new(format!(
-            "Hex string {:#?} is not 8 or 6 characters long!",
-            color_hash
-        ))));
-    }
-
-    let color_hash = if color_hash.len() == 8 {
-        color_hash
-    } else {
-        color_hash + "ff"
-    };
-
-    Ok(Color::from(u32::from_str_radix(&color_hash, 16)?))
+pub fn try_from_color_hash_owned_string_to_sfml_color(s: String) -> Result<Color, Box<dyn Error>> {
+    try_from_color_hash_string_to_sfml_color(&s)
 }
 
+// Converts hash #FFFFFF or #FFFFFFFF to SFML::Color
+pub fn try_from_color_hash_string_to_sfml_color(hex: &str) -> Result<Color, Box<dyn Error>> {
+    let error = || SimpleError::new(format!("hex string is not valid: {hex}"));
+    let digits = hex.trim().strip_prefix('#').ok_or_else(error)?;
+    let mut iter = digits.chars().map(|c| c.to_digit(16).map(|d| d as u8));
+    let mut next_component = || Some(iter.next()?? << 4 | iter.next()??);
+    let red = next_component().ok_or_else(error)?;
+    let green = next_component().ok_or_else(error)?;
+    let blue = next_component().ok_or_else(error)?;
+    match digits.len() {
+        6 => Ok(Color::rgb(red, green, blue)),
+        8 => {
+            let alpha = next_component().ok_or_else(error)?;
+            Ok(Color::rgba(red, green, blue, alpha))
+        }
+        _ => Err(error().into()),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn parse_color_hex() {
+        // rgb tests
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#FFFFFF").unwrap(),
+            Color::rgb(255, 255, 255)
+        );
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#000000").unwrap(),
+            Color::rgb(0, 0, 0)
+        );
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#3780B2").unwrap(),
+            Color::rgb(55, 128, 178)
+        );
+        // rgba tests
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#FFFFFFFF").unwrap(),
+            Color::rgba(255, 255, 255, 255)
+        );
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#00000000").unwrap(),
+            Color::rgba(0, 0, 0, 0)
+        );
+        assert_eq!(
+            try_from_color_hash_string_to_sfml_color("#3780B2A1").unwrap(),
+            Color::rgba(55, 128, 178, 161)
+        );
+    }
+}
 use sfml::{graphics::Vertex, system::Vector2};
 
 use sfml::graphics::Transform;
@@ -79,10 +103,18 @@ pub fn get_vertex_array_with_applied_transformation(
 pub fn vector2i_from_vector2u(vector: Vector2u) -> Vector2i {
     vector.try_into_other().unwrap_or_else(|err| {
         error!("{}", err);
-
         let i32_x = i32::try_from(vector.x).unwrap_or(i32::MAX);
         let i32_y = i32::try_from(vector.y).unwrap_or(i32::MAX);
         Vector2i::new(i32_x, i32_y)
+    })
+}
+
+pub fn vector2u_from_vector2i(vector: Vector2i) -> Vector2u {
+    vector.try_into_other().unwrap_or_else(|err| {
+        error!("{}", err);
+        let u32_x = u32::try_from(vector.x).unwrap_or(u32::MIN);
+        let u32_y = u32::try_from(vector.y).unwrap_or(u32::MAX);
+        Vector2u::new(u32_x, u32_y)
     })
 }
 

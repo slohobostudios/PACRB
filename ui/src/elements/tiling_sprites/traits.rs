@@ -1,9 +1,10 @@
-use crate::{assets::resource_manager::ResourceManager, ui::elements::traits::Element};
+use crate::elements::traits::Element;
 use sfml::system::Vector2u;
 use std::ops::Deref;
 
 pub trait TilingSprite {
-    fn set_desired_size(&mut self, resource_manager: &ResourceManager, desired_size: Vector2u);
+    fn set_desired_size(&mut self, desired_size: Vector2u);
+    fn desired_size(&self) -> Vector2u;
     fn box_clone(&self) -> Box<dyn TilingSprite>;
 }
 

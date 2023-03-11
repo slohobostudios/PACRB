@@ -1,9 +1,9 @@
-use crate::utils::simple_error::SimpleError;
 use serde::{Deserialize, Serialize};
 use sfml::window::{
     mouse::{Button, Wheel},
     Key,
 };
+use utils::simple_error::SimpleError;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum PossibleInputs {

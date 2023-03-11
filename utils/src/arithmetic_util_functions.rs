@@ -42,3 +42,15 @@ convert_int_or_print_error_and_return_max!(u32_from_usize, usize, u32);
 convert_int_or_print_error_and_return_max!(u16_from_usize, usize, u16);
 convert_int_or_print_error_and_return_max!(i32_from_usize, usize, i32);
 convert_int_or_print_error_and_return_max!(i32_from_u32, u32, i32);
+
+macro_rules! convert_int_or_print_error_and_return_min {
+    ( $function_name:ident, $from:ty, $to:ty ) => {
+        pub fn $function_name(i: $from) -> $to {
+            <$to>::try_from(i).unwrap_or_else(|err| {
+                error!("{:?}, input: {}", err, i);
+                <$to>::MIN
+            })
+        }
+    };
+}
+convert_int_or_print_error_and_return_min!(u32_from_i32, i32, u32);

@@ -1,11 +1,8 @@
 use super::{traits::Element as ElementTrait, Element};
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        events::*,
-        ui_settings::UISettings,
-        utils::{grid::UIGrid, positioning::UIPosition},
-    },
+    events::*,
+    ui_settings::UISettings,
+    utils::{grid::UIGrid, positioning::UIPosition},
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
@@ -13,6 +10,7 @@ use sfml::{
     window::Event as SFMLEvent,
 };
 use std::iter;
+use utils::resource_manager::ResourceManager;
 
 #[derive(Debug, Default, Clone)]
 pub struct Grid {
@@ -26,7 +24,7 @@ pub struct Grid {
 
 impl Grid {
     pub fn new(
-        resource_manager: &ResourceManager,
+        _resource_manager: &ResourceManager,
         mut elements: Vec<Vec<Element>>,
         position: UIPosition,
         pagination_size: Vector2<u16>,

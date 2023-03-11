@@ -9,8 +9,7 @@ use sfml::{
     graphics::RenderWindow,
     system::{Vector2, Vector2i},
 };
-
-use crate::utils::{
+use utils::{
     arithmetic_util_functions::u32_from_usize, sfml_util_functions::vector2i_from_vector2u,
 };
 

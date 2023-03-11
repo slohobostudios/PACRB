@@ -1,5 +1,9 @@
-use crate::ui::{dom_controller::DomController, events::*};
 use tracing::warn;
+use ui::{
+    dom_controller::DomController,
+    elements::traits::Element,
+    events::{Event, Events},
+};
 
 use super::Orientation;
 
@@ -30,8 +34,6 @@ fn event2(event: &Event, orientation: &mut Orientation) {
         orientation.swap();
     }
 }
-
-use crate::ui::elements::{traits::Element as ElementTrait, Element};
 
 pub fn sync_events(dom_controller: &mut DomController, enable: bool) {
     dom_controller

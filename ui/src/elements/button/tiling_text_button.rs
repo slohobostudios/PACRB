@@ -1,20 +1,22 @@
 use super::{repeatable_sprite_button::RepeatableSpritesButton, traits::*};
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::{
-            tiling_sprites::repeatable_3x3_sprite::Repeatable3x3Sprite,
-            traits::Element as TraitElement, Element,
-        },
-        events::*,
-        ui_settings::UISettings,
-        utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
+    elements::{
+        tiling_sprites::{repeatable_3x3_sprite::Repeatable3x3Sprite, traits::TilingSprite},
+        traits::Element as TraitElement,
+        Element,
     },
+    events::*,
+    ui_settings::UISettings,
+    utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
     system::{Vector2, Vector2i},
     window::Event as SFMLEvent,
+};
+use utils::{
+    arithmetic_util_functions::{i32_from_u32, u32_from_i32},
+    resource_manager::ResourceManager,
 };
 
 #[derive(Debug, Clone)]
@@ -137,7 +139,6 @@ impl Button for TilingButton {
 impl TraitElement for TilingButton {
     fn render(&mut self, window: &mut RenderTexture) {
         self.backgrounds.render(window);
-
         self.inner_element.render(window);
     }
 
@@ -146,9 +147,35 @@ impl TraitElement for TilingButton {
     }
 
     fn update_size(&mut self) {
-        self.inner_element.update_size();
-    }
+        fn update_bg_ie(self_: &mut TilingButton) {
+            self_.backgrounds.update_size();
+            self_.inner_element.update_size();
 
+            self_.backgrounds.update_position(self_.global_bounds);
+            self_.inner_element.update_position(self_.global_bounds);
+        }
+        update_bg_ie(self);
+
+        if self.inner_element.global_bounds().width
+            > i32_from_u32(self.backgrounds.desired_size().x)
+        {
+            self.backgrounds.set_desired_size(Vector2::new(
+                u32_from_i32(self.inner_element.global_bounds().width),
+                self.backgrounds.desired_size().y,
+            ));
+            update_bg_ie(self);
+        }
+
+        if self.inner_element.global_bounds().height
+            > i32_from_u32(self.backgrounds.desired_size().y)
+        {
+            self.backgrounds.set_desired_size(Vector2::new(
+                self.backgrounds.desired_size().x,
+                u32_from_i32(self.inner_element.global_bounds().height),
+            ));
+            update_bg_ie(self);
+        }
+    }
     fn update_position(&mut self, relative_rect: IntRect) {
         self.global_bounds = self.position.center_with_size(
             relative_rect,
@@ -159,7 +186,6 @@ impl TraitElement for TilingButton {
                 .unwrap_or_default(),
         );
         self.backgrounds.update_position(self.global_bounds);
-
         self.inner_element.update_position(self.global_bounds);
     }
 

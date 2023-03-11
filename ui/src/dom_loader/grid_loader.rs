@@ -1,13 +1,14 @@
+use crate::elements::{grid::Grid, Element};
+
 use super::{element_loader::element_loader, utils::*};
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::elements::{grid::Grid, Element},
-    utils::{sfml_util_functions::vector2_from_str, simple_error::SimpleError},
-};
 use minidom::Element as MinidomElement;
 use sfml::{graphics::Color, system::Vector2};
 use std::error::Error;
 use tracing::error;
+use utils::{
+    resource_manager::ResourceManager, sfml_util_functions::vector2_from_str,
+    simple_error::SimpleError,
+};
 
 fn grid_elements_loader(
     resource_manager: &ResourceManager,
@@ -82,7 +83,7 @@ pub fn grid_loader(
     let default_color = get_color_attribute_or_default(&ele, default_color);
 
     Ok(Grid::new(
-        &resource_manager,
+        resource_manager,
         grid_elements_loader(
             &resource_manager,
             &ele,

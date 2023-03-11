@@ -1,8 +1,23 @@
-use std::{fs::OpenOptions, io::prelude::*};
+use std::{env, fs::OpenOptions, io::prelude::*};
 use tracing_appender;
 use tracing_subscriber::{fmt, layer::SubscriberExt};
 
-pub fn setup_tracing_subscriber(
+pub const TRACING_SUB_FAILURE_MESSAGE: &'static str =
+    &"Unable to setup logging subscriber! No logging will be generated.";
+
+pub fn setup_tracing_subscriber_with_no_logging() {
+    if try_setup_tracing_subscriber(&["--no-logging".to_string()]).is_err() {
+        eprintln!("{}", TRACING_SUB_FAILURE_MESSAGE)
+    }
+}
+
+pub fn setup_tracing_subscriber() {
+    if try_setup_tracing_subscriber(&env::args().collect::<Vec<_>>()).is_err() {
+        eprintln!("{}", TRACING_SUB_FAILURE_MESSAGE)
+    }
+}
+
+pub fn try_setup_tracing_subscriber(
     args: &[String],
 ) -> Result<(), tracing::subscriber::SetGlobalDefaultError> {
     let mut logging_enabled = true;

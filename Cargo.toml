@@ -1,12 +1,12 @@
+# workspace definitions
 [workspace]
-
 members = [
   "ui",
   "utils",
 ]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace.dependencies]
+rand = "0.8.5"
 serde_json = "1.0.91"
 serde = { version = "1.0.152", features = ["derive"] }
 minidom = "0.15.0"
@@ -17,3 +17,22 @@ tracing-appender = "0.2.2"
 [workspace.dependencies.sfml]
 git = "https://github.com/jeremyletang/rust-sfml"
 features = ["serde"]
+
+
+
+# main package 
+[package]
+name = "pacrb"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+utils = { path = "utils" }
+ui = { path = "ui" }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+sfml = { workspace = true }

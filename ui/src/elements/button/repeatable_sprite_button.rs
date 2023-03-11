@@ -1,18 +1,19 @@
 use super::traits::*;
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::{tiling_sprites::traits::TilingSpriteElement, traits::Element},
-        events::*,
-        ui_settings::UISettings,
-        utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
+    elements::{
+        tiling_sprites::traits::{TilingSprite, TilingSpriteElement},
+        traits::Element,
     },
+    events::*,
+    ui_settings::UISettings,
+    utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
     system::Vector2i,
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 #[derive(Debug, Clone)]
 pub struct RepeatableSpritesButton {
@@ -186,6 +187,24 @@ impl ButtonElement for RepeatableSpritesButton {
     }
 
     fn box_clone(&self) -> Box<dyn ButtonElement> {
+        Box::new(self.clone())
+    }
+}
+
+impl TilingSprite for RepeatableSpritesButton {
+    fn set_desired_size(&mut self, desired_size: sfml::system::Vector2u) {
+        self.repeatable_sprites.set_desired_size(desired_size);
+        self.hover_repeatable_sprites.set_desired_size(desired_size);
+        self.click_repeatable_sprites.set_desired_size(desired_size);
+
+        self.update_size();
+    }
+
+    fn desired_size(&self) -> sfml::system::Vector2u {
+        self.repeatable_sprites.desired_size()
+    }
+
+    fn box_clone(&self) -> Box<dyn TilingSprite> {
         Box::new(self.clone())
     }
 }

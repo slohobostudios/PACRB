@@ -1,27 +1,25 @@
 use super::traits::*;
 use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        elements::{
-            tiling_sprites::repeatable_3x3_sprite::Repeatable3x3Sprite, traits,
-            traits::Element as ElementTrait, Element,
-        },
-        events::Event,
-        ui_settings::UISettings,
-        utils::positioning::UIPosition,
+    elements::{
+        div::Div, tiling_sprites::repeatable_3x3_sprite::Repeatable3x3Sprite, traits,
+        traits::Element as ElementTrait, Element,
     },
+    events::Event,
+    ui_settings::UISettings,
+    utils::positioning::UIPosition,
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
     system::Vector2,
     window::Event as SFMLEvent,
 };
+use utils::resource_manager::ResourceManager;
 
 #[derive(Clone, Debug)]
 pub struct FixedSizeRepeatable3x3Background {
     background: Repeatable3x3Sprite,
     hover: bool,
-    children: Vec<Element>,
+    div: Div,
 }
 
 impl FixedSizeRepeatable3x3Background {
@@ -35,9 +33,15 @@ impl FixedSizeRepeatable3x3Background {
         scale: f32,
     ) -> Self {
         Self {
-            children,
+            div: Div::new(
+                resource_manager,
+                Default::default(),
+                children,
+                Default::default(),
+                Some(desired_size),
+            ),
             background: Repeatable3x3Sprite::new(
-                &resource_manager,
+                resource_manager,
                 background_asset_id,
                 background_frame_id.into(),
                 position,
@@ -57,11 +61,11 @@ impl Background for FixedSizeRepeatable3x3Background {
         self.hover = self.background.global_bounds().contains(mouse_pos);
     }
     fn children(&self) -> Box<dyn Iterator<Item = &Element> + '_> {
-        Box::new(self.children.iter())
+        Box::new(self.div.children())
     }
 
     fn mut_children(&mut self) -> Box<dyn Iterator<Item = &mut Element> + '_> {
-        Box::new(self.children.iter_mut())
+        Box::new(self.div.mut_children())
     }
 
     fn box_clone(&self) -> Box<dyn Background> {
@@ -75,7 +79,7 @@ impl traits::Element for FixedSizeRepeatable3x3Background {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        BackgroundElement::event_handler(self, &ui_settings, event)
+        BackgroundElement::event_handler(self, ui_settings, event)
     }
 
     fn update_size(&mut self) {
@@ -91,7 +95,7 @@ impl traits::Element for FixedSizeRepeatable3x3Background {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         events.append(&mut self.background.update(&resource_manager));
-        events.append(&mut BackgroundElement::update(self, &resource_manager));
+        events.append(&mut BackgroundElement::update(self, resource_manager));
         events
     }
 

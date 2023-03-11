@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use crate::center_of_rect;
+use utils::center_of_rect;
 
 use super::{color_cell::ColorCell, ColorGrid};
 

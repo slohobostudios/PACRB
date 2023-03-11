@@ -1,12 +1,10 @@
 use sfml::system::{Vector2, Vector2i};
+use utils::clamp_to_primitive_bounds;
 
-use crate::{
-    clamp_to_primitive_bounds,
-    pallete_builder::{
-        color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell},
-        hsv_color::HSV,
-        ui_components::confirm_color_ramp::Orientation,
-    },
+use crate::pallete_builder::{
+    color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell},
+    hsv_color::HSV,
+    ui_components::confirm_color_ramp::Orientation,
 };
 
 use super::RampModeEventHandlerArguments;

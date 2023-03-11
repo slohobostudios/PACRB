@@ -1,17 +1,15 @@
 use super::traits::*;
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{elements::traits::Element, utils::positioning::UIPosition},
-    utils::{
-        arithmetic_util_functions::*, quads::Quad, sfml_util_functions::bottom_right_rect_coords,
-    },
-};
+use crate::{elements::traits::Element, utils::positioning::UIPosition};
 use sfml::{
     graphics::{
         FloatRect, IntRect, PrimitiveType, RcSprite, RenderStates, RenderTarget, RenderTexture,
         Transformable,
     },
     system::{Vector2, Vector2u},
+};
+use utils::{
+    arithmetic_util_functions::i32_ceil_div, quads::Quad, resource_manager::ResourceManager,
+    sfml_util_functions::bottom_right_rect_coords,
 };
 
 #[repr(usize)]
@@ -88,7 +86,7 @@ impl Repeatable3x1Sprite {
 }
 
 impl TilingSprite for Repeatable3x1Sprite {
-    fn set_desired_size(&mut self, resource_manager: &ResourceManager, desired_size: Vector2u) {
+    fn set_desired_size(&mut self, desired_size: Vector2u) {
         self.desired_size = desired_size.x.try_into().unwrap_or(u16::MAX);
 
         self.update_size();
@@ -96,6 +94,10 @@ impl TilingSprite for Repeatable3x1Sprite {
 
     fn box_clone(&self) -> Box<dyn TilingSprite> {
         Box::new(self.clone())
+    }
+
+    fn desired_size(&self) -> Vector2u {
+        Vector2::new(self.desired_size.into(), 1)
     }
 }
 
