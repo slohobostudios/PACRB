@@ -1,5 +1,6 @@
 use sfml::system::{Vector2, Vector2i};
-use utils::clamp_to_primitive_bounds;
+use tracing::{error, warn};
+use utils::{center_of_rect, clamp_to_primitive_bounds};
 
 use crate::pallete_builder::{
     color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell},
@@ -13,9 +14,14 @@ use super::RampModeEventHandlerArguments;
 pub struct ColorRamper {
     min_ramp: Vec<RcColorCell>,
     max_ramp: Vec<RcColorCell>,
+    current_orientation: Orientation,
 }
 
 impl ColorRamper {
+    pub fn current_orientation(&self) -> Orientation {
+        self.current_orientation
+    }
+
     pub fn ramp_being_shown(&self) -> bool {
         self.min_ramp.len() != 0 || self.max_ramp.len() != 0
     }
@@ -37,6 +43,7 @@ impl ColorRamper {
         coord: Vector2i,
         args: &mut RampModeEventHandlerArguments,
     ) -> Option<()> {
+        self.current_orientation = args.confirm_color_ramp.orientation();
         let color_grid = &mut args.color_grid;
         let num_of_shades_per_direction = args.config_selector.current_config().num_of_shades / 2;
         let starting_idx = color_grid.coord_to_idx(coord)?;
@@ -54,10 +61,11 @@ impl ColorRamper {
             .push(color_grid[starting_idx.x][starting_idx.y].clone());
         self.clear_ramp(args.undo_redo);
 
-        match args.confirm_color_ramp.orientation() {
+        match self.current_orientation {
             Orientation::Horizontal => {
                 for i in 0..=num_of_shades_per_direction {
-                    let idx = Vector2::new(starting_idx.x - usize::from(i), starting_idx.y);
+                    let idx =
+                        Vector2::new(starting_idx.x.wrapping_sub(usize::from(i)), starting_idx.y);
                     if !color_grid.is_idx_valid(idx)
                         || color_grid[idx.x][idx.y].borrow().draw_full_cell()
                     {
@@ -77,7 +85,8 @@ impl ColorRamper {
             }
             Orientation::Vertical => {
                 for i in 0..=num_of_shades_per_direction {
-                    let idx = Vector2::new(starting_idx.x, starting_idx.y - usize::from(i));
+                    let idx =
+                        Vector2::new(starting_idx.x, starting_idx.y.wrapping_sub(usize::from(i)));
                     if !color_grid.is_idx_valid(idx)
                         || color_grid[idx.x][idx.y].borrow().draw_full_cell()
                     {
@@ -145,5 +154,23 @@ impl ColorRamper {
                 .borrow_mut()
                 .fill_the_cell(args.undo_redo, HSV { h, s, v })
         }
+    }
+
+    pub fn change_orientation(&mut self, args: &mut RampModeEventHandlerArguments) {
+        let coord = if let (Some(min), Some(max)) = (self.min_ramp.get(0), self.min_ramp.get(0)) {
+            if min != max {
+                warn!(
+                    "min and max location is not the same! Possible orientation errors may ensure {:?} {:?}",
+                    min,max
+                )
+            }
+
+            center_of_rect!(i32, min.borrow().global_bounds())
+        } else {
+            error!("Unable to get zeroth element from min and max ramp. Skipping reorientation");
+            return;
+        };
+
+        self.create_ramp(coord, args);
     }
 }

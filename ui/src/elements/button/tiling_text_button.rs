@@ -2,7 +2,9 @@ use super::{repeatable_sprite_button::RepeatableSpritesButton, traits::*};
 use crate::{
     elements::{
         tiling_sprites::{repeatable_3x3_sprite::Repeatable3x3Sprite, traits::TilingSprite},
-        traits::Element as TraitElement,
+        traits::{
+            cast_actionable_element, cast_element, ActionableElement, Element as TraitElement,
+        },
         Element,
     },
     events::*,
@@ -88,11 +90,8 @@ impl TilingButton {
     }
 }
 
-impl Button for TilingButton {
-    fn current_mouse_state(&self) -> UIMouseStates {
-        self.current_mouse_state
-    }
-
+impl ActionableElement for TilingButton {
+    cast_actionable_element!();
     fn triggered_event(&self) -> Event {
         Event {
             id: self.event_id(),
@@ -130,13 +129,19 @@ impl Button for TilingButton {
 
         self.rerender |= previous_mouse_state != self.current_mouse_state;
     }
+}
 
+impl Button for TilingButton {
+    fn current_mouse_state(&self) -> UIMouseStates {
+        self.current_mouse_state
+    }
     fn box_clone(&self) -> Box<dyn Button> {
         Box::new(self.clone())
     }
 }
 
 impl TraitElement for TilingButton {
+    cast_element!();
     fn render(&mut self, window: &mut RenderTexture) {
         self.backgrounds.render(window);
         self.inner_element.render(window);
@@ -190,15 +195,15 @@ impl TraitElement for TilingButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        ButtonElement::event_handler(&mut self.backgrounds, &ui_settings, event);
-        ButtonElement::event_handler(self, &ui_settings, event)
+        Button::event_handler(&mut self.backgrounds, &ui_settings, event);
+        Button::event_handler(self, &ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn TraitElement> {
         Box::new(self.clone())
     }
 
-    fn event_id(&self) -> u16 {
+    fn event_id(&self) -> EventId {
         self.event_id
     }
 
@@ -220,27 +225,5 @@ impl TraitElement for TilingButton {
             events.push(EMPTY_EVENT);
         }
         events
-    }
-}
-
-impl ButtonElement for TilingButton {
-    fn as_mut_element(&mut self) -> &mut dyn TraitElement {
-        self
-    }
-
-    fn as_mut_button(&mut self) -> &mut dyn Button {
-        self
-    }
-
-    fn as_element(&self) -> &dyn TraitElement {
-        self
-    }
-
-    fn as_button(&self) -> &dyn Button {
-        self
-    }
-
-    fn box_clone(&self) -> Box<dyn ButtonElement> {
-        Box::new(self.clone())
     }
 }

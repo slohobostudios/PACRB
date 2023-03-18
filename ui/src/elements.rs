@@ -6,14 +6,16 @@ pub mod missing_texture;
 pub mod root_node;
 pub mod slider;
 pub mod text;
+pub mod textbox;
 pub mod tiling_sprites;
 pub mod traits;
 
 #[derive(Clone, Debug)]
 pub enum Element {
     MissingTexture(missing_texture::MissingTexture),
-    Button(Box<dyn button::traits::ButtonElement>),
-    Slider(Box<dyn slider::traits::SliderElement>),
+    Button(Box<dyn button::traits::Button>),
+    Slider(Box<dyn slider::traits::Slider>),
+    TextBox(Box<dyn textbox::traits::TextBox>),
     TilingSprite(Box<dyn tiling_sprites::traits::TilingSpriteElement>),
     Background(Box<dyn background::traits::BackgroundElement>),
     Div(div::Div),
@@ -30,6 +32,7 @@ impl Element {
             MissingTexture(_) => "MissingTexture",
             Button(_) => "Button",
             Slider(_) => "Slider",
+            TextBox(_) => "TextBox",
             TilingSprite(_) => "TilingSprite",
             Background(_) => "Background",
             Div(_) => "Div",
@@ -46,6 +49,7 @@ impl Element {
             MissingTexture(ele) => Some(Box::new(ele)),
             Button(ele) => Some(Box::new(ele.as_element())),
             Slider(ele) => Some(Box::new(ele.as_element())),
+            TextBox(ele) => Some(Box::new(ele.as_element())),
             TilingSprite(ele) => Some(Box::new(ele.as_element())),
             Background(ele) => Some(Box::new(ele.as_element())),
             Div(ele) => Some(Box::new(ele)),
@@ -62,6 +66,7 @@ impl Element {
             MissingTexture(ele) => Some(Box::new(ele)),
             Button(ele) => Some(Box::new(ele.as_mut_element())),
             Slider(ele) => Some(Box::new(ele.as_mut_element())),
+            TextBox(ele) => Some(Box::new(ele.as_mut_element())),
             TilingSprite(ele) => Some(Box::new(ele.as_mut_element())),
             Background(ele) => Some(Box::new(ele.as_mut_element())),
             Div(ele) => Some(Box::new(ele)),
@@ -115,7 +120,10 @@ use sfml::{
 };
 use utils::resource_manager::ResourceManager;
 
+use self::traits::cast_element;
+
 impl traits::Element for Element {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         if let Some(ele) = self.get_ele_with_element_trait() {
             ele.global_bounds()
@@ -162,7 +170,7 @@ impl traits::Element for Element {
         Box::new(self.clone())
     }
 
-    fn event_id(&self) -> u16 {
+    fn event_id(&self) -> EventId {
         if let Some(ele) = self.get_ele_with_element_trait() {
             ele.event_id()
         } else {

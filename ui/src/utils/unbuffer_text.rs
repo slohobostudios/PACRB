@@ -19,7 +19,7 @@ pub fn create_unbuffered_text_with_position<'a>(
     font_size: u32,
     position: Vector2f,
 ) -> Text<'a> {
-    let mut text = create_unbuffered_text(font, &string, font_size);
+    let mut text = create_unbuffered_text(font, string, font_size);
     text.set_position(position);
     text
 }

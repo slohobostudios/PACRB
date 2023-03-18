@@ -45,7 +45,7 @@ impl FPSCounter {
     }
 
     /// Get the average FPS as an SFML Text object
-    pub fn fps_text<'a>(&mut self) -> &RcText {
+    pub fn fps_text(&mut self) -> &RcText {
         self.text.set_string(&self.fps().to_string());
         &self.text
     }

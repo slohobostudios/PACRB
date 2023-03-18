@@ -1,5 +1,5 @@
 use crate::{
-    elements::traits::Element,
+    elements::traits::ActionableElement,
     events::*,
     ui_settings::{
         controls::{possible_binds::PossibleBinds, possible_inputs::PossibleInputs},
@@ -7,33 +7,12 @@ use crate::{
     },
     utils::mouse_ui_states::UIMouseStates,
 };
-use sfml::system::Vector2i;
 use sfml::window::Event as SFMLEvent;
-use std::ops::Deref;
+use std::{fmt::Debug, ops::Deref};
 
-pub trait Button {
-    fn triggered_event(&self) -> Event;
-    fn current_mouse_state(&self) -> UIMouseStates;
-    fn bind_pressed(&mut self, mouse_pos: Vector2i);
-    fn bind_released(&mut self, mouse_pos: Vector2i);
-    fn set_hover(&mut self, mouse_pos: Vector2i);
-    fn is_hover(&self) -> bool;
+pub trait Button: ActionableElement + Debug {
     fn box_clone(&self) -> Box<dyn Button>;
-}
-
-impl Clone for Box<dyn Button> {
-    fn clone(&self) -> Self {
-        self.box_clone()
-    }
-}
-
-use std::fmt::Debug;
-pub trait ButtonElement: Button + Element + Debug {
-    fn as_mut_element(&mut self) -> &mut dyn Element;
-    fn as_mut_button(&mut self) -> &mut dyn Button;
-    fn as_element(&self) -> &dyn Element;
-    fn as_button(&self) -> &dyn Button;
-    fn box_clone(&self) -> Box<dyn ButtonElement>;
+    fn current_mouse_state(&self) -> UIMouseStates;
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         self.set_hover(ui_settings.cursor_position);
         match event {
@@ -97,10 +76,17 @@ pub trait ButtonElement: Button + Element + Debug {
             _ => Default::default(),
         }
     }
+
+    fn as_mut_button(&mut self) -> &mut dyn Button
+    where
+        Self: Sized,
+    {
+        self
+    }
 }
 
-impl Clone for Box<dyn ButtonElement> {
+impl Clone for Box<dyn Button> {
     fn clone(&self) -> Self {
-        ButtonElement::box_clone(self.deref())
+        Button::box_clone(self.deref())
     }
 }

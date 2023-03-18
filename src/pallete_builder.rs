@@ -72,28 +72,35 @@ impl PalleteBuilder {
         }
     }
 
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 4] {
+        [
+            &mut self.config_selector,
+            &mut self.hsv_selector,
+            &mut self.erase_mode,
+            &mut self.confirm_color_ramp,
+        ]
+    }
+
     pub fn event_handler(
         &mut self,
         window: &mut RenderWindow,
         ui_settings: &mut UISettings,
         event: Event,
     ) {
-        let mut events = self
-            .config_selector
-            .event_handler(window, ui_settings, event);
-        events.append(&mut self.hsv_selector.event_handler(window, ui_settings, event));
-        events.append(&mut self.erase_mode.event_handler(window, ui_settings, event));
-        events.append(
-            &mut self
-                .confirm_color_ramp
-                .event_handler(window, ui_settings, event),
-        );
+        let mut events = Vec::new();
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            events.append(&mut dci.event_handler(window, ui_settings, event))
+        }
 
         match self.current_mode {
             Mode::NormalMode(_) if self.config_selector.current_config().auto_ramping => {
                 self.current_mode = Mode::RampMode(RampMode::default())
             }
             Mode::RampMode(_) if !self.config_selector.current_config().auto_ramping => {
+                self.confirm_color_ramp.set_enable(false);
+                if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+                    ramp_mode.clear_the_ramp(&mut self.undo_redo);
+                }
                 self.current_mode = Mode::NormalMode(NormalMode::default())
             }
             _ => {}
@@ -134,10 +141,23 @@ impl PalleteBuilder {
     }
 
     pub fn update(&mut self, resource_manager: &ResourceManager) {
-        self.config_selector.update(resource_manager);
-        self.hsv_selector.update(resource_manager);
-        self.erase_mode.update(resource_manager);
-        self.confirm_color_ramp.update(resource_manager);
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            dci.update(resource_manager);
+        }
+
+        match &mut self.current_mode {
+            Mode::RampMode(ramp_mode) => ramp_mode.update(&mut RampModeEventHandlerArguments::new(
+                &mut self.color_grid,
+                Event::Closed,
+                &self.hsv_selector,
+                &self.erase_mode,
+                &mut self.undo_redo,
+                &mut self.confirm_color_ramp,
+                &mut self.config_selector,
+            )),
+            _ => {}
+        }
+
         self.color_grid.update();
     }
 
@@ -145,10 +165,9 @@ impl PalleteBuilder {
         window.set_view(&self.view);
         self.color_grid.render(window);
 
-        self.config_selector.render(window);
-        self.confirm_color_ramp.render(window);
-        self.erase_mode.render(window);
-        self.hsv_selector.render(window);
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            dci.render(window);
+        }
     }
 }
 

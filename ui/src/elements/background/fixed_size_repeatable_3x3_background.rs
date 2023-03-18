@@ -1,8 +1,13 @@
+use std::iter;
+
 use super::traits::*;
 use crate::{
     elements::{
-        div::Div, tiling_sprites::repeatable_3x3_sprite::Repeatable3x3Sprite, traits,
-        traits::Element as ElementTrait, Element,
+        div::Div,
+        tiling_sprites::{repeatable_3x3_sprite::Repeatable3x3Sprite, traits::TilingSprite},
+        traits,
+        traits::{cast_element, Element as ElementTrait},
+        Element,
     },
     events::Event,
     ui_settings::UISettings,
@@ -10,7 +15,7 @@ use crate::{
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
-    system::Vector2,
+    system::Vector2u,
     window::Event as SFMLEvent,
 };
 use utils::resource_manager::ResourceManager;
@@ -19,7 +24,7 @@ use utils::resource_manager::ResourceManager;
 pub struct FixedSizeRepeatable3x3Background {
     background: Repeatable3x3Sprite,
     hover: bool,
-    div: Div,
+    div: Element,
 }
 
 impl FixedSizeRepeatable3x3Background {
@@ -29,27 +34,35 @@ impl FixedSizeRepeatable3x3Background {
         position: UIPosition,
         background_asset_id: &str,
         background_frame_id: u16,
-        desired_size: Vector2<u32>,
+        padding: UIPosition,
+        desired_size: Option<Vector2u>,
         scale: f32,
     ) -> Self {
-        Self {
-            div: Div::new(
+        let padding = if desired_size.is_some() {
+            Default::default()
+        } else {
+            padding
+        };
+        let mut fsr33b = Self {
+            div: Element::Div(Div::new(
                 resource_manager,
                 Default::default(),
                 children,
-                Default::default(),
-                Some(desired_size),
-            ),
+                padding,
+                desired_size,
+            )),
             background: Repeatable3x3Sprite::new(
                 resource_manager,
                 background_asset_id,
                 background_frame_id.into(),
                 position,
-                desired_size,
+                desired_size.unwrap_or_default(),
                 scale,
             ),
             hover: false,
-        }
+        };
+        fsr33b.update_size();
+        fsr33b
     }
 }
 
@@ -61,11 +74,11 @@ impl Background for FixedSizeRepeatable3x3Background {
         self.hover = self.background.global_bounds().contains(mouse_pos);
     }
     fn children(&self) -> Box<dyn Iterator<Item = &Element> + '_> {
-        Box::new(self.div.children())
+        Box::new(iter::once(&self.div))
     }
 
     fn mut_children(&mut self) -> Box<dyn Iterator<Item = &mut Element> + '_> {
-        Box::new(self.div.mut_children())
+        Box::new(iter::once(&mut self.div))
     }
 
     fn box_clone(&self) -> Box<dyn Background> {
@@ -74,6 +87,7 @@ impl Background for FixedSizeRepeatable3x3Background {
 }
 
 impl traits::Element for FixedSizeRepeatable3x3Background {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.background.global_bounds()
     }
@@ -84,7 +98,14 @@ impl traits::Element for FixedSizeRepeatable3x3Background {
 
     fn update_size(&mut self) {
         self.background.update_size();
-        self.update_element_size();
+        if let Element::Div(div) = &self.div {
+            if div.is_padding() {
+                self.background
+                    .set_desired_size(self.div.global_bounds().size().as_other());
+                self.background.update_size();
+                self.update_element_size();
+            }
+        }
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
@@ -116,22 +137,6 @@ impl traits::Element for FixedSizeRepeatable3x3Background {
 }
 
 impl BackgroundElement for FixedSizeRepeatable3x3Background {
-    fn as_mut_element(&mut self) -> &mut dyn traits::Element {
-        self
-    }
-
-    fn as_mut_background(&mut self) -> &mut dyn Background {
-        self
-    }
-
-    fn as_element(&self) -> &dyn traits::Element {
-        self
-    }
-
-    fn as_background(&self) -> &dyn Background {
-        self
-    }
-
     fn box_clone(&self) -> Box<dyn BackgroundElement> {
         Box::new(self.clone())
     }

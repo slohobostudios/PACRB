@@ -1,4 +1,7 @@
-use super::{traits::Element as ElementTrait, Element};
+use super::{
+    traits::{cast_element, Element as ElementTrait},
+    Element,
+};
 use crate::{
     events::*,
     ui_settings::UISettings,
@@ -175,6 +178,7 @@ impl Grid {
 }
 
 impl ElementTrait for Grid {
+    cast_element!();
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {

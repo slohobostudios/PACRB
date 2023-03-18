@@ -1,4 +1,8 @@
-use super::{div::Div, traits::Element as ElementTrait, Element};
+use super::{
+    div::Div,
+    traits::{cast_element, Element as ElementTrait},
+    Element,
+};
 use crate::{events::*, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
@@ -40,6 +44,7 @@ impl RootNode {
 }
 
 impl ElementTrait for RootNode {
+    cast_element!();
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         self.div.update(resource_manager)
     }

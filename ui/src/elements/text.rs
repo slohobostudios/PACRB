@@ -1,4 +1,4 @@
-use super::traits::Element;
+use super::traits::{cast_element, Element};
 use crate::utils::positioning::UIPosition;
 use sfml::{
     graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable},
@@ -43,6 +43,7 @@ impl Text {
             color,
             disable_padding,
         };
+        t.text.set_fill_color(color);
         t.update_size();
 
         t
@@ -54,6 +55,7 @@ impl Text {
 }
 
 impl Element for Text {
+    cast_element!();
     fn update_size(&mut self) {
         self.global_bounds.width = self.text.global_bounds().width as i32;
         self.global_bounds.height = self.text.global_bounds().height as i32;

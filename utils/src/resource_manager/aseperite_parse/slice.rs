@@ -122,7 +122,7 @@ impl<'de> Deserialize<'de> for Slice {
             }
         }
 
-        const FIELDS: &'static [&'static str] = &["name", "color", "keys"];
+        const FIELDS: &[&str] = &["name", "color", "keys"];
         deserializer.deserialize_struct("Duration", FIELDS, SliceVisitor)
     }
 }

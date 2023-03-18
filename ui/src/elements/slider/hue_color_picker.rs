@@ -1,5 +1,3 @@
-use std::any::Any;
-
 use sfml::{
     graphics::{Color, IntRect, PrimitiveType, RenderStates, RenderTarget, RenderTexture, Vertex},
     system::{Vector2f, Vector2i, Vector2u},
@@ -12,13 +10,18 @@ use utils::{
 };
 
 use crate::{
-    elements::{traits::Element as ElementTrait, Element},
-    events::{Event, Events},
+    elements::{
+        traits::{
+            cast_actionable_element, cast_element, ActionableElement, Element as ElementTrait,
+        },
+        Element,
+    },
+    events::{Event, EventId, Events},
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
 
-use super::traits::{Slider, SliderElement};
+use super::traits::Slider;
 
 const NUM_OF_QUADS: u8 = 6;
 
@@ -123,6 +126,7 @@ impl HueColorPicker {
 }
 
 impl ElementTrait for HueColorPicker {
+    cast_element!();
     fn update_size(&mut self) {
         // Make sure width is of a multiple of 6
         self.global_bounds.width =
@@ -155,7 +159,7 @@ impl ElementTrait for HueColorPicker {
         self.global_bounds
     }
 
-    fn event_id(&self) -> u16 {
+    fn event_id(&self) -> EventId {
         self.event_id
     }
 
@@ -174,23 +178,17 @@ impl ElementTrait for HueColorPicker {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        SliderElement::event_handler(self, ui_settings, event)
+        Slider::event_handler(self, ui_settings, event)
     }
 }
 
-impl Slider for HueColorPicker {
-    fn slider_global_bounds(&mut self) -> IntRect {
-        self.global_bounds
-    }
-
+impl ActionableElement for HueColorPicker {
+    cast_actionable_element!();
     fn set_hover(&mut self, mouse_pos: Vector2i) {
         self.is_hover = self.global_bounds.contains(mouse_pos);
     }
     fn is_hover(&self) -> bool {
         self.is_hover
-    }
-    fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
     fn bind_pressed(&mut self, mouse_pos: Vector2i) {
         self.set_hover(mouse_pos);
@@ -202,13 +200,22 @@ impl Slider for HueColorPicker {
     fn bind_released(&mut self, _: Vector2i) {
         self.is_dragging = false
     }
-    fn triggered_event(&mut self) -> Event {
+    fn triggered_event(&self) -> Event {
         Event::new(
             self.event_id,
             Events::NumericalEvent(f32::from(self.curr_hue)),
         )
     }
+}
 
+impl Slider for HueColorPicker {
+    fn slider_global_bounds(&mut self) -> IntRect {
+        self.global_bounds
+    }
+
+    fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
     fn min_slider_value(&mut self) -> Vector2f {
         Vector2f::new(0., 0.)
     }
@@ -240,31 +247,5 @@ impl Slider for HueColorPicker {
 
     fn box_clone(&self) -> Box<dyn Slider> {
         Box::new(self.clone())
-    }
-}
-
-impl SliderElement for HueColorPicker {
-    fn as_mut_element(&mut self) -> &mut dyn ElementTrait {
-        self
-    }
-
-    fn as_mut_slider(&mut self) -> &mut dyn Slider {
-        self
-    }
-
-    fn as_element(&self) -> &dyn ElementTrait {
-        self
-    }
-
-    fn as_slider(&self) -> &dyn Slider {
-        self
-    }
-
-    fn box_clone(&self) -> Box<dyn SliderElement> {
-        Box::new(self.clone())
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn Any {
-        self
     }
 }

@@ -16,10 +16,6 @@ impl Clone for Box<dyn TilingSprite> {
 
 use std::fmt::Debug;
 pub trait TilingSpriteElement: TilingSprite + Element + Debug {
-    fn as_mut_element(&mut self) -> &mut dyn Element;
-    fn as_mut_tiling_sprite(&mut self) -> &mut dyn TilingSprite;
-    fn as_element(&self) -> &dyn Element;
-    fn as_tiling_sprite(&self) -> &dyn TilingSprite;
     fn box_clone(&self) -> Box<dyn TilingSpriteElement>;
 }
 

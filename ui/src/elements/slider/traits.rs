@@ -3,17 +3,18 @@ use sfml::{
     system::{Vector2, Vector2f, Vector2i},
     window::Event as SFMLEvent,
 };
-use std::any::Any;
+use std::fmt::Debug;
 use std::ops::Deref;
 
-pub trait Slider {
+use crate::elements::traits::ActionableElement;
+use crate::events::Event;
+use crate::ui_settings::controls::possible_binds::PossibleBinds;
+use crate::ui_settings::controls::possible_inputs::PossibleInputs;
+use crate::ui_settings::UISettings;
+
+pub trait Slider: ActionableElement + Debug {
     fn slider_global_bounds(&mut self) -> IntRect;
-    fn bind_pressed(&mut self, mouse_pos: Vector2i);
-    fn bind_released(&mut self, mouse_pos: Vector2i);
     fn is_dragging(&self) -> bool;
-    fn set_hover(&mut self, mouse_pos: Vector2i);
-    fn is_hover(&self) -> bool;
-    fn triggered_event(&mut self) -> Event;
     fn min_slider_value(&mut self) -> Vector2f;
     fn max_slider_value(&mut self) -> Vector2f;
     /// This function sets the slider's position based on a percentage value. 0 = 0%, u16::MAX =
@@ -33,29 +34,8 @@ pub trait Slider {
     /// This functions sets the slider's new position based on the slider value. It also sets the
     /// current slider value to a the new slider value if it is in range.
     fn set_current_slider_value(&mut self, new_slider_value: Vector2f);
+
     fn box_clone(&self) -> Box<dyn Slider>;
-}
-
-impl Clone for Box<dyn Slider> {
-    fn clone(&self) -> Self {
-        self.box_clone()
-    }
-}
-
-use std::fmt::Debug;
-
-use crate::elements::traits::Element;
-use crate::events::Event;
-use crate::ui_settings::controls::possible_binds::PossibleBinds;
-use crate::ui_settings::controls::possible_inputs::PossibleInputs;
-use crate::ui_settings::UISettings;
-pub trait SliderElement: Slider + Element + Debug {
-    fn as_mut_element(&mut self) -> &mut dyn Element;
-    fn as_mut_slider(&mut self) -> &mut dyn Slider;
-    fn as_element(&self) -> &dyn Element;
-    fn as_slider(&self) -> &dyn Slider;
-    fn as_mut_any(&mut self) -> &mut dyn Any;
-    fn box_clone(&self) -> Box<dyn SliderElement>;
 
     /// This function sets the slider's position based on the cursor coords
     fn set_slider_position_by_cursor_coords(&mut self, cursor: Vector2i) {
@@ -86,7 +66,7 @@ pub trait SliderElement: Slider + Element + Debug {
     where
         Self: Sized,
     {
-        fn bind_pressed(self_: &mut dyn SliderElement, ui_settings: &UISettings) -> Vec<Event> {
+        fn bind_pressed(self_: &mut dyn Slider, ui_settings: &UISettings) -> Vec<Event> {
             let prev_event = self_.triggered_event();
             self_.bind_pressed(ui_settings.cursor_position);
             if prev_event != self_.triggered_event() {
@@ -95,7 +75,7 @@ pub trait SliderElement: Slider + Element + Debug {
                 Default::default()
             }
         }
-        fn bind_released(self_: &mut dyn SliderElement, ui_settings: &UISettings) -> Vec<Event> {
+        fn bind_released(self_: &mut dyn Slider, ui_settings: &UISettings) -> Vec<Event> {
             let prev_event = self_.triggered_event();
             self_.bind_released(ui_settings.cursor_position);
             if prev_event != self_.triggered_event() {
@@ -155,8 +135,8 @@ pub trait SliderElement: Slider + Element + Debug {
     }
 }
 
-impl Clone for Box<dyn SliderElement> {
+impl Clone for Box<dyn Slider> {
     fn clone(&self) -> Self {
-        SliderElement::box_clone(self.deref())
+        Slider::box_clone(self.deref())
     }
 }

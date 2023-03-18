@@ -35,7 +35,7 @@ fn event2(event: &Event, orientation: &mut Orientation) {
     }
 }
 
-pub fn sync_events(dom_controller: &mut DomController, enable: bool) {
+pub fn sync_events(dom_controller: &mut DomController, _enable: bool) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {

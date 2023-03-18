@@ -1,7 +1,10 @@
-use super::{element_loader::element_loader, utils::*};
-use crate::elements::background::{
-    fixed_size_repeatable_3x3_background::FixedSizeRepeatable3x3Background,
-    traits::BackgroundElement,
+use super::utils::*;
+use crate::{
+    elements::background::{
+        fixed_size_repeatable_3x3_background::FixedSizeRepeatable3x3Background,
+        traits::BackgroundElement,
+    },
+    utils::positioning::UIPosition,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
@@ -12,13 +15,17 @@ use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 ///
 /// ## Required
 /// - type "Fixed3x3RepeatableBackground"
-/// - asset (String)
-/// - frame_id (usize)
+/// - asset ([`String`])
+/// - frame_id ([`usize`])
 ///
 /// ## Optional
-/// - scale (f32)
-/// - size (Vector2)
-/// - position (UIPosition)
+/// - scale ([`f32`])
+/// - size ([`Vector2`])
+/// - position ([`UIPosition`])
+/// - padding ([`UIPosition`])
+///
+/// ## Notes
+/// padding can be used instead of size if you only have one child element
 fn fixed_size_repeatable_3x3_background(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -41,8 +48,9 @@ fn fixed_size_repeatable_3x3_background(
             .attr("frame_id")
             .ok_or("no frame_id defined")?
             .parse::<u16>()?,
-        get_size_or_default(minidom_element, Default::default()),
-        get_scale_or_default(minidom_element, default_scale),
+        get_generic_attribute::<UIPosition>(minidom_element, "padding").unwrap_or_default(),
+        get_size(minidom_element).ok(),
+        get_scale(minidom_element).unwrap_or(default_scale),
     ))
 }
 

@@ -5,6 +5,8 @@ use sfml::{
 };
 use utils::resource_manager::ResourceManager;
 
+use super::traits::cast_element;
+
 // Allows custom placement of a missing texture.
 #[derive(Clone, Debug)]
 pub struct MissingTexture {
@@ -37,6 +39,7 @@ impl MissingTexture {
 }
 
 impl Element for MissingTexture {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }

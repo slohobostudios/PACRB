@@ -68,9 +68,9 @@ fn grid_elements_loader(
 /// # Usage
 ///
 /// ## Optional
-/// - size (Vector2)
-/// - position (UIPosition)
-/// - pagination_size (Vector2)
+/// - size ([`Vector2`])
+/// - position ([`UIPosition`])
+/// - pagination_size ([`Vector2`])
 pub fn grid_loader(
     resource_manager: &ResourceManager,
     ele: &MinidomElement,
@@ -78,9 +78,9 @@ pub fn grid_loader(
     default_font_size: u32,
     default_color: Color,
 ) -> Result<Grid, Box<dyn Error>> {
-    let default_scale = get_scale_or_default(&ele, default_scale);
-    let default_font_size = get_font_size_or_default(&ele, default_font_size);
-    let default_color = get_color_attribute_or_default(&ele, default_color);
+    let default_scale = get_scale(&ele).unwrap_or(default_scale);
+    let default_font_size = get_font_size(&ele).unwrap_or(default_font_size);
+    let default_color = get_color_attribute(&ele).unwrap_or(default_color);
 
     Ok(Grid::new(
         resource_manager,
@@ -94,6 +94,6 @@ pub fn grid_loader(
         get_ui_position(&ele).unwrap_or_default(),
         vector2_from_str::<u16>(ele.attr("pagination_size").unwrap_or_default())
             .unwrap_or_default(),
-        get_size_or_default(&ele, Default::default()),
+        get_size(&ele).unwrap_or_default(),
     ))
 }

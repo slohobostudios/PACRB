@@ -18,7 +18,7 @@
         false_click_frame_id="5"        
         event_id="1"
         sync_id="1"/>
-      <Text position="t:3,b:7,l:-20">
+      <Text position="l:-20">
         Erase
       </Text>
     </Grid>

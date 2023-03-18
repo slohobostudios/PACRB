@@ -4,7 +4,11 @@ use utils::{arithmetic_util_functions::i32_from_u32, resource_manager::ResourceM
 
 use crate::{events::Event, ui_settings::UISettings, utils::positioning::UIPosition};
 
-use super::{traits, traits::Element as ElementTrait, Element};
+use super::{
+    traits::Element as ElementTrait,
+    traits::{self, cast_element},
+    Element,
+};
 
 #[derive(Clone, Default, Debug)]
 pub struct Div {
@@ -57,9 +61,14 @@ impl Div {
         self.size = Some(size);
         self.update_size();
     }
+
+    pub fn is_padding(&self) -> bool {
+        self.size.is_none()
+    }
 }
 
 impl traits::Element for Div {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }

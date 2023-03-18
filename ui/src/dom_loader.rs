@@ -3,9 +3,9 @@ use ::utils::resource_manager::ResourceManager;
 use element_loader::*;
 use sfml::graphics::{Color, IntRect};
 use std::error::Error;
-use tracing::error;
+use tracing::{error, warn};
 
-use self::utils::{get_color_attribute_or_default, get_font_size_or_default, get_scale_or_default};
+use self::utils::{get_color_attribute, get_font_size, get_scale};
 
 mod background_loader;
 mod button_loader;
@@ -15,6 +15,7 @@ mod grid_loader;
 mod missing_texture_loader;
 mod slider_loader;
 mod text_loader;
+mod textbox_loader;
 mod utils;
 
 /// This function is how loading ui elements from an xml document will work. Returns empty document on failure.
@@ -57,15 +58,36 @@ pub fn dom_loader(
     root_node
 }
 
+const DEFAULT_SCALE: f32 = 4.;
+const DEFAULT_FONT_SIZE: u32 = 16;
+const DEFAULT_COLOR: Color = Color::TRANSPARENT;
 fn try_page_loader(
     resource_manager: &ResourceManager,
     relative_rect: IntRect,
     xml_doc: &str,
 ) -> Result<RootNode, Box<dyn Error>> {
     let root_node = xml_doc.parse()?;
-    let default_scale = get_scale_or_default(&root_node, 4.);
-    let default_font_size = get_font_size_or_default(&root_node, 16);
-    let default_color = get_color_attribute_or_default(&root_node, Color::TRANSPARENT);
+    let default_scale = get_scale(&root_node).unwrap_or_else(|err| {
+        warn!(
+            "No default scale in root node! Exact error: {:?} Setting to {}",
+            err, DEFAULT_SCALE
+        );
+        DEFAULT_SCALE
+    });
+    let default_font_size = get_font_size(&root_node).unwrap_or_else(|err| {
+        warn!(
+            "No default font size in root node! Exact error: {:?} Setting to {}",
+            err, DEFAULT_FONT_SIZE
+        );
+        DEFAULT_FONT_SIZE
+    });
+    let default_color = get_color_attribute(&root_node).unwrap_or_else(|err| {
+        warn!(
+            "No default color in root node! Exact error: {:?} Setting to Color::TRANSPARENT",
+            err
+        );
+        DEFAULT_COLOR
+    });
 
     let root_elements = root_node
         .children()

@@ -1,6 +1,6 @@
 use super::{image_button::ImageButton, traits::*};
 use crate::{
-    elements::traits::Element,
+    elements::traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     events::*,
     ui_settings::UISettings,
     utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
@@ -100,10 +100,9 @@ impl BooleanImageButton {
     }
 }
 
-impl Button for BooleanImageButton {
-    fn current_mouse_state(&self) -> UIMouseStates {
-        self.current_button().current_mouse_state()
-    }
+impl ActionableElement for BooleanImageButton {
+    cast_actionable_element!();
+
     fn triggered_event(&self) -> Event {
         Event {
             id: self.event_id(),
@@ -133,13 +132,20 @@ impl Button for BooleanImageButton {
     fn is_hover(&self) -> bool {
         self.current_button().is_hover()
     }
+}
 
+impl Button for BooleanImageButton {
+    fn current_mouse_state(&self) -> UIMouseStates {
+        self.current_button().current_mouse_state()
+    }
     fn box_clone(&self) -> Box<dyn Button> {
         Box::new(self.clone())
     }
 }
 
 impl Element for BooleanImageButton {
+    cast_element!();
+
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }
@@ -180,15 +186,11 @@ impl Element for BooleanImageButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        ButtonElement::event_handler(self, &ui_settings, event)
+        Button::event_handler(self, &ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn Element> {
         Box::new(self.clone())
-    }
-
-    fn event_id(&self) -> u16 {
-        self.event_id
     }
 
     fn sync_id(&self) -> u16 {
@@ -200,26 +202,8 @@ impl Element for BooleanImageButton {
         self.update_size();
         self.update_position(relative_rect);
     }
-}
 
-impl ButtonElement for BooleanImageButton {
-    fn as_mut_element(&mut self) -> &mut dyn Element {
-        self
-    }
-
-    fn as_mut_button(&mut self) -> &mut dyn Button {
-        self
-    }
-
-    fn as_element(&self) -> &dyn Element {
-        self
-    }
-
-    fn as_button(&self) -> &dyn Button {
-        self
-    }
-
-    fn box_clone(&self) -> Box<dyn ButtonElement> {
-        Box::new(self.clone())
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }

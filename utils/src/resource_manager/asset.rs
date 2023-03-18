@@ -30,14 +30,10 @@ impl Asset {
 
     /// Fetches frame information from a specific frame id
     pub fn fetch_frame(&self, frame_num: usize) -> Frame {
-        self.frames
-            .get(frame_num)
-            .cloned()
-            .unwrap_or_else(|| {
-                error!("No frame {} for asset {}", frame_num, self.meta.image);
-                Default::default()
-            })
-            .clone()
+        self.frames.get(frame_num).cloned().unwrap_or_else(|| {
+            error!("No frame {} for asset {}", frame_num, self.meta.image);
+            Default::default()
+        })
     }
 
     /// Fetches frames related to specified FrameTag
@@ -61,9 +57,9 @@ impl Asset {
 
     /// Returns the duration of the animation in milliseconds
     pub fn total_animation_time_in_frame_tag(&self, frame_tag: &FrameTag) -> u32 {
-        if let Ok(frames) = self.fetch_frames_in_frame_tag(&frame_tag) {
+        if let Ok(frames) = self.fetch_frames_in_frame_tag(frame_tag) {
             frames.map(|frame| u32::from(frame.duration)).sum()
-        } else if let Err(err) = self.fetch_frames_in_frame_tag(&frame_tag) {
+        } else if let Err(err) = self.fetch_frames_in_frame_tag(frame_tag) {
             error!("{:#?}", err);
             0
         } else {
@@ -79,7 +75,7 @@ impl Asset {
         let unshifted_slice_bounds = keys
             .iter()
             .copied()
-            .find(|slice_key| slice_key.frame == usize::from(frame_num))
+            .find(|slice_key| slice_key.frame == frame_num)
             .unwrap_or_else(|| {
                 keys.get(0).copied().unwrap_or_else(|| {
                     error!(
@@ -216,11 +212,11 @@ impl<'de> Deserialize<'de> for Asset {
                 let frames = frames.ok_or_else(|| de::Error::missing_field("frames"))?;
                 Ok(Asset {
                     texture: match RcTexture::from_file(
-                        &format!("{}{}", ASSETS_PATH, meta.image.clone())[..],
+                        &format!("{}{}", ASSETS_PATH, meta.image)[..],
                     ) {
                         Ok(v) => v,
                         Err(e) => {
-                            error!("Failed reading image file {}\n\n{}", meta.image.clone(), e);
+                            error!("Failed reading image file {}\n\n{}", meta.image, e);
                             RcTexture::from_texture(load_missing_texture())
                         }
                     },
@@ -229,7 +225,7 @@ impl<'de> Deserialize<'de> for Asset {
                 })
             }
         }
-        const FIELDS: &'static [&'static str] = &["meta", "frames"];
+        const FIELDS: &[&str] = &["meta", "frames"];
         deserializer.deserialize_struct("Asset", FIELDS, AssetVisitor)
     }
 }

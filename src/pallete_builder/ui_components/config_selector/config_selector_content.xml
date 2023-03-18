@@ -5,7 +5,7 @@
          position="t:15,l:15"
          size="x:300,y:850"
          frame_id="0">
-        <Text font_size="48" position="t:15">
+        <Text font_size="48" position="t:50">
             CONFIGURATION
         </Text>
         <Grid
@@ -33,12 +33,12 @@
                     event_id="1"
                     sync_id="1"
                     />
-                <Text position="l:-70">
+                <Text position="l:-60,t:-10">
                     Auto Ramping
                 </Text>
             </Grid>
             <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
-                <Text position="l:1,b:5">
+                <Text position="l:1,b:0">
                     Hue Shift:
                 </Text>
                 <Slider 
@@ -57,7 +57,7 @@
                     />
             </Grid>
             <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
-                <Text position="l:1,b:5">
+                <Text position="l:1,b:0">
                     Saturation shift:
                 </Text>
                 <Slider 
@@ -76,7 +76,7 @@
                     />
             </Grid>
             <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
-                <Text position="l:1,b:5">
+                <Text position="l:1,b:0">
                     Value shift:
                 </Text>
                 <Slider 
@@ -95,7 +95,7 @@
                     />
             </Grid>
            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
-                <Text position="l:0,b:5">
+                <Text position="l:1,b:0">
                    Num of Shades: 
                 </Text>
                 <Slider 

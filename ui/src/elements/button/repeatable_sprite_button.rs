@@ -2,7 +2,7 @@ use super::traits::*;
 use crate::{
     elements::{
         tiling_sprites::traits::{TilingSprite, TilingSpriteElement},
-        traits::Element,
+        traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     },
     events::*,
     ui_settings::UISettings,
@@ -56,10 +56,8 @@ impl RepeatableSpritesButton {
     }
 }
 
-impl Button for RepeatableSpritesButton {
-    fn current_mouse_state(&self) -> UIMouseStates {
-        self.current_mouse_state
-    }
+impl ActionableElement for RepeatableSpritesButton {
+    cast_actionable_element!();
 
     fn triggered_event(&self) -> Event {
         Event {
@@ -98,13 +96,19 @@ impl Button for RepeatableSpritesButton {
 
         self.rerender |= self.current_mouse_state != previous_mouse_state;
     }
+}
 
+impl Button for RepeatableSpritesButton {
+    fn current_mouse_state(&self) -> UIMouseStates {
+        self.current_mouse_state
+    }
     fn box_clone(&self) -> Box<dyn Button> {
         Box::new(self.clone())
     }
 }
 
 impl Element for RepeatableSpritesButton {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }
@@ -165,29 +169,7 @@ impl Element for RepeatableSpritesButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        ButtonElement::event_handler(self, &ui_settings, event)
-    }
-}
-
-impl ButtonElement for RepeatableSpritesButton {
-    fn as_mut_element(&mut self) -> &mut dyn Element {
-        self
-    }
-
-    fn as_mut_button(&mut self) -> &mut dyn Button {
-        self
-    }
-
-    fn as_element(&self) -> &dyn Element {
-        self
-    }
-
-    fn as_button(&self) -> &dyn Button {
-        self
-    }
-
-    fn box_clone(&self) -> Box<dyn ButtonElement> {
-        Box::new(self.clone())
+        Button::event_handler(self, &ui_settings, event)
     }
 }
 

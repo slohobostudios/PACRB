@@ -107,7 +107,29 @@ impl RampMode {
     }
 
     fn ramp_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if !args.confirm_color_ramp.is_enabled() {
+            self.ramp = Default::default();
+            return;
+        }
+
         self.hover_handler.unhover_all_cells();
+    }
+
+    pub fn update(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if !self.ramp.ramp_being_shown() {
+        } else {
+            self.ramp_update(args);
+        }
+    }
+
+    pub fn ramp_update(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if self.ramp.current_orientation() != args.confirm_color_ramp.orientation() {
+            self.ramp.change_orientation(args)
+        }
+    }
+
+    pub fn clear_the_ramp(&mut self, undo_redo: &mut UndoRedoCell) {
+        self.ramp.clear_ramp(undo_redo);
     }
 }
 

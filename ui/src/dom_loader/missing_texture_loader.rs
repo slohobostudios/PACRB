@@ -8,8 +8,8 @@ use utils::resource_manager::ResourceManager;
 /// # Usage
 ///
 /// ## Optional
-/// - position (UIPosition)
-/// - size (Vector2)
+/// - position ([`UIPosition`])
+/// - size ([`Vector2`])
 pub fn missing_texture_loader(
     resource_manager: &ResourceManager,
     ele: &MinidomElement,
@@ -17,6 +17,6 @@ pub fn missing_texture_loader(
     MissingTexture::new(
         resource_manager,
         get_ui_position(&ele).unwrap_or_default(),
-        get_size_or_default(ele, Vector2::new(32, 32)),
+        get_size(ele).unwrap_or(Vector2::new(32, 32)),
     )
 }

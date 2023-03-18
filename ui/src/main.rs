@@ -75,6 +75,19 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xml
       </Text>
     </Div>
   </Button>
+  <Background
+    type="Fixed3x3RepeatableBackground"
+    asset="dark_blue_background.png"
+    frame_id="0"
+    padding="t:50,b:50,l:50,r:50">
+  <TextBox
+    type="FixedSizeOneLineTextbox" 
+    size="x:100,y:0"
+    color="#081a1b"
+    >
+    Default
+  </TextBox>
+  </Background>
 </RootNode>"##;
 
 fn main() {
@@ -89,6 +102,7 @@ fn main() {
 
     while window.is_open() {
         while let Some(event) = window.poll_event() {
+            #[allow(clippy::single_match)]
             match event {
                 Event::Closed => window.close(),
                 _ => {}

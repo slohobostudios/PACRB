@@ -3,7 +3,7 @@ use crate::elements::Element;
 use super::{
     background_loader::background_loader, button_loader::button_loader, div_loader::div_loader,
     grid_loader::grid_loader, missing_texture_loader::missing_texture_loader,
-    slider_loader::slider_loader, text_loader::text_loader,
+    slider_loader::slider_loader, text_loader::text_loader, textbox_loader::textbox_loader,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
@@ -55,6 +55,12 @@ pub fn element_loader(
                 Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
             }
         }
+        "TextBox" => {
+            match textbox_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
+                Ok(v) => Element::TextBox(v),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            }
+        }
         "Div" => match div_loader(
             resource_manager,
             ele,
@@ -73,11 +79,11 @@ pub fn element_loader(
             default_color,
         ) {
             Ok(v) => Element::Grid(v),
-                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
         },
         "Background" => match background_loader(resource_manager, &ele, default_scale, default_font_size, default_color) {
             Ok(v) => Element::Background(v),
-                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
         },
         "Text" => Element::Text(text_loader(resource_manager, &ele, default_font_size, default_color)),
         "Empty" => Element::Empty(()),

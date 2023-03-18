@@ -1,7 +1,7 @@
 use super::{element_loader::element_loader, utils::*};
 use crate::elements::button::{
     boolean_image_button::BooleanImageButton, image_button::ImageButton,
-    tiling_text_button::TilingButton, traits::ButtonElement,
+    tiling_text_button::TilingButton, traits::Button,
 };
 use minidom::Element as MinidomElement;
 use sfml::{graphics::Color, system::Vector2f};
@@ -15,17 +15,17 @@ use utils::{
 /// # Usage
 ///
 /// ## Required:
-/// - type: "ImageButton"
-/// - asset (String)
-/// - frame_id (usize)
-/// - hover_frame_id (usize)
-/// - click_frame_id (usize)
+/// - type: [`IMAGE_BUTTON`]
+/// - asset ([`String`])
+/// - frame_id ([`usize`])
+/// - hover_frame_id ([`usize`])
+/// - click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position (UIPosition)
-/// - scale (f32)
-/// - event_id (u16)
-/// - sync_id (u16)
+/// - position ([`UIPosition`])
+/// - scale ([`f32`])
+/// - event_id ([`u16`])
+/// - sync_id ([`u16`])
 fn image_button_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -47,7 +47,7 @@ fn image_button_loader(
             .attr("click_frame_id")
             .ok_or("no click_frame_id defined")?
             .parse::<usize>()?,
-        get_scale_or_default(&minidom_element, default_scale),
+        get_scale(&minidom_element).unwrap_or(default_scale),
         get_event_id_or_default(&minidom_element),
         get_sync_id_or_default(&minidom_element),
     ))
@@ -56,18 +56,18 @@ fn image_button_loader(
 /// # Usage
 ///
 /// ## Required:
-/// - type "TilingButton"
-/// - asset (String)
-/// - frame_id (usize)
-/// - hover_frame_id (usize)
-/// - click_frame_id (usize)
+/// - type [`TILING_BUTTON`]
+/// - asset ([`String`])
+/// - frame_id ([`usize`])
+/// - hover_frame_id ([`usize`])
+/// - click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position (UIPosition)
-/// - scale (f32)
-/// - event_id (u16)
-/// - sync_id (u16)
-/// - size (Vector2f)
+/// - position ([`UIPosition`])
+/// - scale ([`f32`])
+/// - event_id ([`u16`])
+/// - sync_id ([`u16`])
+/// - size ([`Vector2f`])
 ///
 /// ## Children:
 /// Any dom node
@@ -96,7 +96,7 @@ fn tiling_button_loader(
                 Vector2f::new(1., 1.)
             })
             .as_other(),
-        get_scale_or_default(&minidom_element, default_scale),
+        get_scale(&minidom_element).unwrap_or(default_scale),
         get_event_id_or_default(&minidom_element),
         get_sync_id_or_default(&minidom_element),
     ))
@@ -105,20 +105,20 @@ fn tiling_button_loader(
 /// # Usage
 ///
 /// ## Required:
-/// - type "BooleanImageButton"
-/// - asset (String)
-/// - truth_frame_id (usize)
-/// - truth_hover_frame_id (usize)
-/// - truth_click_frame_id (usize)
-/// - false_frame_id (usize)
-/// - false_hover_frame_id (usize)
-/// - false_click_frame_id (usize)
+/// - type [`BOOLEAN_IMAGE_BUTTON`]
+/// - asset ([`String`])
+/// - truth_frame_id ([`usize`])
+/// - truth_hover_frame_id ([`usize`])
+/// - truth_click_frame_id ([`usize`])
+/// - false_frame_id ([`usize`])
+/// - false_hover_frame_id ([`usize`])
+/// - false_click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position (UIPosition)
-/// - scale (f32)
-/// - event_id (u16)
-/// - sync_id (u16)
+/// - position ([`UIPosition`])
+/// - scale ([`f32`])
+/// - event_id ([`u16`])
+/// - sync_id ([`u16`])
 fn boolean_image_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -127,7 +127,7 @@ fn boolean_image_loader(
     Ok(BooleanImageButton::new(
         resource_manager,
         get_ui_position(&minidom_element).unwrap_or_default(),
-        get_scale_or_default(&minidom_element, default_scale),
+        get_scale(&minidom_element).unwrap_or(default_scale),
         false,
         &get_asset_id(&minidom_element)?,
         get_generic_attribute::<usize>(&minidom_element, "truth_frame_id").ok_or(
@@ -163,7 +163,7 @@ pub fn button_loader(
     default_scale: f32,
     default_font_size: u32,
     default_color: Color,
-) -> Result<Box<dyn ButtonElement>, Box<dyn Error>> {
+) -> Result<Box<dyn Button>, Box<dyn Error>> {
     match minidom_element.attr("type") {
         Some(TILING_BUTTON) => Ok(Box::new(tiling_button_loader(
             &resource_manager,

@@ -2,8 +2,8 @@ use std::{env, fs::OpenOptions, io::prelude::*};
 use tracing_appender;
 use tracing_subscriber::{fmt, layer::SubscriberExt};
 
-pub const TRACING_SUB_FAILURE_MESSAGE: &'static str =
-    &"Unable to setup logging subscriber! No logging will be generated.";
+pub const TRACING_SUB_FAILURE_MESSAGE: &str =
+    "Unable to setup logging subscriber! No logging will be generated.";
 
 pub fn setup_tracing_subscriber_with_no_logging() {
     if try_setup_tracing_subscriber(&["--no-logging".to_string()]).is_err() {

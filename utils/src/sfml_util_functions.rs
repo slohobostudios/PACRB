@@ -51,6 +51,10 @@ pub fn try_from_color_hash_string_to_sfml_color(hex: &str) -> Result<Color, Box<
     }
 }
 
+pub fn invert_color(color: Color) -> Color {
+    Color::from(0xFFFFFF00 ^ u32::from(color))
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -89,10 +93,10 @@ use sfml::{graphics::Vertex, system::Vector2};
 use sfml::graphics::Transform;
 /// Returns new vertex array with the applied transformation
 pub fn get_vertex_array_with_applied_transformation(
-    vertex_array: &Vec<Vertex>,
+    vertex_array: &[Vertex],
     tf: Transform,
 ) -> Vec<Vertex> {
-    let mut vertex_array = vertex_array.clone();
+    let mut vertex_array = vertex_array.to_owned();
     for vertex in &mut vertex_array {
         vertex.position = tf.transform_point(vertex.position);
     }
@@ -148,17 +152,15 @@ where
 
 #[track_caller]
 pub fn color_from_str(s: &str) -> Result<Color, Box<dyn Error>> {
-    if s.contains(":") {
+    if s.contains(':') {
         let mut color: Color = Default::default();
         for tuple in get_tuple_list_from_string(s) {
             let Ok((s, val)) = tuple else {
-                error!("Failed to parse color from element. {:#?}", tuple);
-                return Ok(Default::default());
+                return Err(Box::new(SimpleError::new(format!("Failed to parse color from element. {:#?}", tuple))))
             };
 
             let Ok(val) = val.parse::<u8>() else {
-                error!("Failed to parse color value in get_color_or_default: {}", val);
-                return Ok(Default::default());
+                return Err(Box::new(SimpleError::new(format!("Failed to parse color value in get_color_or_default: {:#?}", val))))
             };
 
             match s.to_lowercase().as_str() {
@@ -167,20 +169,17 @@ pub fn color_from_str(s: &str) -> Result<Color, Box<dyn Error>> {
                 "b" => color.b = val,
                 "a" => color.a = val,
                 _ => {
-                    error!("Invalid color value: {}", s);
-                    return Ok(Default::default());
+                    return Err(Box::new(SimpleError::new(format!(
+                        "Invalid color value: {}",
+                        s
+                    ))))
                 }
             }
         }
 
         Ok(color)
-    } else if s.contains("#") {
-        Ok(
-            try_from_color_hash_string_to_sfml_color(s).unwrap_or_else(|err| {
-                error!("{:#?}", err);
-                Default::default()
-            }),
-        )
+    } else if s.contains('#') {
+        Ok(try_from_color_hash_string_to_sfml_color(s)?)
     } else {
         Ok(match s.to_uppercase().as_str() {
             "BLACK" => Color::BLACK,
@@ -191,7 +190,13 @@ pub fn color_from_str(s: &str) -> Result<Color, Box<dyn Error>> {
             "YELLOW" => Color::YELLOW,
             "MAGENTA" => Color::MAGENTA,
             "CYAN" => Color::CYAN,
-            "TRANSPARENT" | _ => Color::TRANSPARENT,
+            "TRANSPARENT" => Color::TRANSPARENT,
+            _ => {
+                return Err(Box::new(SimpleError::new(format!(
+                    "No color exists: {:?}",
+                    s.to_uppercase()
+                ))))
+            }
         })
     }
 }

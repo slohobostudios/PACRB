@@ -25,11 +25,8 @@ pub fn get_asset_id(ele: &Element) -> Result<String, Box<dyn Error>> {
     Ok(ele.attr("asset").ok_or("No asset defined")?.to_string())
 }
 
-pub fn get_scale_or_default(ele: &Element, default_scale: f32) -> f32 {
-    ele.attr("scale")
-        .unwrap_or("not_number")
-        .parse::<f32>()
-        .unwrap_or(default_scale)
+pub fn get_scale(ele: &Element) -> Result<f32, Box<dyn Error>> {
+    Ok(ele.attr("scale").unwrap_or("not_number").parse::<f32>()?)
 }
 
 pub fn get_ui_position(ele: &Element) -> Result<UIPosition, Box<dyn Error>> {
@@ -38,29 +35,29 @@ pub fn get_ui_position(ele: &Element) -> Result<UIPosition, Box<dyn Error>> {
     )?)
 }
 
-pub fn get_font_size_or_default(ele: &Element, default_font_size: u32) -> u32 {
-    ele.attr("font_size")
+pub fn get_font_size(ele: &Element) -> Result<u32, Box<dyn Error>> {
+    Ok(ele
+        .attr("font_size")
         .unwrap_or("Not Number")
-        .parse::<u32>()
-        .unwrap_or(default_font_size)
+        .parse::<u32>()?)
 }
 
 #[track_caller]
-pub fn get_color_attribute_or_default(ele: &Element, default_color: Color) -> Color {
-    let Some(color_string) = ele.attr("color") else {
-        return default_color;
-    };
-    color_from_str(color_string).unwrap_or(default_color)
+pub fn get_color_attribute(ele: &Element) -> Result<Color, Box<dyn Error>> {
+    Ok(color_from_str(
+        ele.attr("color").ok_or("No color attribute")?,
+    )?)
 }
 
-pub fn get_size_or_default<T: std::default::Default + FromStr>(
+pub fn get_size<T: std::default::Default + FromStr>(
     ele: &Element,
-    default_size: Vector2<T>,
-) -> Vector2<T>
+) -> Result<Vector2<T>, Box<dyn Error>>
 where
     <T as FromStr>::Err: 'static + StdError,
 {
-    vector2_from_str::<T>(ele.attr("size").unwrap_or(Default::default())).unwrap_or(default_size)
+    Ok(vector2_from_str::<T>(
+        ele.attr("size").ok_or("No size attribute")?,
+    )?)
 }
 
 pub fn get_event_id_or_default(ele: &Element) -> u16 {

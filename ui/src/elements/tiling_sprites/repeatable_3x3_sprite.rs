@@ -1,5 +1,8 @@
 use super::traits::*;
-use crate::{elements::traits::Element, utils::positioning::UIPosition};
+use crate::{
+    elements::traits::{cast_element, Element},
+    utils::positioning::UIPosition,
+};
 use sfml::{
     graphics::{
         FloatRect, IntRect, PrimitiveType, RcSprite, RenderStates, RenderTarget, RenderTexture,
@@ -150,6 +153,7 @@ impl TilingSprite for Repeatable3x3Sprite {
 }
 
 impl Element for Repeatable3x3Sprite {
+    cast_element!();
     fn update_position(&mut self, relative_rect: IntRect) {
         self.global_bounds = self
             .position
@@ -302,22 +306,6 @@ impl Element for Repeatable3x3Sprite {
 }
 
 impl TilingSpriteElement for Repeatable3x3Sprite {
-    fn as_mut_element(&mut self) -> &mut dyn Element {
-        self
-    }
-
-    fn as_mut_tiling_sprite(&mut self) -> &mut dyn TilingSprite {
-        self
-    }
-
-    fn as_element(&self) -> &dyn Element {
-        self
-    }
-
-    fn as_tiling_sprite(&self) -> &dyn TilingSprite {
-        self
-    }
-
     fn box_clone(&self) -> Box<dyn TilingSpriteElement> {
         Box::new(self.clone())
     }

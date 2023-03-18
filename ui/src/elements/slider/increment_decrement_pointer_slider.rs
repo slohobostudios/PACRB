@@ -6,7 +6,7 @@ use crate::{
         },
         text::Text,
         tiling_sprites::repeatable_3x1_sprite::Repeatable3x1Sprite,
-        traits::Element,
+        traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     },
     events::*,
     ui_settings::UISettings,
@@ -17,10 +17,7 @@ use sfml::{
     system::{Vector2, Vector2f, Vector2i},
     window::Event as SFMLEvent,
 };
-use std::{
-    any::Any,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 use utils::resource_manager::ResourceManager;
 
 const INCREMENT_BUTTON_POSITION: UIPosition = UIPosition {
@@ -260,6 +257,7 @@ impl IncrementDecrementPointerSlider {
 }
 
 impl Element for IncrementDecrementPointerSlider {
+    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }
@@ -277,7 +275,7 @@ impl Element for IncrementDecrementPointerSlider {
                 ele.event_handler(&ui_settings, event);
             }
         };
-        let events = SliderElement::event_handler(self, ui_settings, event);
+        let events = Slider::event_handler(self, ui_settings, event);
 
         match event {
             // If we are holding the mouse down and drag over the button, begin the timer
@@ -402,7 +400,7 @@ impl Element for IncrementDecrementPointerSlider {
         Box::new(self.clone())
     }
 
-    fn event_id(&self) -> u16 {
+    fn event_id(&self) -> EventId {
         self.event_id
     }
 
@@ -411,11 +409,8 @@ impl Element for IncrementDecrementPointerSlider {
     }
 }
 
-impl Slider for IncrementDecrementPointerSlider {
-    fn slider_global_bounds(&mut self) -> IntRect {
-        self.slider.global_bounds()
-    }
-
+impl ActionableElement for IncrementDecrementPointerSlider {
+    cast_actionable_element!();
     fn set_hover(&mut self, mouse_pos: Vector2i) {
         for ele in self.compact_button_mut() {
             ele.set_hover(mouse_pos);
@@ -426,9 +421,6 @@ impl Slider for IncrementDecrementPointerSlider {
             || self.decrement_button.is_hover()
             || self.pointer.is_hover()
             || self.slider.is_hover()
-    }
-    fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
     fn bind_pressed(&mut self, mouse_pos: Vector2i) {
         for ele in self.compact_button_mut() {
@@ -469,13 +461,22 @@ impl Slider for IncrementDecrementPointerSlider {
         }
         self.is_dragging = false;
     }
-    fn triggered_event(&mut self) -> Event {
+    fn triggered_event(&self) -> Event {
         Event::new(
             self.event_id,
             Events::NumericalEvent(self.current_slider_value),
         )
     }
+}
 
+impl Slider for IncrementDecrementPointerSlider {
+    fn slider_global_bounds(&mut self) -> IntRect {
+        self.slider.global_bounds()
+    }
+
+    fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
     fn min_slider_value(&mut self) -> Vector2f {
         Vector2f::new(self.min_max_slider_values.0, 0.)
     }
@@ -532,26 +533,5 @@ impl Slider for IncrementDecrementPointerSlider {
 
     fn box_clone(&self) -> Box<dyn Slider> {
         Box::new(self.clone())
-    }
-}
-
-impl SliderElement for IncrementDecrementPointerSlider {
-    fn as_mut_element(&mut self) -> &mut dyn Element {
-        self
-    }
-    fn as_mut_slider(&mut self) -> &mut dyn Slider {
-        self
-    }
-    fn as_element(&self) -> &dyn Element {
-        self
-    }
-    fn as_slider(&self) -> &dyn Slider {
-        self
-    }
-    fn box_clone(&self) -> Box<dyn SliderElement> {
-        Box::new(self.clone())
-    }
-    fn as_mut_any(&mut self) -> &mut dyn Any {
-        self
     }
 }

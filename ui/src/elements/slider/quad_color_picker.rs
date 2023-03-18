@@ -1,5 +1,3 @@
-use std::any::Any;
-
 use sfml::{
     graphics::{Color, IntRect, PrimitiveType, RenderStates, RenderTarget, RenderTexture, Vertex},
     system::{Vector2, Vector2f, Vector2i, Vector2u},
@@ -12,13 +10,18 @@ use utils::{
 };
 
 use crate::{
-    elements::{traits::Element as ElementTrait, Element},
-    events::{Event, Events},
+    elements::{
+        traits::{
+            cast_actionable_element, cast_element, ActionableElement, Element as ElementTrait,
+        },
+        Element,
+    },
+    events::{Event, EventId, Events},
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
 
-use super::traits::{Slider, SliderElement};
+use super::traits::Slider;
 
 /// This struct NEEDS to be defined on the heap.
 /// It stores and internal array that if defined on the stack, can cause stack oveflow.
@@ -115,6 +118,7 @@ impl QuadColorPicker {
 }
 
 impl ElementTrait for QuadColorPicker {
+    cast_element!();
     fn update_size(&mut self) {
         self.global_bounds.width = i32_from_u32(self.size.x);
         self.global_bounds.height = i32_from_u32(self.size.y);
@@ -142,7 +146,7 @@ impl ElementTrait for QuadColorPicker {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        SliderElement::event_handler(self, ui_settings, event)
+        Slider::event_handler(self, ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn ElementTrait> {
@@ -155,7 +159,7 @@ impl ElementTrait for QuadColorPicker {
         self.update_position(relative_rect);
     }
 
-    fn event_id(&self) -> u16 {
+    fn event_id(&self) -> EventId {
         self.event_id
     }
 
@@ -164,19 +168,13 @@ impl ElementTrait for QuadColorPicker {
     }
 }
 
-impl Slider for QuadColorPicker {
-    fn slider_global_bounds(&mut self) -> IntRect {
-        self.global_bounds
-    }
-
+impl ActionableElement for QuadColorPicker {
+    cast_actionable_element!();
     fn set_hover(&mut self, mouse_pos: Vector2i) {
         self.is_hover = self.global_bounds.contains(mouse_pos);
     }
     fn is_hover(&self) -> bool {
         self.is_hover
-    }
-    fn is_dragging(&self) -> bool {
-        self.is_dragging
     }
     fn bind_pressed(&mut self, mouse_pos: Vector2i) {
         self.set_hover(mouse_pos);
@@ -192,13 +190,22 @@ impl Slider for QuadColorPicker {
         }
         self.is_dragging = false;
     }
-    fn triggered_event(&mut self) -> Event {
+    fn triggered_event(&self) -> Event {
         Event::new(
             self.event_id,
             Events::Vector2fEvent(self.current_selection_relative_coords),
         )
     }
+}
 
+impl Slider for QuadColorPicker {
+    fn slider_global_bounds(&mut self) -> IntRect {
+        self.global_bounds
+    }
+
+    fn is_dragging(&self) -> bool {
+        self.is_dragging
+    }
     fn min_slider_value(&mut self) -> Vector2f {
         self.global_bounds.position().as_other()
     }
@@ -251,31 +258,5 @@ impl Slider for QuadColorPicker {
 
     fn box_clone(&self) -> Box<dyn Slider> {
         Box::new(self.clone())
-    }
-}
-
-impl SliderElement for QuadColorPicker {
-    fn as_mut_element(&mut self) -> &mut dyn ElementTrait {
-        self
-    }
-
-    fn as_mut_slider(&mut self) -> &mut dyn Slider {
-        self
-    }
-
-    fn as_element(&self) -> &dyn ElementTrait {
-        self
-    }
-
-    fn as_slider(&self) -> &dyn Slider {
-        self
-    }
-
-    fn box_clone(&self) -> Box<dyn SliderElement> {
-        Box::new(self.clone())
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn Any {
-        self
     }
 }

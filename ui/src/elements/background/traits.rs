@@ -25,10 +25,6 @@ impl Clone for Box<dyn Background> {
 
 use std::fmt::Debug;
 pub trait BackgroundElement: Background + ElementTrait + Debug {
-    fn as_mut_element(&mut self) -> &mut dyn ElementTrait;
-    fn as_mut_background(&mut self) -> &mut dyn Background;
-    fn as_element(&self) -> &dyn ElementTrait;
-    fn as_background(&self) -> &dyn Background;
     fn box_clone(&self) -> Box<dyn BackgroundElement>;
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
