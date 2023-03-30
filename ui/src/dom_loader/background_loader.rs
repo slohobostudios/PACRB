@@ -1,8 +1,7 @@
 use super::utils::*;
 use crate::{
     elements::background::{
-        fixed_size_repeatable_3x3_background::FixedSizeRepeatable3x3Background,
-        traits::BackgroundElement,
+        repeatable_3x3_background::Repeatable3x3Background, traits::BackgroundElement,
     },
     utils::positioning::UIPosition,
 };
@@ -14,7 +13,7 @@ use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 /// # Usage
 ///
 /// ## Required
-/// - type "Fixed3x3RepeatableBackground"
+/// - type [`REPEATABLE_3X3_BACKGROUND`]
 /// - asset ([`String`])
 /// - frame_id ([`usize`])
 ///
@@ -32,8 +31,8 @@ fn fixed_size_repeatable_3x3_background(
     default_scale: f32,
     default_font_size: u32,
     default_color: Color,
-) -> Result<FixedSizeRepeatable3x3Background, Box<dyn Error>> {
-    Ok(FixedSizeRepeatable3x3Background::new(
+) -> Result<Repeatable3x3Background, Box<dyn Error>> {
+    Ok(Repeatable3x3Background::new(
         resource_manager,
         collect_children_as_vector(
             resource_manager,
@@ -54,8 +53,8 @@ fn fixed_size_repeatable_3x3_background(
     ))
 }
 
-const FIXED_3X3_REPEATABLE_BACKGROUND: &'static str = "Fixed3x3RepeatableBackground";
-const BACKGROUND_TYPES: [&'static str; 1] = [FIXED_3X3_REPEATABLE_BACKGROUND];
+const REPEATABLE_3X3_BACKGROUND: &'static str = "Repeatable3x3Background";
+const BACKGROUND_TYPES: [&'static str; 1] = [REPEATABLE_3X3_BACKGROUND];
 pub fn background_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -64,7 +63,7 @@ pub fn background_loader(
     default_color: Color,
 ) -> Result<Box<dyn BackgroundElement>, Box<dyn Error>> {
     match minidom_element.attr("type") {
-        Some(FIXED_3X3_REPEATABLE_BACKGROUND) => Ok(Box::new(fixed_size_repeatable_3x3_background(
+        Some(REPEATABLE_3X3_BACKGROUND) => Ok(Box::new(fixed_size_repeatable_3x3_background(
             &resource_manager,
             &minidom_element,
             default_scale,

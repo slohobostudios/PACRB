@@ -55,6 +55,7 @@ pub trait Element {
 
     fn as_mut_element(&mut self) -> &mut dyn Element;
 }
+
 /// Auto import as casting element functions
 macro_rules! cast_element {
     () => {

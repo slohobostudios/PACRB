@@ -93,7 +93,7 @@ impl Default for UISettings {
     fn default() -> Self {
         Self {
             cursor_position: Default::default(),
-            aspect_ratio: AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1280., 720.))
+            aspect_ratio: AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1920., 1080.))
                 .unwrap(),
             show_fps: false,
             vsync: true,

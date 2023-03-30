@@ -1,5 +1,5 @@
 use ::utils::{
-    resource_manager::ResourceManager,
+    fps_counter::FPSCounter, resource_manager::ResourceManager,
     tracing_subscriber_setup::setup_tracing_subscriber_with_no_logging,
 };
 use sfml::{
@@ -20,7 +20,7 @@ pub mod utils;
 
 const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
-    type="Fixed3x3RepeatableBackground"
+    type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     position="b:15,r:15"
     size="x:400,y:350"
@@ -69,23 +69,22 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xml
     click_frame_id="2"
     position="r:25,t:25"
     >
-    <Div padding="t:20,b:20,l:20,r:20">
+    <Div padding="t:10,b:10,l:10,r:10">
       <Text disable_padding="true">
         Test
       </Text>
     </Div>
   </Button>
   <Background
-    type="Fixed3x3RepeatableBackground"
+    type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     frame_id="0"
     padding="t:50,b:50,l:50,r:50">
   <TextBox
     type="FixedSizeOneLineTextbox" 
-    size="x:100,y:0"
+    size="x:400,y:0"
     color="#081a1b"
     >
-    Default
   </TextBox>
   </Background>
 </RootNode>"##;
@@ -99,6 +98,7 @@ fn main() {
     let mut ui_settings = UISettings::from_file();
     let resource_manager = ResourceManager::new();
     let mut dom = DomController::new(&resource_manager, &ui_settings, XML_DOC);
+    let mut fps_counter = FPSCounter::new(&resource_manager, 240);
 
     while window.is_open() {
         while let Some(event) = window.poll_event() {
@@ -111,9 +111,11 @@ fn main() {
             dom.event_handler(&mut window, &mut ui_settings, event);
         }
         dom.update(&resource_manager);
+        fps_counter.new_frame();
 
         window.clear(Color::BLACK);
         dom.render(&mut window);
+        window.draw(fps_counter.fps_text());
         window.display();
     }
 }

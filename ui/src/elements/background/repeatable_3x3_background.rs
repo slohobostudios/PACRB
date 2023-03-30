@@ -21,13 +21,13 @@ use sfml::{
 use utils::resource_manager::ResourceManager;
 
 #[derive(Clone, Debug)]
-pub struct FixedSizeRepeatable3x3Background {
+pub struct Repeatable3x3Background {
     background: Repeatable3x3Sprite,
     hover: bool,
     div: Element,
 }
 
-impl FixedSizeRepeatable3x3Background {
+impl Repeatable3x3Background {
     pub fn new(
         resource_manager: &ResourceManager,
         children: Vec<Element>,
@@ -66,7 +66,7 @@ impl FixedSizeRepeatable3x3Background {
     }
 }
 
-impl Background for FixedSizeRepeatable3x3Background {
+impl Background for Repeatable3x3Background {
     fn is_hover(&self) -> bool {
         self.hover
     }
@@ -86,7 +86,7 @@ impl Background for FixedSizeRepeatable3x3Background {
     }
 }
 
-impl traits::Element for FixedSizeRepeatable3x3Background {
+impl traits::Element for Repeatable3x3Background {
     cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.background.global_bounds()
@@ -136,7 +136,7 @@ impl traits::Element for FixedSizeRepeatable3x3Background {
     }
 }
 
-impl BackgroundElement for FixedSizeRepeatable3x3Background {
+impl BackgroundElement for Repeatable3x3Background {
     fn box_clone(&self) -> Box<dyn BackgroundElement> {
         Box::new(self.clone())
     }

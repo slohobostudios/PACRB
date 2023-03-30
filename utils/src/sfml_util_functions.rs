@@ -22,7 +22,7 @@ macro_rules! vector_to_rect_with_zeroed_origin {
 
 use super::{simple_error::SimpleError, string_util_functions::get_tuple_list_from_string};
 use sfml::{
-    graphics::{Color, Rect},
+    graphics::{Color, Glyph, RcText, Rect, TextStyle},
     system::{Vector2i, Vector2u},
 };
 use std::{error::Error, ops::Add, str::FromStr};
@@ -220,4 +220,97 @@ pub fn top_right_rect_coords<T: Add<Output = T>>(rect: Rect<T>) -> Vector2<T> {
         x: rect.left + rect.width,
         y: rect.top,
     }
+}
+
+/// Panics if text is not utf8
+#[track_caller]
+pub fn get_character_idx_of_rc_text_at_point(
+    text: &RcText,
+    point: Vector2i,
+    clamp_top: bool,
+    clamp_bottom: bool,
+    clamp_left: bool,
+    clamp_right: bool,
+) -> Option<usize> {
+    let text_gb = text.global_bounds();
+    let is_in_clamped_zone_and_clamping = (clamp_top && text_gb.top > point.y as f32)
+        || (clamp_bottom && bottom_left_rect_coords(text_gb).y < point.y as f32)
+        || (clamp_left && text_gb.left > point.x as f32)
+        || (clamp_right && bottom_right_rect_coords(text_gb).x < point.x as f32);
+    if !text_gb.contains(point.as_other()) && !is_in_clamped_zone_and_clamping {
+        return None;
+    }
+    let string = text.string().to_rust_string();
+    let new_line_count = string.chars().filter(|&c| matches!(c, '\r' | '\n')).count() + 1;
+    let text_height = text.global_bounds().height / new_line_count as f32;
+    let mut current_new_line_count = 1;
+    let mut num_of_chars_since_last_new_line = 0;
+    for (idx, c) in string.chars().enumerate() {
+        let glyph = glyph_from_rc_text(text, c as u32)?;
+        let width = get_character_width_at_idx(text, idx).unwrap_or(glyph.bounds().size().x);
+
+        let mut rect = Rect::from_vecs(
+            text.find_character_pos(idx),
+            Vector2::new(width, text_height),
+        );
+        if clamp_top && current_new_line_count == 1 {
+            rect.top -= f32::from(u16::MAX);
+            rect.height += f32::from(u16::MAX);
+        }
+        if clamp_left && num_of_chars_since_last_new_line == 0 {
+            rect.left -= f32::from(u16::MAX);
+            rect.width += f32::from(u16::MAX);
+        }
+
+        let tmp_bool = if let Some(c) = string.chars().nth(idx + 1) {
+            matches!(c, '\r' | '\n')
+        } else {
+            true
+        };
+        if clamp_right && tmp_bool {
+            rect.width += f32::from(u16::MAX);
+        }
+
+        if clamp_bottom && current_new_line_count == new_line_count {
+            rect.height += f32::from(u16::MAX);
+        }
+        if rect.contains(point.as_other()) {
+            return Some(idx);
+        }
+
+        num_of_chars_since_last_new_line += 1;
+        if matches!(c, '\r' | '\n') {
+            current_new_line_count += 1;
+            num_of_chars_since_last_new_line = 0;
+        }
+    }
+    None
+}
+
+#[track_caller]
+pub fn get_character_width_at_idx(text: &RcText, idx: usize) -> Option<f32> {
+    let width = text.find_character_pos(idx + 1).x - text.find_character_pos(idx).x;
+    if width < 0. {
+        return None;
+    }
+
+    Some(width)
+}
+
+/// This only matches the glyph with character size, style, and outline thickness
+///
+/// Transformations are NOT applied
+#[track_caller]
+pub fn glyph_from_rc_text(text: &RcText, codepoint: u32) -> Option<Glyph> {
+    let Some(font) = text.font() else {
+        error!("No font exists! Called from: {:?}", file!());
+        return None;
+    };
+
+    Some(font.glyph(
+        codepoint,
+        text.character_size(),
+        text.style().intersects(TextStyle::BOLD),
+        text.outline_thickness(),
+    ))
 }

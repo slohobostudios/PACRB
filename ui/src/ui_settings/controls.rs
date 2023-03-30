@@ -176,14 +176,34 @@ impl Bindings {
     }
 }
 
+macro_rules! bind {
+    ($input:expr, $bind:expr) => {
+        ($input, HashMap::from([($bind, Default::default())]))
+    };
+}
 impl Default for Bindings {
     fn default() -> Self {
         Self {
-            input_bindings: HashMap::from([(
-                PossibleInputs::ButtonLeft,
-                HashMap::from([(PossibleBinds::Select, Default::default())]),
-            )]),
-            binded_inputs: HashMap::from([(PossibleBinds::Select, PossibleInputs::ButtonLeft)]),
+            input_bindings: HashMap::from([
+                // Self explanatory buttons
+                bind!(PossibleInputs::ButtonLeft, PossibleBinds::Select),
+                bind!(PossibleInputs::Escape, PossibleBinds::Escape),
+                // UI arrow movement
+                bind!(PossibleInputs::Up, PossibleBinds::UIUp),
+                bind!(PossibleInputs::Down, PossibleBinds::UIDown),
+                bind!(PossibleInputs::Left, PossibleBinds::UILeft),
+                bind!(PossibleInputs::Right, PossibleBinds::UIRight),
+            ]),
+            binded_inputs: HashMap::from([
+                // Self explanotry buttons
+                (PossibleBinds::Select, PossibleInputs::ButtonLeft),
+                (PossibleBinds::Escape, PossibleInputs::Escape),
+                // UI arrow movement
+                (PossibleBinds::UIUp, PossibleInputs::Up),
+                (PossibleBinds::UIDown, PossibleInputs::Down),
+                (PossibleBinds::UILeft, PossibleInputs::Left),
+                (PossibleBinds::UIRight, PossibleInputs::Right),
+            ]),
         }
     }
 }
