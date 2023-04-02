@@ -50,11 +50,9 @@ impl ColorGrid {
 
         let offset_mouse_pos = coord - top_left_cell_position;
 
-        Some(
-            (offset_mouse_pos.cwise_div(cell_size))
-                .try_into_other()
-                .ok()?,
-        )
+        (offset_mouse_pos.cwise_div(cell_size))
+            .try_into_other()
+            .ok()
     }
 
     pub fn is_idx_valid(&self, idx: Vector2<usize>) -> bool {

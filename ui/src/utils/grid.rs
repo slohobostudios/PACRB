@@ -16,7 +16,7 @@ impl UIGrid {
         Self {
             m,
             n,
-            global_bounds: IntRect::from_vecs(Vector2::new(0, 0), size.clone()),
+            global_bounds: IntRect::from_vecs(Vector2::new(0, 0), size),
         }
     }
 

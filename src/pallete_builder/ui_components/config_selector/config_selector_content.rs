@@ -16,11 +16,11 @@ pub fn perform_events(events: &Vec<Event>, config: &mut Config) {
 fn perform_event(event: &Event, config: &mut Config) {
     match event.id {
         0 => {}
-        1 => event1(*event, config),
-        2 => event2(*event, config),
-        3 => event3(*event, config),
-        4 => event4(*event, config),
-        5 => event5(*event, config),
+        1 => event1(event.clone(), config),
+        2 => event2(event.clone(), config),
+        3 => event3(event.clone(), config),
+        4 => event4(event.clone(), config),
+        5 => event5(event.clone(), config),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }

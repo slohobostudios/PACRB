@@ -34,7 +34,7 @@ impl UISettings {
 
     pub fn from_file() -> Self {
         match UISettings::serialize_from_file() {
-            Ok(v) => return v,
+            Ok(v) => v,
             Err(e) => {
                 error!("{:#?}", e);
                 let ui_settings: Self = Default::default();

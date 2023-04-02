@@ -240,7 +240,7 @@ pub fn get_character_idx_of_rc_text_at_point(
     if !text_gb.contains(point.as_other()) && !is_in_clamped_zone_and_clamping {
         return None;
     }
-    let string = text.string().to_rust_string();
+    let string = text.string().try_to_rust_string().ok()?;
     let new_line_count = string.chars().filter(|&c| matches!(c, '\r' | '\n')).count() + 1;
     let text_height = text.global_bounds().height / new_line_count as f32;
     let mut current_new_line_count = 1;

@@ -29,9 +29,11 @@ pub trait TextBox: ActionableElement + Debug {
     fn deselect(&mut self);
     fn is_selected(&self) -> bool;
     fn is_dragging(&self) -> bool;
-    fn copy(&self) -> String;
+    fn cut(&mut self);
+    fn copy(&self);
     fn paste(&mut self);
     fn drag_mouse(&mut self, mouse_pos: Vector2i);
+    fn set_string(&mut self, string: &str);
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         self.set_hover(ui_settings.cursor_position);
         match event {
@@ -49,8 +51,22 @@ pub trait TextBox: ActionableElement + Debug {
                 self.deselect();
                 vec![EMPTY_EVENT]
             }
-            // Copy and paste
+            // Cut, Copy, and Paste
             // This will be hardcoded per system. No binds for this
+
+            // Cut
+            SFMLEvent::KeyPressed {
+                code,
+                alt: _,
+                ctrl,
+                shift: _,
+                system: _,
+            } if code == Key::X && ctrl => {
+                self.cut();
+                vec![self.triggered_event()]
+            }
+
+            // Copy
             SFMLEvent::KeyPressed {
                 code,
                 alt: _,
@@ -61,6 +77,8 @@ pub trait TextBox: ActionableElement + Debug {
                 self.copy();
                 vec![EMPTY_EVENT]
             }
+
+            // Paste
             SFMLEvent::KeyPressed {
                 code,
                 alt: _,
@@ -71,6 +89,7 @@ pub trait TextBox: ActionableElement + Debug {
                 self.paste();
                 vec![self.triggered_event()]
             }
+
             // Mouse dragging and selection
             SFMLEvent::MouseMoved { x: _, y: _ } if self.is_dragging() => {
                 self.drag_mouse(ui_settings.cursor_position);

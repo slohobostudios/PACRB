@@ -469,6 +469,8 @@ impl ActionableElement for IncrementDecrementPointerSlider {
     }
 }
 
+impl QuadColorPickerTrait for IncrementDecrementPointerSlider {}
+
 impl Slider for IncrementDecrementPointerSlider {
     fn slider_global_bounds(&mut self) -> IntRect {
         self.slider.global_bounds()

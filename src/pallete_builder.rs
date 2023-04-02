@@ -106,7 +106,7 @@ impl PalleteBuilder {
             _ => {}
         }
 
-        if events.len() > 0 {
+        if events.is_empty() {
             return;
         }
 
@@ -134,7 +134,7 @@ impl PalleteBuilder {
                     &self.erase_mode,
                     &mut self.undo_redo,
                     &mut self.confirm_color_ramp,
-                    &mut self.config_selector,
+                    &self.config_selector,
                 ))
             }
         }
@@ -145,17 +145,16 @@ impl PalleteBuilder {
             dci.update(resource_manager);
         }
 
-        match &mut self.current_mode {
-            Mode::RampMode(ramp_mode) => ramp_mode.update(&mut RampModeEventHandlerArguments::new(
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            ramp_mode.update(&mut RampModeEventHandlerArguments::new(
                 &mut self.color_grid,
                 Event::Closed,
                 &self.hsv_selector,
                 &self.erase_mode,
                 &mut self.undo_redo,
                 &mut self.confirm_color_ramp,
-                &mut self.config_selector,
-            )),
-            _ => {}
+                &self.config_selector,
+            ))
         }
 
         self.color_grid.update();
@@ -288,9 +287,9 @@ impl PalleteBuilder {
     }
 
     fn drag_screen_event_handler(&mut self, event: &Event) {
-        match event {
+        match *event {
             // Begin dragging the screen around
-            &Event::MouseButtonPressed { button, x, y }
+            Event::MouseButtonPressed { button, x, y }
                 if (button == Button::Right || button == Button::Middle) =>
             {
                 self.is_dragging_screen = true;
@@ -298,14 +297,14 @@ impl PalleteBuilder {
             }
 
             // Make sure the middle or right button is still pressed. If not, stop dragging
-            &Event::MouseMoved { x: _, y: _ }
+            Event::MouseMoved { x: _, y: _ }
                 if self.is_dragging_screen
                     && !(Button::Middle.is_pressed() || Button::Right.is_pressed()) =>
             {
                 self.is_dragging_screen = false;
             }
             // Actually drag the screen around
-            &Event::MouseMoved { x, y } if self.is_dragging_screen => {
+            Event::MouseMoved { x, y } if self.is_dragging_screen => {
                 let mouse_diff = Vector2::new(x, y) - self.previous_mouse_position;
                 self.previous_mouse_position = Vector2::new(x, y) - mouse_diff;
                 let center = self.view.center();
@@ -313,7 +312,7 @@ impl PalleteBuilder {
             }
 
             // Finished dragging the screen around
-            &Event::MouseButtonReleased { button, x: _, y: _ }
+            Event::MouseButtonReleased { button, x: _, y: _ }
                 if self.is_dragging_screen
                     && (button == Button::Right || button == Button::Middle) =>
             {
@@ -324,9 +323,9 @@ impl PalleteBuilder {
     }
 
     fn undo_redo_event_handler(&mut self, event: &Event) {
-        match event {
+        match *event {
             // Undo
-            &Event::KeyPressed {
+            Event::KeyPressed {
                 code,
                 alt: _,
                 ctrl,
@@ -337,7 +336,7 @@ impl PalleteBuilder {
             }
 
             // Redo
-            &Event::KeyPressed {
+            Event::KeyPressed {
                 code,
                 alt: _,
                 ctrl,

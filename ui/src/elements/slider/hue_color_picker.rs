@@ -21,7 +21,7 @@ use crate::{
     utils::positioning::UIPosition,
 };
 
-use super::traits::Slider;
+use super::traits::{QuadColorPickerTrait, Slider};
 
 const NUM_OF_QUADS: u8 = 6;
 
@@ -207,6 +207,8 @@ impl ActionableElement for HueColorPicker {
         )
     }
 }
+
+impl QuadColorPickerTrait for HueColorPicker {}
 
 impl Slider for HueColorPicker {
     fn slider_global_bounds(&mut self) -> IntRect {

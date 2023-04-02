@@ -6,14 +6,11 @@ use sfml::{
 use self::color_ramper::ColorRamper;
 
 use super::{
-    color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell, ColorGrid, GRID_SIZE},
+    color_grid::{undo_redo::UndoRedoCell, ColorGrid},
     hover_handler::HoverHandler,
-    hsv_color::HSV,
     ui_components::{
-        config_selector::ConfigSelector,
-        confirm_color_ramp::{ConfirmColorRamp, Orientation},
-        erase_mode::EraseMode,
-        hsv_selector::HSVSelector,
+        config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
+        erase_mode::EraseMode, hsv_selector::HSVSelector,
     },
 };
 

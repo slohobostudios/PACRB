@@ -3,7 +3,7 @@ use tracing::{error, warn};
 use ui::{
     dom_controller::DomController,
     elements::{
-        slider::quad_color_picker::QuadColorPicker, traits::Element as ElementTrait, Element,
+        traits::Element as ElementTrait, Element,
     },
     events::{Event, Events},
 };
@@ -65,13 +65,11 @@ pub fn sync_events(dom_controller: &mut DomController, hsv: HSV) {
             0 => {}
             1 => {
                 if let Element::Slider(ele) = ele {
-                    if let Some(ele) = ele.as_mut_any().downcast_mut::<QuadColorPicker>() {
-                        let mut hsv = hsv;
-                        hsv.s = 255;
-                        hsv.v = 255;
-                        let color = hsv.into();
-                        ele.set_top_right_color(color);
-                    }
+                    let mut hsv = hsv;
+                    hsv.s = 255;
+                    hsv.v = 255;
+                    let color = hsv.into();
+                    ele.set_top_right_color(color);
                 }
             }
             2 => {

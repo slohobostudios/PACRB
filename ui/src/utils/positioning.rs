@@ -161,7 +161,7 @@ impl FromStr for UIPosition {
     type Err = SimpleError;
     #[track_caller]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.contains(":") {
+        if s.contains(':') {
             let mut position: UIPosition = Default::default();
 
             for tuple in get_tuple_list_from_string(s) {

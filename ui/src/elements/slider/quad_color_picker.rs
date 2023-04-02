@@ -21,7 +21,7 @@ use crate::{
     utils::positioning::UIPosition,
 };
 
-use super::traits::Slider;
+use super::traits::{QuadColorPickerTrait, Slider};
 
 /// This struct NEEDS to be defined on the heap.
 /// It stores and internal array that if defined on the stack, can cause stack oveflow.
@@ -83,36 +83,38 @@ impl QuadColorPicker {
 
         qcp
     }
+}
 
-    pub fn set_top_left_color(&mut self, color: Color) {
+impl QuadColorPickerTrait for QuadColorPicker {
+    fn set_top_left_color(&mut self, color: Color) {
         self.quad[0].color = color;
     }
 
-    pub fn set_top_right_color(&mut self, color: Color) {
+    fn set_top_right_color(&mut self, color: Color) {
         self.quad[1].color = color;
     }
 
-    pub fn set_bottom_right_color(&mut self, color: Color) {
+    fn set_bottom_right_color(&mut self, color: Color) {
         self.quad[2].color = color;
     }
 
-    pub fn set_bottom_left_color(&mut self, color: Color) {
+    fn set_bottom_left_color(&mut self, color: Color) {
         self.quad[3].color = color;
     }
 
-    pub fn top_left_color(&self) -> Color {
+    fn top_left_color(&self) -> Color {
         self.quad[0].color
     }
 
-    pub fn top_right_color(&self) -> Color {
+    fn top_right_color(&self) -> Color {
         self.quad[1].color
     }
 
-    pub fn bottom_right_color(&self) -> Color {
+    fn bottom_right_color(&self) -> Color {
         self.quad[2].color
     }
 
-    pub fn bottom_left_color(&self) -> Color {
+    fn bottom_left_color(&self) -> Color {
         self.quad[3].color
     }
 }
