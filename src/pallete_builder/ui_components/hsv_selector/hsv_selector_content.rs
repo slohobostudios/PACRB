@@ -2,9 +2,7 @@ use sfml::system::Vector2f;
 use tracing::{error, warn};
 use ui::{
     dom_controller::DomController,
-    elements::{
-        traits::Element as ElementTrait, Element,
-    },
+    elements::{traits::Element as ElementTrait, Element},
     events::{Event, Events},
 };
 
