@@ -1,6 +1,6 @@
 <RootNode scale="6" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
-    type="Fixed3x3RepeatableBackground"
+    type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     position="b:15,r:15"
     size="x:380,y:310"

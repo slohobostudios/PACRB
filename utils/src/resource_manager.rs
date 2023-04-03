@@ -11,7 +11,8 @@ pub mod asset;
 
 pub const ASSETS_PATH: &str = "assets/";
 pub const MISSING_TEXTURE_ID: &str = "missing_texture.png";
-pub const DEFAULT_FONT_ID: &str = "SourceCodePro-SemiBold.ttf";
+// pub const DEFAULT_FONT_ID: &str = "SourceCodePro-SemiBold.ttf";
+pub const DEFAULT_FONT_ID: &str = "m6x11.ttf";
 
 pub fn load_sfml_logo() -> sfml::SfBox<Texture> {
     let file_name = &format!("{}{}", ASSETS_PATH, "sfml-logo-big.png")[..];

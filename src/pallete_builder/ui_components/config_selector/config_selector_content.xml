@@ -1,11 +1,11 @@
-<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="6" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
     <Background
-         type="Fixed3x3RepeatableBackground"
+         type="Repeatable3x3Background"
          asset="dark_blue_background.png"
          position="t:15,l:15"
          size="x:300,y:850"
          frame_id="0">
-        <Text font_size="48" position="t:50">
+        <Text font_size="36" position="t:50">
             CONFIGURATION
         </Text>
         <Grid
@@ -13,7 +13,6 @@
              grid_layout="x:1,y:5"
              size="x:263,y:750"
              position="t:50"
-             font_size="36"
              scale="3">
             <Grid
                  pagination_size="x:2,y:1"
