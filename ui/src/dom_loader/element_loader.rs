@@ -39,26 +39,26 @@ pub fn element_loader(
     match ele.name() {
         "Button" => {
             match button_loader(
-                &resource_manager,
-                &ele,
+                resource_manager,
+                ele,
                 default_scale,
                 default_font_size,
                 default_color,
             ) {
                 Ok(v) => Element::Button(v),
-                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
             }
         }
         "Slider" => {
-            match slider_loader(resource_manager, &ele, default_scale, default_font_size, default_color) {
+            match slider_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
                 Ok(v) => Element::Slider(v),
-                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
             }
         }
         "TextBox" => {
             match textbox_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
                 Ok(v) => Element::TextBox(v),
-                Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
             }
         }
         "Div" => match div_loader(
@@ -69,30 +69,30 @@ pub fn element_loader(
             default_color
         ) {
             Ok(v) => Element::Div(v),
-            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         }
         "Grid" => match grid_loader(
-            &resource_manager,
-            &ele,
+            resource_manager,
+            ele,
             default_scale,
             default_font_size,
             default_color,
         ) {
             Ok(v) => Element::Grid(v),
-            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         },
-        "Background" => match background_loader(resource_manager, &ele, default_scale, default_font_size, default_color) {
+        "Background" => match background_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
             Ok(v) => Element::Background(v),
-            Err(e) => print_error_and_return_missing_texture(resource_manager, e, &ele),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         },
-        "Text" => Element::Text(text_loader(resource_manager, &ele, default_font_size, default_color)),
+        "Text" => Element::Text(text_loader(resource_manager, ele, default_font_size, default_color)),
         "Empty" => Element::Empty(()),
         _ => print_error_and_return_missing_texture(resource_manager,
             Box::new(SimpleError::new(format!(
                 "ui::pages::loader::element_loader::element_loader: No dom element labeled {} exists",
                 ele.name()
             ))),
-            &ele,
+            ele,
         ),
     }
 }

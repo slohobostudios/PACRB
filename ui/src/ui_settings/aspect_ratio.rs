@@ -64,12 +64,10 @@ impl AspectRatio {
                 } else {
                     resolution.x -= 1.;
                 }
+            } else if target_area > compute_area(&resolution) {
+                resolution.x += 1.;
             } else {
-                if target_area > compute_area(&resolution) {
-                    resolution.x += 1.;
-                } else {
-                    resolution.y -= 1.;
-                }
+                resolution.y -= 1.;
             }
             current_radian = compute_radian_from_vec(&resolution);
 
@@ -143,9 +141,9 @@ mod test {
         }
 
         // failing try_from_ar_string
-        assert!(AspectRatio::try_from_ar_string(&"dddvfgbdas;kj").is_err());
-        assert!(AspectRatio::try_from_ar_string(&"99999:99999").is_err());
-        assert!(AspectRatio::try_from_ar_string(&"16:9:16:9").is_err());
+        assert!(AspectRatio::try_from_ar_string("dddvfgbdas;kj").is_err());
+        assert!(AspectRatio::try_from_ar_string("99999:99999").is_err());
+        assert!(AspectRatio::try_from_ar_string("16:9:16:9").is_err());
     }
 
     #[test]

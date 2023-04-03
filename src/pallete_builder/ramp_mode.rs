@@ -88,7 +88,7 @@ impl RampMode {
 
     fn no_ramp_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
         self.hover_handler
-            .event_handler(args.event, &mut args.color_grid);
+            .event_handler(args.event, args.color_grid);
 
         if args.erase_mode.erase_mode_enabled() {
             return;

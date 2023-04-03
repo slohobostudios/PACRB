@@ -47,7 +47,7 @@ pub fn dom_loader(
     xml_doc: &str,
 ) -> RootNode {
     let mut root_node =
-        try_page_loader(&resource_manager, relative_rect, xml_doc).unwrap_or_else(|e| {
+        try_page_loader(resource_manager, relative_rect, xml_doc).unwrap_or_else(|e| {
             error!("Error loading page: {:#?}", e);
             RootNode::new(resource_manager, Vec::new(), relative_rect)
         });
@@ -94,7 +94,7 @@ fn try_page_loader(
         .map(|child_node| {
             element_loader(
                 resource_manager,
-                &child_node,
+                child_node,
                 default_scale,
                 default_font_size,
                 default_color,

@@ -29,11 +29,11 @@ impl DomController {
             vector_to_rect_with_zeroed_origin!(f32, ui_settings.aspect_ratio.computed_resolution());
         Self {
             root_node: Element::RootNode(dom_loader(
-                &resource_manager,
+                resource_manager,
                 view_size.as_other(),
-                &xml_doc,
+                xml_doc,
             )),
-            view: View::from_rect(view_size).to_owned(),
+            view: View::from_rect(view_size),
             needs_rerender: true,
             render_texture: RenderTexture::new(view_size.width as u32, view_size.height as u32),
         }
@@ -43,7 +43,7 @@ impl DomController {
         let view_size =
             vector_to_rect_with_zeroed_origin!(f32, ui_settings.aspect_ratio.computed_resolution());
         let events = self.root_node.event_handler(
-            &ui_settings,
+            ui_settings,
             SFMLEvent::Resized {
                 width: view_size.width as u32,
                 height: view_size.height as u32,
@@ -52,7 +52,7 @@ impl DomController {
         self.root_node.update_size();
         self.root_node.update_position(view_size.as_other());
 
-        self.view = View::from_rect(view_size).to_owned();
+        self.view = View::from_rect(view_size);
         self.needs_rerender = true;
 
         events
@@ -69,8 +69,8 @@ impl DomControllerInterface for DomController {
         match event {
             SFMLEvent::Resized { .. } => self.reset_view(ui_settings),
             _ => {
-                let events = self.root_node.event_handler(&ui_settings, event);
-                if events.len() > 0 {
+                let events = self.root_node.event_handler(ui_settings, event);
+                if !events.is_empty() {
                     self.needs_rerender = true;
                 }
                 events
@@ -79,8 +79,8 @@ impl DomControllerInterface for DomController {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let events = self.root_node.update(&resource_manager);
-        if events.len() > 0 {
+        let events = self.root_node.update(resource_manager);
+        if !events.is_empty() {
             self.needs_rerender = true;
         }
 

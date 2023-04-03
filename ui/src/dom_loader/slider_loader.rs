@@ -42,22 +42,22 @@ fn increment_decrement_pointer_slider_loader(
 ) -> Result<IncrementDecrementPointerSlider, Box<dyn Error>> {
     Ok(IncrementDecrementPointerSlider::new(
         resource_manager,
-        get_ui_position(&minidom_element)?,
-        get_scale(&minidom_element).unwrap_or( default_scale),
-        &get_asset_id(&minidom_element)?,
-        get_font_size(&minidom_element).unwrap_or( default_font_size),
-        get_color_attribute(&minidom_element).unwrap_or(default_color),
-        get_generic_attribute(&minidom_element,"frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse frame_id")?,
-        get_generic_attribute(&minidom_element,"hover_frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse hover_frame_id")?,
-        get_generic_attribute(&minidom_element,"click_frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse click_frame_id")?,
-        get_size(&minidom_element).unwrap_or_default().x,
+        get_ui_position(minidom_element)?,
+        get_scale(minidom_element).unwrap_or( default_scale),
+        &get_asset_id(minidom_element)?,
+        get_font_size(minidom_element).unwrap_or( default_font_size),
+        get_color_attribute(minidom_element).unwrap_or(default_color),
+        get_generic_attribute(minidom_element,"frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse frame_id")?,
+        get_generic_attribute(minidom_element,"hover_frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse hover_frame_id")?,
+        get_generic_attribute(minidom_element,"click_frame_id").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse click_frame_id")?,
+        get_size(minidom_element).unwrap_or_default().x,
         (
-            get_generic_attribute::<f32>(&minidom_element, "min").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse min")?,
-            get_generic_attribute::<f32>(&minidom_element, "max").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse max")?
+            get_generic_attribute::<f32>(minidom_element, "min").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse min")?,
+            get_generic_attribute::<f32>(minidom_element, "max").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse max")?
         ),
-        get_generic_attribute::<f32>(&minidom_element, "increment").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse increment")?,
-        get_event_id_or_default(&minidom_element),
-        get_sync_id_or_default(&minidom_element),
+        get_generic_attribute::<f32>(minidom_element, "increment").ok_or("ui::dom_loader::slider_loader::increment_decrement_pointer_slider_loader: Failed to parse increment")?,
+        get_event_id_or_default(minidom_element),
+        get_sync_id_or_default(minidom_element),
 
     ))
 }
@@ -84,7 +84,7 @@ fn quad_color_picker_loader(
     default_font_size: u32,
     default_color: Color,
 ) -> Result<QuadColorPicker, Box<dyn Error>> {
-    let size = get_size(&minidom_element).unwrap_or_default();
+    let size = get_size(minidom_element).unwrap_or_default();
     if size == Default::default() {
         warn!("QuadColorPicker size is 0,0. Displaying nothing")
     }
@@ -92,14 +92,13 @@ fn quad_color_picker_loader(
         element_loader(
             resource_manager,
             minidom_element
-                .children()
-                .nth(0)
+                .children().next()
                 .ok_or("Inner slider icon element not found")?,
             get_scale(minidom_element).unwrap_or(default_scale),
             get_font_size(minidom_element).unwrap_or(default_font_size),
             get_color_attribute(minidom_element).unwrap_or(default_color),
         ),
-        get_ui_position(&minidom_element).unwrap_or_default(),
+        get_ui_position(minidom_element).unwrap_or_default(),
         size,
         color_from_str(minidom_element.attr("top_left_color").unwrap_or_default())
             .unwrap_or_default(),
@@ -117,8 +116,8 @@ fn quad_color_picker_loader(
                 .unwrap_or_default(),
         )
         .unwrap_or_default(),
-        get_event_id_or_default(&minidom_element),
-        get_sync_id_or_default(&minidom_element),
+        get_event_id_or_default(minidom_element),
+        get_sync_id_or_default(minidom_element),
     ))
 }
 
@@ -146,8 +145,7 @@ pub fn hue_color_picker_loader(
         element_loader(
             resource_manager,
             minidom_element
-                .children()
-                .nth(0)
+                .children().next()
                 .ok_or("Inner slider icon element not found")?,
             get_scale(minidom_element).unwrap_or(default_scale),
             get_font_size(minidom_element).unwrap_or(default_font_size),
@@ -160,10 +158,10 @@ pub fn hue_color_picker_loader(
     ))
 }
 
-const INCREMENT_DECREMENT_POINTER_SLIDER: &'static str = "IncrementPointerSlider";
-const QUAD_COLOR_PICKER: &'static str = "QuadColorPicker";
-const HUE_COLOR_PICKER: &'static str = "HueColorPicker";
-const SLIDER_STYLES: [&'static str; 3] = [
+const INCREMENT_DECREMENT_POINTER_SLIDER: &str = "IncrementPointerSlider";
+const QUAD_COLOR_PICKER: &str = "QuadColorPicker";
+const HUE_COLOR_PICKER: &str = "HueColorPicker";
+const SLIDER_STYLES: [&str; 3] = [
     INCREMENT_DECREMENT_POINTER_SLIDER,
     QUAD_COLOR_PICKER,
     HUE_COLOR_PICKER,

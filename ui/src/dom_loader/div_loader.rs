@@ -37,7 +37,7 @@ pub fn div_loader(
             get_font_size(minidom_element).unwrap_or(default_font_size),
             get_color_attribute(minidom_element).unwrap_or(default_color),
         ),
-        get_generic_attribute::<UIPosition>(minidom_element, "padding").unwrap_or_default(),
+        get_generic_attribute::<UIPosition>(minidom_element, "padding"),
         minidom_element
             .attr("size")
             .and_then(|size| vector2_from_str(size).ok()),

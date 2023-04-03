@@ -81,7 +81,7 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xml
     frame_id="0"
     padding="t:50,b:50,l:50,r:50">
   <TextBox
-    type="FixedSizeOneLineTextbox" 
+    type="FixedSizeOneLineTextbox"
     size="x:400,y:0"
     color="#081a1b"
     >

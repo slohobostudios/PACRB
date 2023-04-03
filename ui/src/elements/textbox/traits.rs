@@ -14,7 +14,7 @@ use crate::{
 
 use std::{fmt::Debug, ops::Deref, time::Duration};
 
-pub(super) const CURSOR_FONT: &'static str = "SourceCodePro-SemiBold.ttf";
+pub(super) const CURSOR_FONT: &str = "SourceCodePro-SemiBold.ttf";
 pub(super) const CURSOR_CHAR: char = '\u{2581}';
 pub(super) const BLINK_INTERVAL: Duration = Duration::from_millis(900);
 

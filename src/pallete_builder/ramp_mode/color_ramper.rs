@@ -4,7 +4,7 @@ use utils::{center_of_rect, clamp_to_primitive_bounds};
 
 use crate::pallete_builder::{
     color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell},
-    hsv_color::HSV,
+    hsv_color::Hsv,
     ui_components::confirm_color_ramp::Orientation,
 };
 
@@ -23,7 +23,7 @@ impl ColorRamper {
     }
 
     pub fn ramp_being_shown(&self) -> bool {
-        self.min_ramp.len() != 0 || self.max_ramp.len() != 0
+        !self.min_ramp.is_empty() || !self.max_ramp.is_empty()
     }
 
     pub fn clear_ramp(&mut self, undo_redo: &mut UndoRedoCell) {
@@ -137,7 +137,7 @@ impl ColorRamper {
             );
             color_cell
                 .borrow_mut()
-                .fill_the_cell(args.undo_redo, HSV { h, s, v })
+                .fill_the_cell(args.undo_redo, Hsv { h, s, v })
         }
         for (i, color_cell) in self.max_ramp.iter_mut().enumerate() {
             let i = i as i16;
@@ -152,7 +152,7 @@ impl ColorRamper {
             );
             color_cell
                 .borrow_mut()
-                .fill_the_cell(args.undo_redo, HSV { h, s, v })
+                .fill_the_cell(args.undo_redo, Hsv { h, s, v })
         }
     }
 

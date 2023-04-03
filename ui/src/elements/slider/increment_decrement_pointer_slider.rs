@@ -47,9 +47,9 @@ const POINTER_POSITION: UIPosition = UIPosition {
 
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
 enum IncrementDecrementClickState {
-    IncrementClicking((Instant, Instant)),
-    DecrementClicking((Instant, Instant)),
-    NoneClicking,
+    Increment((Instant, Instant)),
+    Decrement((Instant, Instant)),
+    None,
 }
 
 impl IncrementDecrementClickState {
@@ -58,14 +58,14 @@ impl IncrementDecrementClickState {
         const TIME_BETWEEN_BIND_PRESSED: Duration = Duration::from_millis(400);
         use IncrementDecrementClickState::*;
         match self {
-            IncrementClicking((bind_pressed_instant, last_update_instant))
+            Increment((bind_pressed_instant, last_update_instant))
                 if bind_pressed_instant.elapsed() > TIME_BETWEEN_BIND_PRESSED
                     && last_update_instant.elapsed() > TIME_BETWEEN_UPDATES =>
             {
                 true
             }
 
-            DecrementClicking((bind_pressed_instant, last_update_instant))
+            Decrement((bind_pressed_instant, last_update_instant))
                 if bind_pressed_instant.elapsed() > TIME_BETWEEN_BIND_PRESSED
                     && last_update_instant.elapsed() > TIME_BETWEEN_UPDATES =>
             {
@@ -78,13 +78,13 @@ impl IncrementDecrementClickState {
     fn increment_last_update_instant(&mut self) {
         use IncrementDecrementClickState::*;
         *self = match self {
-            IncrementClicking((bind_pressed_instant, _)) => {
-                IncrementClicking((*bind_pressed_instant, Instant::now()))
+            Increment((bind_pressed_instant, _)) => {
+                Increment((*bind_pressed_instant, Instant::now()))
             }
-            DecrementClicking((bind_pressed_instant, _)) => {
-                DecrementClicking((*bind_pressed_instant, Instant::now()))
+            Decrement((bind_pressed_instant, _)) => {
+                Decrement((*bind_pressed_instant, Instant::now()))
             }
-            _ => NoneClicking,
+            _ => None,
         }
     }
 }
@@ -109,6 +109,7 @@ pub struct IncrementDecrementPointerSlider {
 }
 
 impl IncrementDecrementPointerSlider {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -140,19 +141,19 @@ impl IncrementDecrementPointerSlider {
             event_id,
             increment_amt,
             sync_id,
-            increment_decrement_click_state: IncrementDecrementClickState::NoneClicking,
+            increment_decrement_click_state: IncrementDecrementClickState::None,
             decrement_button: ImageButton::with_texture_bounds(
                 resource_manager,
                 DECREMENT_BUTTON_POSITION,
-                &asset_id,
+                asset_id,
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("decrement", frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("decrement", hover_frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("decrement", click_frame_id),
                 scale,
                 0,
@@ -161,15 +162,15 @@ impl IncrementDecrementPointerSlider {
             increment_button: ImageButton::with_texture_bounds(
                 resource_manager,
                 INCREMENT_BUTTON_POSITION,
-                &asset_id,
+                asset_id,
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("increment", frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("increment", hover_frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("increment", click_frame_id),
                 scale,
                 0,
@@ -178,15 +179,15 @@ impl IncrementDecrementPointerSlider {
             pointer: ImageButton::with_texture_bounds(
                 resource_manager,
                 POINTER_POSITION,
-                &asset_id,
+                asset_id,
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("cursor", frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("cursor", hover_frame_id),
                 resource_manager
-                    .fetch_asset(&asset_id)
+                    .fetch_asset(asset_id)
                     .get_shifted_slice_bound("cursor", click_frame_id),
                 scale,
                 0,
@@ -196,24 +197,24 @@ impl IncrementDecrementPointerSlider {
                 resource_manager,
                 SLIDER_POSITION,
                 Box::new(Repeatable3x1Sprite::new(
-                    &resource_manager,
-                    &asset_id,
+                    resource_manager,
+                    asset_id,
                     frame_id,
                     position,
                     desired_size,
                     scale,
                 )),
                 Box::new(Repeatable3x1Sprite::new(
-                    &resource_manager,
-                    &asset_id,
+                    resource_manager,
+                    asset_id,
                     hover_frame_id,
                     position,
                     desired_size,
                     scale,
                 )),
                 Box::new(Repeatable3x1Sprite::new(
-                    &resource_manager,
-                    &asset_id,
+                    resource_manager,
+                    asset_id,
                     click_frame_id,
                     position,
                     desired_size,
@@ -221,7 +222,7 @@ impl IncrementDecrementPointerSlider {
                 )),
             ),
             text: Text::new(
-                &resource_manager,
+                resource_manager,
                 Default::default(),
                 "NaN",
                 false,
@@ -266,13 +267,13 @@ impl Element for IncrementDecrementPointerSlider {
         if self.is_dragging {
             self.pointer
                 .as_mut_element()
-                .event_handler(&ui_settings, event);
+                .event_handler(ui_settings, event);
             self.slider
                 .as_mut_element()
-                .event_handler(&ui_settings, event);
+                .event_handler(ui_settings, event);
         } else {
             for ele in self.compact_ele_mut() {
-                ele.event_handler(&ui_settings, event);
+                ele.event_handler(ui_settings, event);
             }
         };
         let events = Slider::event_handler(self, ui_settings, event);
@@ -280,35 +281,27 @@ impl Element for IncrementDecrementPointerSlider {
         match event {
             // If we are holding the mouse down and drag over the button, begin the timer
             SFMLEvent::MouseMoved { x: _, y: _ }
-                if self.increment_decrement_click_state
-                    == IncrementDecrementClickState::NoneClicking
+                if self.increment_decrement_click_state == IncrementDecrementClickState::None
                     && self.increment_button.is_hover()
                     && self.increment_button.current_mouse_state() == UIMouseStates::Click =>
             {
                 self.increment_decrement_click_state =
-                    IncrementDecrementClickState::IncrementClicking((
-                        Instant::now(),
-                        Instant::now(),
-                    ))
+                    IncrementDecrementClickState::Increment((Instant::now(), Instant::now()))
             }
             // If we are holding the mouse down and drag over the button, begin the timer
             SFMLEvent::MouseMoved { x: _, y: _ }
-                if self.increment_decrement_click_state
-                    == IncrementDecrementClickState::NoneClicking
+                if self.increment_decrement_click_state == IncrementDecrementClickState::None
                     && self.decrement_button.is_hover()
                     && self.decrement_button.current_mouse_state() == UIMouseStates::Click =>
             {
                 self.increment_decrement_click_state =
-                    IncrementDecrementClickState::DecrementClicking((
-                        Instant::now(),
-                        Instant::now(),
-                    ))
+                    IncrementDecrementClickState::Decrement((Instant::now(), Instant::now()))
             }
             // If we move the mouse around and aren't hovering either button, stop the timer
             SFMLEvent::MouseMoved { x: _, y: _ }
                 if !self.increment_button.is_hover() && !self.decrement_button.is_hover() =>
             {
-                self.increment_decrement_click_state = IncrementDecrementClickState::NoneClicking
+                self.increment_decrement_click_state = IncrementDecrementClickState::None
             }
             _ => {}
         }
@@ -361,18 +354,18 @@ impl Element for IncrementDecrementPointerSlider {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.compact_ele_mut() {
-            events.append(&mut ele.update(&resource_manager));
+            events.append(&mut ele.update(resource_manager));
         }
 
         if self.increment_decrement_click_state.update_needed() {
             let (new_slider_value, new_slider_value_was_computed) =
                 match self.increment_decrement_click_state {
-                    IncrementDecrementClickState::IncrementClicking(_) => {
+                    IncrementDecrementClickState::Increment(_) => {
                         self.increment_decrement_click_state
                             .increment_last_update_instant();
                         (self.current_slider_value + self.increment_amt, true)
                     }
-                    IncrementDecrementClickState::DecrementClicking(_) => {
+                    IncrementDecrementClickState::Decrement(_) => {
                         self.increment_decrement_click_state
                             .increment_last_update_instant();
                         (self.current_slider_value - self.increment_amt, true)
@@ -428,11 +421,11 @@ impl ActionableElement for IncrementDecrementPointerSlider {
         }
         if self.increment_button.current_mouse_state() == UIMouseStates::Click {
             self.increment_decrement_click_state =
-                IncrementDecrementClickState::IncrementClicking((Instant::now(), Instant::now()));
+                IncrementDecrementClickState::Increment((Instant::now(), Instant::now()));
         }
         if self.decrement_button.current_mouse_state() == UIMouseStates::Click {
             self.increment_decrement_click_state =
-                IncrementDecrementClickState::DecrementClicking((Instant::now(), Instant::now()));
+                IncrementDecrementClickState::Decrement((Instant::now(), Instant::now()));
         }
         if self.slider.global_bounds().contains(mouse_pos)
             || self.pointer.global_bounds().contains(mouse_pos)
@@ -444,7 +437,7 @@ impl ActionableElement for IncrementDecrementPointerSlider {
         }
     }
     fn bind_released(&mut self, _: Vector2i) {
-        self.increment_decrement_click_state = IncrementDecrementClickState::NoneClicking;
+        self.increment_decrement_click_state = IncrementDecrementClickState::None;
         if !self.is_dragging {
             if self.increment_button.is_hover() {
                 self.set_current_slider_value(Vector2f::new(

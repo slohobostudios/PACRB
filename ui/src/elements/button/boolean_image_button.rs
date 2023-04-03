@@ -24,6 +24,7 @@ pub struct BooleanImageButton {
 }
 
 impl BooleanImageButton {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -42,7 +43,7 @@ impl BooleanImageButton {
         let truth_button = ImageButton::new(
             resource_manager,
             UIPosition::CENTER,
-            &asset_id,
+            asset_id,
             truth_frame_id,
             truth_hover_frame_id,
             truth_click_frame_id,
@@ -53,7 +54,7 @@ impl BooleanImageButton {
         let false_button = ImageButton::new(
             resource_manager,
             UIPosition::CENTER,
-            &asset_id,
+            asset_id,
             false_frame_id,
             false_hover_frame_id,
             false_click_frame_id,
@@ -186,7 +187,7 @@ impl Element for BooleanImageButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Button::event_handler(self, &ui_settings, event)
+        Button::event_handler(self, ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn Element> {

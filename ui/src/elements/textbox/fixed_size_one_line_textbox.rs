@@ -71,6 +71,7 @@ pub struct FixedSizeOneLineTextbox {
 }
 
 impl FixedSizeOneLineTextbox {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -307,7 +308,7 @@ impl Element for FixedSizeOneLineTextbox {
         // If cursor was constructed via default, the cursor character may not
         // have been initialized. This gives it a chance to initialize.
         if let Ok(cursor_str) = self.cursor.string().try_to_rust_string() {
-            if cursor_str.len() == 0 {
+            if cursor_str.is_empty() {
                 self.cursor = Self::create_cursor(
                     resource_manager,
                     self.rendered_text.rc_text().character_size(),
@@ -507,10 +508,10 @@ impl TextBox for FixedSizeOneLineTextbox {
                 if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
                     self.trigger_backspace_event();
                     self.move_cursor_left();
-                } else if let Some(_) = self.string.chars().nth(self.cursor_idx + 1) {
+                } else if self.string.chars().nth(self.cursor_idx + 1).is_some() {
                     self.string.remove(self.cursor_idx + 1);
                     self.move_cursor(self.cursor_idx);
-                } else if let Some(_) = self.string.chars().nth(self.cursor_idx) {
+                } else if self.string.chars().nth(self.cursor_idx).is_some() {
                     self.string.remove(self.cursor_idx);
                     self.move_cursor(self.cursor_idx);
                 }

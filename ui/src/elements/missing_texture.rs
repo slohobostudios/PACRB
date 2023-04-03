@@ -23,7 +23,7 @@ impl MissingTexture {
                 size.try_into_other().unwrap_or_default(),
             ),
             position,
-            sprite: RcSprite::with_texture(&resource_manager.missing_texture().texture()),
+            sprite: RcSprite::with_texture(resource_manager.missing_texture().texture()),
         };
         mt.update_size();
         mt

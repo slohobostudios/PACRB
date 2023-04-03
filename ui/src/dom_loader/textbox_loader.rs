@@ -56,8 +56,8 @@ fn fixed_size_one_line_textbox_loader(
     ))
 }
 
-const FIXED_SIZE_ONE_LINE_TEXTBOX: &'static str = "FixedSizeOneLineTextbox";
-const TEXTBOX_STYLES: [&'static str; 1] = [FIXED_SIZE_ONE_LINE_TEXTBOX];
+const FIXED_SIZE_ONE_LINE_TEXTBOX: &str = "FixedSizeOneLineTextbox";
+const TEXTBOX_STYLES: [&str; 1] = [FIXED_SIZE_ONE_LINE_TEXTBOX];
 pub fn textbox_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,

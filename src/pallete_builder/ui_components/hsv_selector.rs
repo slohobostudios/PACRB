@@ -12,7 +12,7 @@ use ui::{
 };
 use utils::{quads::Quad, resource_manager::ResourceManager};
 
-use crate::pallete_builder::hsv_color::HSV;
+use crate::pallete_builder::hsv_color::Hsv;
 
 use self::hsv_selector_content::{perform_events, sync_events};
 
@@ -22,18 +22,18 @@ pub struct HSVSelector {
     hsi_selector_dom: DomController,
     current_color_rect: Quad,
     display_current_color: bool,
-    current_color: HSV,
+    current_color: Hsv,
 }
 
 impl HSVSelector {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
         let mut hsis = Self {
             hsi_selector_dom: DomController::new(
-                &resource_manager,
-                &ui_settings,
+                resource_manager,
+                ui_settings,
                 include_str!("hsv_selector/hsv_selector_content.xml"),
             ),
-            current_color: HSV {
+            current_color: Hsv {
                 h: 0,
                 s: 255 / 2,
                 v: 255 / 2,
@@ -48,7 +48,7 @@ impl HSVSelector {
         hsis
     }
 
-    pub fn curr_color(&self) -> HSV {
+    pub fn curr_color(&self) -> Hsv {
         self.current_color
     }
 }
@@ -81,14 +81,14 @@ impl DomControllerInterface for HSVSelector {
         self.current_color_rect
             .set_quad_to_one_color(self.current_color.into());
         self.display_current_color = true;
-        if events.len() == 0 {
+        if events.is_empty() {
             self.display_current_color = false;
         }
         events
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.hsi_selector_dom.update(&resource_manager)
+        self.hsi_selector_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

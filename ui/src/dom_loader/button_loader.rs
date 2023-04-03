@@ -33,8 +33,8 @@ fn image_button_loader(
 ) -> Result<ImageButton, Box<dyn Error>> {
     Ok(ImageButton::new(
         resource_manager,
-        get_ui_position(&minidom_element).unwrap_or_default(),
-        &get_asset_id(&minidom_element)?,
+        get_ui_position(minidom_element).unwrap_or_default(),
+        &get_asset_id(minidom_element)?,
         minidom_element
             .attr("frame_id")
             .ok_or("No frame_id defined")?
@@ -47,9 +47,9 @@ fn image_button_loader(
             .attr("click_frame_id")
             .ok_or("no click_frame_id defined")?
             .parse::<usize>()?,
-        get_scale(&minidom_element).unwrap_or(default_scale),
-        get_event_id_or_default(&minidom_element),
-        get_sync_id_or_default(&minidom_element),
+        get_scale(minidom_element).unwrap_or(default_scale),
+        get_event_id_or_default(minidom_element),
+        get_sync_id_or_default(minidom_element),
     ))
 }
 
@@ -80,14 +80,14 @@ fn tiling_button_loader(
 ) -> Result<TilingButton, Box<dyn Error>> {
     Ok(TilingButton::new(
         resource_manager,
-        get_ui_position(&minidom_element).unwrap_or_default(),
-        &get_asset_id(&minidom_element)?,
-        get_generic_attribute::<usize>(&minidom_element, "frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse frame_id")?,
-        get_generic_attribute::<usize>(&minidom_element, "hover_frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse hover_frame_id")?,
-        get_generic_attribute::<usize>(&minidom_element, "click_frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse click_frame_id")?,
-        element_loader(resource_manager, minidom_element.children().nth(0).ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: No child element for TilingButton to wrap")?, default_scale, default_font_size, default_color)
+        get_ui_position(minidom_element).unwrap_or_default(),
+        &get_asset_id(minidom_element)?,
+        get_generic_attribute::<usize>(minidom_element, "frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse frame_id")?,
+        get_generic_attribute::<usize>(minidom_element, "hover_frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse hover_frame_id")?,
+        get_generic_attribute::<usize>(minidom_element, "click_frame_id").ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: Unable to parse click_frame_id")?,
+        element_loader(resource_manager, minidom_element.children().next().ok_or("ui::parse::loader::button_loader::tiling_text_button_loader: No child element for TilingButton to wrap")?, default_scale, default_font_size, default_color)
         ,
-        &vector2_from_str(&minidom_element.attr("size").unwrap_or("x:1,y:1"))
+        &vector2_from_str(minidom_element.attr("size").unwrap_or("x:1,y:1"))
             .unwrap_or_else(|e| {
                 error!(
                     "{:#?}",
@@ -96,9 +96,9 @@ fn tiling_button_loader(
                 Vector2f::new(1., 1.)
             })
             .as_other(),
-        get_scale(&minidom_element).unwrap_or(default_scale),
-        get_event_id_or_default(&minidom_element),
-        get_sync_id_or_default(&minidom_element),
+        get_scale(minidom_element).unwrap_or(default_scale),
+        get_event_id_or_default(minidom_element),
+        get_sync_id_or_default(minidom_element),
     ))
 }
 
@@ -126,37 +126,37 @@ fn boolean_image_loader(
 ) -> Result<BooleanImageButton, Box<dyn Error>> {
     Ok(BooleanImageButton::new(
         resource_manager,
-        get_ui_position(&minidom_element).unwrap_or_default(),
-        get_scale(&minidom_element).unwrap_or(default_scale),
+        get_ui_position(minidom_element).unwrap_or_default(),
+        get_scale(minidom_element).unwrap_or(default_scale),
         false,
-        &get_asset_id(&minidom_element)?,
-        get_generic_attribute::<usize>(&minidom_element, "truth_frame_id").ok_or(
+        &get_asset_id(minidom_element)?,
+        get_generic_attribute::<usize>(minidom_element, "truth_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse truth_frame_id",
         )?,
-        get_generic_attribute::<usize>(&minidom_element, "truth_hover_frame_id").ok_or(
+        get_generic_attribute::<usize>(minidom_element, "truth_hover_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse truth_hover_frame_id",
         )?,
-        get_generic_attribute::<usize>(&minidom_element, "truth_click_frame_id").ok_or(
+        get_generic_attribute::<usize>(minidom_element, "truth_click_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse truth_click_frame_id",
         )?,
-        get_generic_attribute::<usize>(&minidom_element, "false_frame_id").ok_or(
+        get_generic_attribute::<usize>(minidom_element, "false_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse false_frame_id",
         )?,
-        get_generic_attribute::<usize>(&minidom_element, "false_hover_frame_id").ok_or(
+        get_generic_attribute::<usize>(minidom_element, "false_hover_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse false_hover_frame_id",
         )?,
-        get_generic_attribute::<usize>(&minidom_element, "false_click_frame_id").ok_or(
+        get_generic_attribute::<usize>(minidom_element, "false_click_frame_id").ok_or(
             "ui::pages::loader:button_loader::boolean_image_loader: Unable to parse false_click_frame_id",
         )?,
-        get_event_id_or_default(&minidom_element),
-        get_sync_id_or_default(&minidom_element),
+        get_event_id_or_default(minidom_element),
+        get_sync_id_or_default(minidom_element),
     ))
 }
 
-const TILING_BUTTON: &'static str = "TilingButton";
-const IMAGE_BUTTON: &'static str = "ImageButton";
-const BOOLEAN_IMAGE_BUTTON: &'static str = "BooleanImageButton";
-const BUTTON_STYLES: [&'static str; 3] = [TILING_BUTTON, IMAGE_BUTTON, BOOLEAN_IMAGE_BUTTON];
+const TILING_BUTTON: &str = "TilingButton";
+const IMAGE_BUTTON: &str = "ImageButton";
+const BOOLEAN_IMAGE_BUTTON: &str = "BooleanImageButton";
+const BUTTON_STYLES: [&str; 3] = [TILING_BUTTON, IMAGE_BUTTON, BOOLEAN_IMAGE_BUTTON];
 pub fn button_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -166,20 +166,20 @@ pub fn button_loader(
 ) -> Result<Box<dyn Button>, Box<dyn Error>> {
     match minidom_element.attr("type") {
         Some(TILING_BUTTON) => Ok(Box::new(tiling_button_loader(
-            &resource_manager,
-            &minidom_element,
+            resource_manager,
+            minidom_element,
             default_scale,
             default_font_size,
             default_color,
         )?)),
         Some(IMAGE_BUTTON) => Ok(Box::new(image_button_loader(
-            &resource_manager,
-            &minidom_element,
+            resource_manager,
+            minidom_element,
             default_scale,
         )?)),
         Some(BOOLEAN_IMAGE_BUTTON) => Ok(Box::new(boolean_image_loader(
-            &resource_manager,
-            &minidom_element,
+            resource_manager,
+            minidom_element,
             default_scale,
         )?)),
         string => Err(Box::new(SimpleError::new(format!(

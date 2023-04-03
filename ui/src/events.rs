@@ -29,16 +29,14 @@ impl Default for Event {
 }
 
 #[derive(Clone, PartialEq, Debug)]
+#[derive(Default)]
 pub enum Events {
     BooleanEvent(bool),
     NumericalEvent(f32),
     Vector2fEvent(Vector2f),
     StringEvent(String),
+    #[default]
     Null,
 }
 
-impl Default for Events {
-    fn default() -> Self {
-        Events::Null
-    }
-}
+

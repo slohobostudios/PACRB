@@ -28,6 +28,7 @@ pub struct ImageButton {
 }
 
 impl ImageButton {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -39,7 +40,7 @@ impl ImageButton {
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        let asset = &resource_manager.fetch_asset(&asset_id);
+        let asset = &resource_manager.fetch_asset(asset_id);
 
         let mut ib = Self {
             global_bounds: asset.get_scaled_and_shifted_slice_bound(
@@ -64,6 +65,7 @@ impl ImageButton {
         ib
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn with_texture_bounds(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -75,7 +77,7 @@ impl ImageButton {
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        let texture = &resource_manager.fetch_asset(&asset_id).texture();
+        let texture = &resource_manager.fetch_asset(asset_id).texture();
 
         let mut ib = Self {
             global_bounds: texture_bounds,
@@ -203,7 +205,7 @@ impl Element for ImageButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Button::event_handler(self, &ui_settings, event)
+        Button::event_handler(self, ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn Element> {

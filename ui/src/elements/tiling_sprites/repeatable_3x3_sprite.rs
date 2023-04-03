@@ -79,7 +79,7 @@ impl Repeatable3x3Sprite {
         desired_size: Vector2<u32>,
         scale: f32,
     ) -> Self {
-        let asset = resource_manager.fetch_asset(&asset_id);
+        let asset = resource_manager.fetch_asset(asset_id);
         let mut rps = Self {
             position,
             desired_size,
@@ -254,7 +254,7 @@ impl Element for Repeatable3x3Sprite {
             + self.middle_sprite.global_bounds().width * (f32::from(self.num_tiles.x) - 2.)
             + self.right_sprite.global_bounds().width;
         let size_y = self.top_sprite.global_bounds().height
-            + self.middle_sprite.global_bounds().height * (f32::from(self.num_tiles.y) as f32 - 2.)
+            + self.middle_sprite.global_bounds().height * (f32::from(self.num_tiles.y) - 2.)
             + self.bottom_sprite.global_bounds().height;
 
         self.global_bounds.width = size_x as i32;

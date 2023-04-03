@@ -38,8 +38,8 @@ pub struct ConfigSelector {
 impl ConfigSelector {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
         let mut config_selector_dom = DomController::new(
-            &resource_manager,
-            &ui_settings,
+            resource_manager,
+            ui_settings,
             include_str!("config_selector/config_selector_content.xml"),
         );
         let new_config = Default::default();
@@ -71,7 +71,7 @@ impl DomControllerInterface for ConfigSelector {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.config_selector_dom.update(&resource_manager)
+        self.config_selector_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

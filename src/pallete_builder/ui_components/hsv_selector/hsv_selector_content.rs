@@ -6,15 +6,15 @@ use ui::{
     events::{Event, Events},
 };
 
-use crate::pallete_builder::hsv_color::HSV;
+use crate::pallete_builder::hsv_color::Hsv;
 
-pub fn perform_events(events: &Vec<Event>, dom_controller: &mut DomController, hsv: &mut HSV) {
+pub fn perform_events(events: &Vec<Event>, dom_controller: &mut DomController, hsv: &mut Hsv) {
     for event in events {
         perform_event(event, dom_controller, hsv);
     }
 }
 
-fn perform_event(event: &Event, dom_controller: &mut DomController, hsv: &mut HSV) {
+fn perform_event(event: &Event, dom_controller: &mut DomController, hsv: &mut Hsv) {
     match event.id {
         0 => {}
         1 => event1(event, dom_controller, hsv),
@@ -25,29 +25,24 @@ fn perform_event(event: &Event, dom_controller: &mut DomController, hsv: &mut HS
     }
 }
 
-fn event1(event: &Event, dom_controller: &mut DomController, hsv: &mut HSV) {
+fn event1(event: &Event, dom_controller: &mut DomController, hsv: &mut Hsv) {
     let Events::Vector2fEvent(sat_val) = event.event else {
         error!("event1: Event is not a Vector2fEvent");
         return;
     };
 
-    dom_controller
-        .root_node
-        .traverse_dom_mut(&mut |ele| match ele.event_id() {
-            1 => {
-                if let Element::Slider(ele) = ele {
-                    let slider_size = ele.max_slider_value() - ele.min_slider_value();
-                    hsv.s = ((sat_val.x / slider_size.x) * 255f32) as u8;
-                    hsv.v = 255u8 - ((sat_val.y / slider_size.y) * 255f32) as u8;
-
-                    return;
-                }
+    dom_controller.root_node.traverse_dom_mut(&mut |ele| {
+        if let 1 = ele.event_id() {
+            if let Element::Slider(ele) = ele {
+                let slider_size = ele.max_slider_value() - ele.min_slider_value();
+                hsv.s = ((sat_val.x / slider_size.x) * 255f32) as u8;
+                hsv.v = 255u8 - ((sat_val.y / slider_size.y) * 255f32) as u8;
             }
-            _ => {}
-        })
+        }
+    })
 }
 
-fn event2(dom_controller: &mut DomController, event: &Event, hsv: &mut HSV) {
+fn event2(dom_controller: &mut DomController, event: &Event, hsv: &mut Hsv) {
     let Events::NumericalEvent(hue_event) = event.event else {
         error!("event2: Event is not a NumericalEvent");
         return;
@@ -56,7 +51,7 @@ fn event2(dom_controller: &mut DomController, event: &Event, hsv: &mut HSV) {
     sync_events(dom_controller, *hsv)
 }
 
-pub fn sync_events(dom_controller: &mut DomController, hsv: HSV) {
+pub fn sync_events(dom_controller: &mut DomController, hsv: Hsv) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {

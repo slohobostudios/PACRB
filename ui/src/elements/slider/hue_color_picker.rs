@@ -94,7 +94,9 @@ impl HueColorPicker {
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        let hcp = Self {
+        
+
+        Self {
             position,
             event_id,
             sync_id,
@@ -105,9 +107,7 @@ impl HueColorPicker {
             is_hover: false,
             is_dragging: false,
             hover_element,
-        };
-
-        hcp
+        }
     }
 
     fn set_quad_positions(&mut self) {
@@ -227,7 +227,7 @@ impl Slider for HueColorPicker {
 
     fn set_current_slider_value(&mut self, new_slider_value: Vector2f) {
         let new_slider_value = new_slider_value.x;
-        if new_slider_value < 0. || new_slider_value > 360. {
+        if !(0. ..=360.).contains(&new_slider_value) {
             return;
         }
 

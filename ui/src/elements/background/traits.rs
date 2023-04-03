@@ -30,7 +30,7 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.event_handler(&ui_settings, event));
+            events.append(&mut ele.event_handler(ui_settings, event));
         }
 
         self.set_hover(ui_settings.cursor_position);

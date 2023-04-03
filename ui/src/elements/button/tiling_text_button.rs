@@ -34,6 +34,7 @@ pub struct TilingButton {
 }
 
 impl TilingButton {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         position: UIPosition,
@@ -52,30 +53,30 @@ impl TilingButton {
             current_mouse_state: Default::default(),
             position,
             backgrounds: RepeatableSpritesButton::new(
-                &resource_manager,
+                resource_manager,
                 Default::default(),
                 Box::new(Repeatable3x3Sprite::new(
-                    &resource_manager,
-                    background_asset_id.into(),
-                    background_frame_id.into(),
+                    resource_manager,
+                    background_asset_id,
+                    background_frame_id,
                     UIPosition::CENTER,
-                    desired_size.clone(),
+                    *desired_size,
                     scale,
                 )),
                 Box::new(Repeatable3x3Sprite::new(
-                    &resource_manager,
-                    background_asset_id.into(),
-                    hover_background_frame_id.into(),
+                    resource_manager,
+                    background_asset_id,
+                    hover_background_frame_id,
                     UIPosition::CENTER,
-                    desired_size.clone(),
+                    *desired_size,
                     scale,
                 )),
                 Box::new(Repeatable3x3Sprite::new(
-                    &resource_manager,
-                    background_asset_id.into(),
-                    click_background_frame_id.into(),
+                    resource_manager,
+                    background_asset_id,
+                    click_background_frame_id,
                     UIPosition::CENTER,
-                    desired_size.clone(),
+                    *desired_size,
                     scale,
                 )),
             ),
@@ -195,8 +196,8 @@ impl TraitElement for TilingButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Button::event_handler(&mut self.backgrounds, &ui_settings, event);
-        Button::event_handler(self, &ui_settings, event)
+        Button::event_handler(&mut self.backgrounds, ui_settings, event);
+        Button::event_handler(self, ui_settings, event)
     }
 
     fn box_clone(&self) -> Box<dyn TraitElement> {

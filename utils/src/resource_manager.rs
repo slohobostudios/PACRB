@@ -56,7 +56,7 @@ impl ResourceManager {
     }
 
     pub fn asset_keys_iter(&self) -> impl Iterator<Item = &str> {
-        self.assets.keys().into_iter().map(|s| s.as_str())
+        self.assets.keys().map(|s| s.as_str())
     }
 
     fn get_all_file_names_in_assets() -> Vec<String> {
@@ -229,14 +229,12 @@ mod test {
     fn test_load_sfml_logo() {
         setup_tracing_subscriber_with_no_logging();
         let _texture = load_sfml_logo();
-        assert!(true);
     }
 
     #[test]
     fn test_load_missing_texture() {
         setup_tracing_subscriber_with_no_logging();
         let _texture = load_missing_texture();
-        assert!(true);
     }
 
     #[test]
@@ -251,6 +249,6 @@ mod test {
     fn test_default() {
         setup_tracing_subscriber_with_no_logging();
         let resource_manager: ResourceManager = Default::default();
-        assert!(resource_manager.fonts.len() >= 1);
+        assert!(!resource_manager.fonts.is_empty());
     }
 }

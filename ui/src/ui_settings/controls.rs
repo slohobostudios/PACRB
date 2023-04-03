@@ -7,19 +7,10 @@ pub mod possible_inputs;
 use possible_binds::*;
 use possible_inputs::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
 pub struct BindInfo {
     pub is_pressed: bool,
     pub just_released: bool,
-}
-
-impl Default for BindInfo {
-    fn default() -> Self {
-        Self {
-            is_pressed: false,
-            just_released: false,
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -125,8 +116,8 @@ impl Bindings {
     }
 
     pub fn reset_just_released(&mut self) {
-        for (_, hmaps) in &mut self.input_bindings {
-            for (_, bind_info) in hmaps {
+        for hmaps in &mut self.input_bindings.values_mut() {
+            for bind_info in hmaps.values_mut() {
                 bind_info.just_released = false;
             }
         }
@@ -218,7 +209,7 @@ mod test {
         for (bind, input) in &binds.binded_inputs {
             let mut num_times_bind_occurs = 0u8;
             for (input_inner, binds) in &binds.input_bindings {
-                if binds.contains_key(&bind) {
+                if binds.contains_key(bind) {
                     num_times_bind_occurs += 1;
                     assert!(
                         input == input_inner,
@@ -239,18 +230,16 @@ mod test {
         let binds: &mut Bindings = &mut Default::default();
 
         binds.remove_bind(PossibleBinds::Select);
-        for (bind, _) in binds
+        for bind in binds
             .input_bindings
             .get(&PossibleInputs::ButtonLeft)
             .unwrap()
+            .keys()
         {
             assert_ne!(&PossibleBinds::Select, bind);
         }
 
-        assert_eq!(
-            binds.binded_inputs.contains_key(&PossibleBinds::Select),
-            false
-        );
+        assert!(!binds.binded_inputs.contains_key(&PossibleBinds::Select));
     }
 
     #[test]
@@ -293,6 +282,6 @@ mod test {
 
         binds.input_released(PossibleInputs::ButtonLeft);
         binds.reset_just_released();
-        assert_eq!(binds.is_bind_released(PossibleBinds::Select), false);
+        assert!(!binds.is_bind_released(PossibleBinds::Select));
     }
 }

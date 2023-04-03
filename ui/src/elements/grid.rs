@@ -182,7 +182,7 @@ impl ElementTrait for Grid {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
-            events.append(&mut ele.update(&resource_manager));
+            events.append(&mut ele.update(resource_manager));
         }
 
         events
@@ -217,7 +217,7 @@ impl ElementTrait for Grid {
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
-            events.append(&mut ele.event_handler(&ui_settings, event));
+            events.append(&mut ele.event_handler(ui_settings, event));
         }
         events
     }

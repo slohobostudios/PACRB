@@ -40,6 +40,7 @@ pub struct QuadColorPicker {
 }
 
 impl QuadColorPicker {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         hover_element: Element,
         position: UIPosition,
@@ -51,7 +52,7 @@ impl QuadColorPicker {
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        let qcp = Self {
+        Self {
             hover_element,
             position,
             global_bounds: IntRect::from_vecs(Default::default(), vector2i_from_vector2u(size)),
@@ -79,9 +80,7 @@ impl QuadColorPicker {
             sync_id,
             size,
             is_hover: false,
-        };
-
-        qcp
+        }
     }
 }
 

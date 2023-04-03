@@ -22,10 +22,10 @@ pub fn text_loader(
 ) -> Text {
     Text::new(
         resource_manager,
-        get_ui_position(&ele).unwrap_or_else(|_| Default::default()),
+        get_ui_position(ele).unwrap_or_else(|_| Default::default()),
         ele.text().trim(),
         get_generic_attribute::<bool>(ele, "disable_padding").unwrap_or(true),
-        get_font_size(&ele).unwrap_or(default_font_size),
-        get_color_attribute(&ele).unwrap_or(default_color),
+        get_font_size(ele).unwrap_or(default_font_size),
+        get_color_attribute(ele).unwrap_or(default_color),
     )
 }

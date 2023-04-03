@@ -29,8 +29,8 @@ pub struct ConfirmColorRamp {
 impl ConfirmColorRamp {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
         let mut confirm_color_ramp_dom = DomController::new(
-            &resource_manager,
-            &ui_settings,
+            resource_manager,
+            ui_settings,
             include_str!("confirm_color_ramp/confirm_color_ramp_content.xml"),
         );
         confirm_color_ramp_content::sync_events(&mut confirm_color_ramp_dom, false);
@@ -87,7 +87,7 @@ impl DomControllerInterface for ConfirmColorRamp {
         if !self.enable {
             return Default::default();
         }
-        self.confirm_color_ramp_dom.update(&resource_manager)
+        self.confirm_color_ramp_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

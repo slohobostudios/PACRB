@@ -3,12 +3,12 @@ use sfml::graphics::{
 };
 use utils::center_of_rect;
 
-use crate::pallete_builder::hsv_color::HSV;
+use crate::pallete_builder::hsv_color::Hsv;
 
 #[derive(Debug, Clone)]
 pub struct FullCell {
     color_rect: RectangleShape<'static>,
-    color: HSV,
+    color: Hsv,
 }
 
 impl FullCell {
@@ -24,7 +24,7 @@ impl FullCell {
             color: Default::default(),
         }
     }
-    pub fn set_color(&mut self, hsv_color: HSV) {
+    pub fn set_color(&mut self, hsv_color: Hsv) {
         self.color = hsv_color;
         self.color_rect.set_fill_color(self.color.into());
     }
@@ -32,7 +32,7 @@ impl FullCell {
         window.draw(&self.color_rect);
     }
 
-    pub fn current_color(&self) -> HSV {
+    pub fn current_color(&self) -> Hsv {
         self.color
     }
 }

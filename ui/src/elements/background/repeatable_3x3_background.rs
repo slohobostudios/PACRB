@@ -28,21 +28,17 @@ pub struct Repeatable3x3Background {
 }
 
 impl Repeatable3x3Background {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         resource_manager: &ResourceManager,
         children: Vec<Element>,
         position: UIPosition,
         background_asset_id: &str,
         background_frame_id: u16,
-        padding: UIPosition,
+        padding: Option<UIPosition>,
         desired_size: Option<Vector2u>,
         scale: f32,
     ) -> Self {
-        let padding = if desired_size.is_some() {
-            Default::default()
-        } else {
-            padding
-        };
         let mut fsr33b = Self {
             div: Element::Div(Div::new(
                 resource_manager,
@@ -102,9 +98,9 @@ impl traits::Element for Repeatable3x3Background {
             if div.is_padding() {
                 self.background
                     .set_desired_size(self.div.global_bounds().size().as_other());
-                self.background.update_size();
-                self.update_element_size();
             }
+            self.background.update_size();
+            self.update_element_size();
         }
     }
 
@@ -115,7 +111,7 @@ impl traits::Element for Repeatable3x3Background {
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
-        events.append(&mut self.background.update(&resource_manager));
+        events.append(&mut self.background.update(resource_manager));
         events.append(&mut BackgroundElement::update(self, resource_manager));
         events
     }

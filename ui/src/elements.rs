@@ -43,36 +43,36 @@ impl Element {
         }
     }
 
-    fn get_ele_with_element_trait(&self) -> Option<Box<&dyn traits::Element>> {
+    fn get_ele_with_element_trait(&self) -> Option<&dyn traits::Element> {
         use Element::*;
         match self {
-            MissingTexture(ele) => Some(Box::new(ele)),
-            Button(ele) => Some(Box::new(ele.as_element())),
-            Slider(ele) => Some(Box::new(ele.as_element())),
-            TextBox(ele) => Some(Box::new(ele.as_element())),
-            TilingSprite(ele) => Some(Box::new(ele.as_element())),
-            Background(ele) => Some(Box::new(ele.as_element())),
-            Div(ele) => Some(Box::new(ele)),
-            Grid(ele) => Some(Box::new(ele)),
-            Text(ele) => Some(Box::new(ele)),
-            RootNode(ele) => Some(Box::new(ele)),
+            MissingTexture(ele) => Some(ele),
+            Button(ele) => Some(ele.as_element()),
+            Slider(ele) => Some(ele.as_element()),
+            TextBox(ele) => Some(ele.as_element()),
+            TilingSprite(ele) => Some(ele.as_element()),
+            Background(ele) => Some(ele.as_element()),
+            Div(ele) => Some(ele),
+            Grid(ele) => Some(ele),
+            Text(ele) => Some(ele),
+            RootNode(ele) => Some(ele),
             Empty(_) => None,
         }
     }
 
-    fn get_mut_ele_with_element_trait(&mut self) -> Option<Box<&mut dyn traits::Element>> {
+    fn get_mut_ele_with_element_trait(&mut self) -> Option<&mut dyn traits::Element> {
         use Element::*;
         match self {
-            MissingTexture(ele) => Some(Box::new(ele)),
-            Button(ele) => Some(Box::new(ele.as_mut_element())),
-            Slider(ele) => Some(Box::new(ele.as_mut_element())),
-            TextBox(ele) => Some(Box::new(ele.as_mut_element())),
-            TilingSprite(ele) => Some(Box::new(ele.as_mut_element())),
-            Background(ele) => Some(Box::new(ele.as_mut_element())),
-            Div(ele) => Some(Box::new(ele)),
-            Grid(ele) => Some(Box::new(ele)),
-            Text(ele) => Some(Box::new(ele)),
-            RootNode(ele) => Some(Box::new(ele)),
+            MissingTexture(ele) => Some(ele),
+            Button(ele) => Some(ele.as_mut_element()),
+            Slider(ele) => Some(ele.as_mut_element()),
+            TextBox(ele) => Some(ele.as_mut_element()),
+            TilingSprite(ele) => Some(ele.as_mut_element()),
+            Background(ele) => Some(ele.as_mut_element()),
+            Div(ele) => Some(ele),
+            Grid(ele) => Some(ele),
+            Text(ele) => Some(ele),
+            RootNode(ele) => Some(ele),
             Empty(_) => None,
         }
     }
@@ -134,7 +134,7 @@ impl traits::Element for Element {
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
-            ele.event_handler(&ui_settings, event)
+            ele.event_handler(ui_settings, event)
         } else {
             Default::default()
         }
@@ -155,7 +155,7 @@ impl traits::Element for Element {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
-            events.append(&mut ele.update(&resource_manager));
+            events.append(&mut ele.update(resource_manager));
         }
         events
     }

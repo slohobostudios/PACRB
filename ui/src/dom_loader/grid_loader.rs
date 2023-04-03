@@ -48,6 +48,7 @@ fn grid_elements_loader(
     }
     grid.shrink_to_fit();
 
+    #[allow(clippy::needless_range_loop)]
     for x in 0..grid_layout.x {
         for y in 0..grid_layout.y {
             grid[x][y] = element_loader(
@@ -78,22 +79,22 @@ pub fn grid_loader(
     default_font_size: u32,
     default_color: Color,
 ) -> Result<Grid, Box<dyn Error>> {
-    let default_scale = get_scale(&ele).unwrap_or(default_scale);
-    let default_font_size = get_font_size(&ele).unwrap_or(default_font_size);
-    let default_color = get_color_attribute(&ele).unwrap_or(default_color);
+    let default_scale = get_scale(ele).unwrap_or(default_scale);
+    let default_font_size = get_font_size(ele).unwrap_or(default_font_size);
+    let default_color = get_color_attribute(ele).unwrap_or(default_color);
 
     Ok(Grid::new(
         resource_manager,
         grid_elements_loader(
-            &resource_manager,
-            &ele,
+            resource_manager,
+            ele,
             default_scale,
             default_font_size,
             default_color,
         )?,
-        get_ui_position(&ele).unwrap_or_default(),
+        get_ui_position(ele).unwrap_or_default(),
         vector2_from_str::<u16>(ele.attr("pagination_size").unwrap_or_default())
             .unwrap_or_default(),
-        get_size(&ele).unwrap_or_default(),
+        get_size(ele).unwrap_or_default(),
     ))
 }

@@ -6,7 +6,7 @@ use sfml::{
 };
 use utils::sfml_util_functions::vector2i_from_vector2u;
 
-use crate::pallete_builder::hsv_color::HSV;
+use crate::pallete_builder::hsv_color::Hsv;
 
 use self::{empty_cell::EmptyCell, full_cell::FullCell};
 
@@ -76,7 +76,7 @@ impl ColorCell {
     //     self.full_cell.set_color(Default::default());
     // }
 
-    pub fn fill_the_cell(&mut self, undo_redo: &mut UndoRedoCell, new_color: HSV) {
+    pub fn fill_the_cell(&mut self, undo_redo: &mut UndoRedoCell, new_color: Hsv) {
         self.empty_cell.is_hover = false;
         let old_color_cell = self.clone();
         self.full_cell.set_color(new_color);
@@ -90,7 +90,7 @@ impl ColorCell {
     //     self.draw_full_cell = true;
     // }
 
-    pub fn full_cell_current_color(&self) -> HSV {
+    pub fn full_cell_current_color(&self) -> Hsv {
         self.full_cell.current_color()
     }
 }

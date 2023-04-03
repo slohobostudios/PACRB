@@ -47,14 +47,14 @@ fn fixed_size_repeatable_3x3_background(
             .attr("frame_id")
             .ok_or("no frame_id defined")?
             .parse::<u16>()?,
-        get_generic_attribute::<UIPosition>(minidom_element, "padding").unwrap_or_default(),
+        get_generic_attribute::<UIPosition>(minidom_element, "padding"),
         get_size(minidom_element).ok(),
         get_scale(minidom_element).unwrap_or(default_scale),
     ))
 }
 
-const REPEATABLE_3X3_BACKGROUND: &'static str = "Repeatable3x3Background";
-const BACKGROUND_TYPES: [&'static str; 1] = [REPEATABLE_3X3_BACKGROUND];
+const REPEATABLE_3X3_BACKGROUND: &str = "Repeatable3x3Background";
+const BACKGROUND_TYPES: [&str; 1] = [REPEATABLE_3X3_BACKGROUND];
 pub fn background_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -64,8 +64,8 @@ pub fn background_loader(
 ) -> Result<Box<dyn BackgroundElement>, Box<dyn Error>> {
     match minidom_element.attr("type") {
         Some(REPEATABLE_3X3_BACKGROUND) => Ok(Box::new(fixed_size_repeatable_3x3_background(
-            &resource_manager,
-            &minidom_element,
+            resource_manager,
+            minidom_element,
             default_scale,
             default_font_size,
             default_color,

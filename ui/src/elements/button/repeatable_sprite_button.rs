@@ -145,7 +145,7 @@ impl Element for RepeatableSpritesButton {
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let mut events = Vec::new();
         for r_sprite in self.compact_repeat_sprites_mut() {
-            events.append(&mut r_sprite.update(&resource_manager));
+            events.append(&mut r_sprite.update(resource_manager));
         }
 
         if self.rerender {
@@ -169,7 +169,7 @@ impl Element for RepeatableSpritesButton {
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Button::event_handler(self, &ui_settings, event)
+        Button::event_handler(self, ui_settings, event)
     }
 }
 

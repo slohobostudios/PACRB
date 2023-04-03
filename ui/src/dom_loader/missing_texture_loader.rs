@@ -16,7 +16,7 @@ pub fn missing_texture_loader(
 ) -> MissingTexture {
     MissingTexture::new(
         resource_manager,
-        get_ui_position(&ele).unwrap_or_default(),
+        get_ui_position(ele).unwrap_or_default(),
         get_size(ele).unwrap_or(Vector2::new(32, 32)),
     )
 }

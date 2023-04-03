@@ -58,7 +58,7 @@ impl Repeatable3x1Sprite {
     ) -> Self {
         let mut rps = Self {
             position,
-            desired_size: desired_size.into(),
+            desired_size,
             left_sprite: resource_manager
                 .fetch_asset(asset_id)
                 .get_rc_sprite_with_slice_name_and_frame_num(SliceName::Left.repr(), frame_id),
@@ -143,9 +143,9 @@ impl Element for Repeatable3x1Sprite {
             self.num_tiles = 3;
         }
 
-        self.global_bounds.width = ((self.left_sprite.global_bounds().width
+        self.global_bounds.width = (self.left_sprite.global_bounds().width
             + self.middle_sprite.global_bounds().width * f32::from(self.num_tiles)
-            + self.right_sprite.global_bounds().width) as f32)
+            + self.right_sprite.global_bounds().width)
             as i32;
         self.global_bounds.height = self.middle_sprite.global_bounds().height as i32;
 
