@@ -7,7 +7,7 @@
     frame_id="0">
     <Slider 
       type="QuadColorPicker"
-      position="t:30"
+      position="t:16"
       top_left_color="r:255,g:255,b:255,a:255"
       top_right_color="r:255,g:0,b:0,a:255"
       bottom_right_color="r:0,g:0,b:0,a:255"
@@ -27,7 +27,7 @@
     </Slider>
     <Slider
       type="HueColorPicker"
-      position="t:296"
+      position="t:280"
       size="x:360,y:12"
       event_id="2"
       sync_id="2"

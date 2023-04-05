@@ -28,8 +28,7 @@ impl Default for Event {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
-#[derive(Default)]
+#[derive(Clone, PartialEq, Debug, Default)]
 pub enum Events {
     BooleanEvent(bool),
     NumericalEvent(f32),
@@ -38,5 +37,3 @@ pub enum Events {
     #[default]
     Null,
 }
-
-

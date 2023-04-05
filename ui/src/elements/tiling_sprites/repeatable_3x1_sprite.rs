@@ -145,8 +145,7 @@ impl Element for Repeatable3x1Sprite {
 
         self.global_bounds.width = (self.left_sprite.global_bounds().width
             + self.middle_sprite.global_bounds().width * f32::from(self.num_tiles)
-            + self.right_sprite.global_bounds().width)
-            as i32;
+            + self.right_sprite.global_bounds().width) as i32;
         self.global_bounds.height = self.middle_sprite.global_bounds().height as i32;
 
         self.middle_vertex_array = Quad::from(self.middle_sprite.clone());

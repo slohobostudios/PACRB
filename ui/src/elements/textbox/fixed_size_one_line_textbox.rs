@@ -5,7 +5,7 @@ use sfml::{
     system::{Vector2, Vector2f, Vector2i},
     window::{clipboard, Event as SFMLEvent},
 };
-use tracing::error;
+use tracing::{error, warn};
 use utils::{
     arithmetic_util_functions::i32_from_u32,
     resource_manager::ResourceManager,
@@ -20,6 +20,7 @@ use crate::{
         traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     },
     events::{Event, EventId, Events, EMPTY_EVENT},
+    syncs::{ui_syncs_not_synced_str, Syncs},
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
@@ -248,21 +249,12 @@ impl FixedSizeOneLineTextbox {
 }
 
 impl Element for FixedSizeOneLineTextbox {
-    cast_element!();
+    fn global_bounds(&self) -> sfml::graphics::IntRect {
+        self.global_bounds
+    }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         TextBox::event_handler(self, ui_settings, event)
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-    fn sync_id(&self) -> u16 {
-        self.sync_id
-    }
-
-    fn global_bounds(&self) -> sfml::graphics::IntRect {
-        self.global_bounds
     }
 
     fn update_size(&mut self) {
@@ -273,7 +265,6 @@ impl Element for FixedSizeOneLineTextbox {
                 .set_size(self.global_bounds.size().as_other())
         );
     }
-
     fn update_position(&mut self, relative_rect: sfml::graphics::IntRect) {
         let no_text_in_textbox = self.string.is_empty();
         if no_text_in_textbox {
@@ -336,9 +327,31 @@ impl Element for FixedSizeOneLineTextbox {
         self.rerender = false;
     }
 
+    fn sync_id(&self) -> u16 {
+        self.sync_id
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::String(string) = sync else {
+            warn!(ui_syncs_not_synced_str!(), Syncs::String(Default::default()), sync);
+            return;
+        };
+
+        self.rerender = true;
+        self.string = string;
+        self.move_cursor(self.string.len());
+        self.bind_pressed(Vector2::new(i32::MIN, i32::MIN));
+    }
+
     fn box_clone(&self) -> Box<dyn Element> {
         Box::new(self.clone())
     }
+
+    cast_element!();
 }
 
 impl ActionableElement for FixedSizeOneLineTextbox {
@@ -662,6 +675,7 @@ impl TextBox for FixedSizeOneLineTextbox {
     fn set_string(&mut self, string: &str) {
         self.string = string.to_owned();
         self.move_cursor(self.string.len());
+        self.rerender = true;
     }
 }
 

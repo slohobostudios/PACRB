@@ -6,6 +6,7 @@ use sfml::{
 use utils::{
     arithmetic_util_functions::i32_from_u32,
     quads::Quad,
+    resource_manager::ResourceManager,
     sfml_util_functions::{bottom_right_rect_coords, vector2i_from_vector2u},
 };
 
@@ -16,12 +17,21 @@ use crate::{
         },
         Element,
     },
-    events::{Event, EventId, Events},
+    events::{Event, EventId, Events, EMPTY_EVENT},
+    syncs::Syncs,
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
 
-use super::traits::{QuadColorPickerTrait, Slider};
+use super::traits::Slider;
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct QuadColorPickerSync {
+    pub top_left_color: Option<Color>,
+    pub top_right_color: Option<Color>,
+    pub bottom_left_color: Option<Color>,
+    pub bottom_right_color: Option<Color>,
+}
 
 /// This struct NEEDS to be defined on the heap.
 /// It stores and internal array that if defined on the stack, can cause stack oveflow.
@@ -37,6 +47,7 @@ pub struct QuadColorPicker {
     is_hover: bool,
     is_dragging: bool,
     hover_element: Element,
+    rerender: bool,
 }
 
 impl QuadColorPicker {
@@ -80,46 +91,56 @@ impl QuadColorPicker {
             sync_id,
             size,
             is_hover: false,
+            rerender: true,
         }
     }
-}
-
-impl QuadColorPickerTrait for QuadColorPicker {
-    fn set_top_left_color(&mut self, color: Color) {
+    pub fn set_top_left_color(&mut self, color: Color) {
         self.quad[0].color = color;
+        self.rerender = true;
     }
 
-    fn set_top_right_color(&mut self, color: Color) {
+    pub fn set_top_right_color(&mut self, color: Color) {
         self.quad[1].color = color;
+        self.rerender = true;
     }
 
-    fn set_bottom_right_color(&mut self, color: Color) {
+    pub fn set_bottom_right_color(&mut self, color: Color) {
         self.quad[2].color = color;
+        self.rerender = true;
     }
 
-    fn set_bottom_left_color(&mut self, color: Color) {
+    pub fn set_bottom_left_color(&mut self, color: Color) {
         self.quad[3].color = color;
+        self.rerender = true;
     }
 
-    fn top_left_color(&self) -> Color {
+    pub fn top_left_color(&self) -> Color {
         self.quad[0].color
     }
 
-    fn top_right_color(&self) -> Color {
+    pub fn top_right_color(&self) -> Color {
         self.quad[1].color
     }
 
-    fn bottom_right_color(&self) -> Color {
+    pub fn bottom_right_color(&self) -> Color {
         self.quad[2].color
     }
 
-    fn bottom_left_color(&self) -> Color {
+    pub fn bottom_left_color(&self) -> Color {
         self.quad[3].color
     }
 }
 
 impl ElementTrait for QuadColorPicker {
     cast_element!();
+
+    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
+        if self.rerender {
+            vec![EMPTY_EVENT]
+        } else {
+            vec![]
+        }
+    }
     fn update_size(&mut self) {
         self.global_bounds.width = i32_from_u32(self.size.x);
         self.global_bounds.height = i32_from_u32(self.size.y);
@@ -166,6 +187,25 @@ impl ElementTrait for QuadColorPicker {
 
     fn sync_id(&self) -> u16 {
         self.sync_id
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::QuadColorPicker(sync_struct) = sync else {
+            return;
+        };
+
+        if let Some(color) = sync_struct.top_left_color {
+            self.set_top_left_color(color)
+        }
+        if let Some(color) = sync_struct.top_right_color {
+            self.set_top_right_color(color)
+        }
+        if let Some(color) = sync_struct.bottom_left_color {
+            self.set_bottom_left_color(color)
+        }
+        if let Some(color) = sync_struct.bottom_right_color {
+            self.set_bottom_right_color(color)
+        }
     }
 }
 

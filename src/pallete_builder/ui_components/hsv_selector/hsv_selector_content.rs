@@ -2,8 +2,11 @@ use sfml::system::Vector2f;
 use tracing::{error, warn};
 use ui::{
     dom_controller::DomController,
-    elements::{traits::Element as ElementTrait, Element},
+    elements::{
+        slider::quad_color_picker::QuadColorPickerSync, traits::Element as ElementTrait, Element,
+    },
     events::{Event, Events},
+    syncs::Syncs,
 };
 
 use crate::pallete_builder::hsv_color::Hsv;
@@ -57,18 +60,13 @@ pub fn sync_events(dom_controller: &mut DomController, hsv: Hsv) {
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                if let Element::Slider(ele) = ele {
-                    let mut hsv = hsv;
-                    hsv.s = 255;
-                    hsv.v = 255;
-                    let color = hsv.into();
-                    ele.set_top_right_color(color);
-                }
+                ele.sync(Syncs::QuadColorPicker(QuadColorPickerSync {
+                    top_right_color: Some(hsv.into()),
+                    ..Default::default()
+                }));
             }
             2 => {
-                if let Element::Slider(ele) = ele {
-                    ele.set_current_slider_value(Vector2f::new(f32::from(hsv.h), 0.));
-                }
+                ele.sync(Syncs::Vector2f(Vector2f::new(hsv.h.into(), 0.)));
             }
             sync_id => {
                 warn!(

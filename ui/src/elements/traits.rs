@@ -1,5 +1,6 @@
 use crate::{
     events::{Event, EventId},
+    syncs::{SyncId, Syncs},
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
@@ -40,13 +41,21 @@ pub trait Element {
     fn render(&mut self, render_texture: &mut RenderTexture);
 
     /// Returns the id of the synchronization that needs to occur. 0 for no matching sync id
-    fn sync_id(&self) -> u16 {
+    fn sync_id(&self) -> SyncId {
         0
     }
 
     /// Returns the id of the event that has occured. 0 for no matching event id
     fn event_id(&self) -> EventId {
         0
+    }
+
+    /// Syncs the element via the Sync information
+    ///
+    /// By default does nothing
+    #[allow(unused_variables)]
+    fn sync(&mut self, sync: Syncs) {
+        dbg!(sync, self.sync_id());
     }
 
     fn box_clone(&self) -> Box<dyn Element>;

@@ -2,6 +2,7 @@ use super::{image_button::ImageButton, traits::*};
 use crate::{
     elements::traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     events::*,
+    syncs::*,
     ui_settings::UISettings,
     utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
@@ -10,7 +11,8 @@ use sfml::{
     system::{Vector2, Vector2i},
     window::Event as SFMLEvent,
 };
-use utils::resource_manager::ResourceManager;
+use tracing::warn;
+use utils::{center_of_rect, resource_manager::ResourceManager};
 
 #[derive(Clone, Debug, Default)]
 pub struct BooleanImageButton {
@@ -21,6 +23,7 @@ pub struct BooleanImageButton {
     false_button: ImageButton,
     pub state: bool,
     global_bounds: IntRect,
+    rerender: bool,
 }
 
 impl BooleanImageButton {
@@ -78,6 +81,7 @@ impl BooleanImageButton {
             event_id,
             sync_id,
             global_bounds: IntRect::from_vecs(Vector2::new(0, 0), max_size),
+            rerender: true,
         };
         bib.update_size();
 
@@ -155,6 +159,10 @@ impl Element for BooleanImageButton {
         let mut events = self.truth_button.update(resource_manager);
         events.append(&mut self.false_button.update(resource_manager));
 
+        if self.rerender {
+            events.push(EMPTY_EVENT);
+        }
+
         events
     }
 
@@ -184,10 +192,18 @@ impl Element for BooleanImageButton {
 
     fn render(&mut self, window: &mut RenderTexture) {
         self.current_button_mut().render(window);
+        self.rerender = false;
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Button::event_handler(self, ui_settings, event)
+        let mut events = Vec::new();
+        events.append(&mut Element::event_handler(
+            self.current_button_mut(),
+            ui_settings,
+            event,
+        ));
+        events.append(&mut Button::event_handler(self, ui_settings, event));
+        events
     }
 
     fn box_clone(&self) -> Box<dyn Element> {
@@ -196,6 +212,18 @@ impl Element for BooleanImageButton {
 
     fn sync_id(&self) -> u16 {
         self.sync_id
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::Boolean(state) = sync else {
+            warn!(ui_syncs_not_synced_str!(), Syncs::Boolean(Default::default()), sync);
+            return;
+        };
+
+        if state ^ self.state {
+            self.rerender = true;
+            self.bind_pressed(center_of_rect!(i32, self.global_bounds))
+        }
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {

@@ -1,10 +1,11 @@
 use super::Config;
 
-use tracing::{error, warn};
+use tracing::warn;
 use ui::{
     dom_controller::DomController,
-    elements::{traits::Element as ElementTrait, Element},
+    elements::traits::Element as ElementTrait,
     events::{Event, Events},
+    syncs::Syncs,
 };
 
 pub fn perform_events(events: &Vec<Event>, config: &mut Config) {
@@ -53,36 +54,38 @@ fn event5(event: Event, config: &mut Config) {
     }
 }
 
-use sfml::system::Vector2;
-use utils::center_of_rect;
+use sfml::system::Vector2f;
 pub fn sync_events(dom_controller: &mut DomController, config: &Config) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                let Element::Button(ele) = ele else { error!("{:#?} Element isn't a button", ele); return; };
-                if let Events::BooleanEvent(state) = ele.triggered_event().event {
-                    if state ^ config.auto_ramping {
-                        ele.bind_pressed(center_of_rect!(i32, ele.global_bounds()));
-                    }
-                }
+                ele.sync(Syncs::Boolean(config.auto_ramping));
             }
             2 => {
-                let Element::Slider(slider) = ele else { error!("{:#?} Element isn't Slider", ele); return;};
-                slider.set_current_slider_value(Vector2::new(config.hue_shift.into(), 0f32))
+                ele.sync(Syncs::Vector2f(Vector2f::new(
+                    config.hue_shift.into(),
+                    0f32,
+                )));
             }
             3 => {
-                let Element::Slider(slider) = ele else { error!("{:#?} Element isn't Slider", ele); return;};
-                slider.set_current_slider_value(Vector2::new(config.num_of_shades.into(), 0f32))
+                ele.sync(Syncs::Vector2f(Vector2f::new(
+                    config.num_of_shades.into(),
+                    0f32,
+                )));
             }
             4 => {
-                let Element::Slider(slider) = ele else { error!("{:#?} Element isn't Slider", ele); return;};
-                slider.set_current_slider_value(Vector2::new(config.saturation_shift.into(), 0f32))
+                ele.sync(Syncs::Vector2f(Vector2f::new(
+                    config.saturation_shift.into(),
+                    0f32,
+                )));
             }
             5 => {
-                let Element::Slider(slider) = ele else { error!("{:#?} Element isn't Slider", ele); return;};
-                slider.set_current_slider_value(Vector2::new(config.value_shift.into(), 0f32))
+                ele.sync(Syncs::Vector2f(Vector2f::new(
+                    config.value_shift.into(),
+                    0f32,
+                )));
             }
             sync_id => {
                 warn!(

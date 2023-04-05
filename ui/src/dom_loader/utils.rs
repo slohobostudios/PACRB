@@ -44,9 +44,7 @@ pub fn get_font_size(ele: &Element) -> Result<u32, Box<dyn Error>> {
 
 #[track_caller]
 pub fn get_color_attribute(ele: &Element) -> Result<Color, Box<dyn Error>> {
-    color_from_str(
-        ele.attr("color").ok_or("No color attribute")?,
-    )
+    color_from_str(ele.attr("color").ok_or("No color attribute")?)
 }
 
 pub fn get_size<T: std::default::Default + FromStr>(
@@ -55,9 +53,7 @@ pub fn get_size<T: std::default::Default + FromStr>(
 where
     <T as FromStr>::Err: 'static + StdError,
 {
-    vector2_from_str::<T>(
-        ele.attr("size").ok_or("No size attribute")?,
-    )
+    vector2_from_str::<T>(ele.attr("size").ok_or("No size attribute")?)
 }
 
 pub fn get_event_id_or_default(ele: &Element) -> u16 {

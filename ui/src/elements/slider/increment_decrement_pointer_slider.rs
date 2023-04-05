@@ -9,6 +9,7 @@ use crate::{
         traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     },
     events::*,
+    syncs::{ui_syncs_not_synced_str, Syncs},
     ui_settings::UISettings,
     utils::{mouse_ui_states::UIMouseStates, positioning::UIPosition},
 };
@@ -18,6 +19,7 @@ use sfml::{
     window::Event as SFMLEvent,
 };
 use std::time::{Duration, Instant};
+use tracing::warn;
 use utils::resource_manager::ResourceManager;
 
 const INCREMENT_BUTTON_POSITION: UIPosition = UIPosition {
@@ -106,6 +108,7 @@ pub struct IncrementDecrementPointerSlider {
     event_id: u16,
     sync_id: u16,
     scale: f32,
+    rerender: bool,
 }
 
 impl IncrementDecrementPointerSlider {
@@ -231,6 +234,7 @@ impl IncrementDecrementPointerSlider {
             ),
             min_max_slider_values,
             current_slider_value: (min_max_slider_values.0 + min_max_slider_values.1) / 2f32,
+            rerender: true,
         };
         idps.update_size();
         idps.set_current_slider_value(Vector2::new(idps.current_slider_value, 0f32));
@@ -258,11 +262,9 @@ impl IncrementDecrementPointerSlider {
 }
 
 impl Element for IncrementDecrementPointerSlider {
-    cast_element!();
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }
-
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
         if self.is_dragging {
             self.pointer
@@ -352,7 +354,11 @@ impl Element for IncrementDecrementPointerSlider {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let mut events = Vec::new();
+        let mut events = if self.rerender {
+            vec![EMPTY_EVENT]
+        } else {
+            vec![]
+        };
         for ele in self.compact_ele_mut() {
             events.append(&mut ele.update(resource_manager));
         }
@@ -387,33 +393,40 @@ impl Element for IncrementDecrementPointerSlider {
         }
 
         self.text.render(window);
+        self.rerender = false;
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
+    fn sync_id(&self) -> u16 {
+        self.sync_id
     }
 
     fn event_id(&self) -> EventId {
         self.event_id
     }
 
-    fn sync_id(&self) -> u16 {
-        self.sync_id
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::Numerical(new_slider_value) = sync else {
+            warn!(ui_syncs_not_synced_str!(), Syncs::Numerical(Default::default()), sync);
+            return;
+        };
+
+        self.set_current_slider_value(Vector2::new(new_slider_value, new_slider_value));
+        self.rerender = true;
     }
+
+    fn box_clone(&self) -> Box<dyn Element> {
+        Box::new(self.clone())
+    }
+
+    cast_element!();
 }
 
 impl ActionableElement for IncrementDecrementPointerSlider {
-    cast_actionable_element!();
-    fn set_hover(&mut self, mouse_pos: Vector2i) {
-        for ele in self.compact_button_mut() {
-            ele.set_hover(mouse_pos);
-        }
-    }
-    fn is_hover(&self) -> bool {
-        self.increment_button.is_hover()
-            || self.decrement_button.is_hover()
-            || self.pointer.is_hover()
-            || self.slider.is_hover()
+    fn triggered_event(&self) -> Event {
+        Event::new(
+            self.event_id,
+            Events::NumericalEvent(self.current_slider_value),
+        )
     }
     fn bind_pressed(&mut self, mouse_pos: Vector2i) {
         for ele in self.compact_button_mut() {
@@ -454,15 +467,20 @@ impl ActionableElement for IncrementDecrementPointerSlider {
         }
         self.is_dragging = false;
     }
-    fn triggered_event(&self) -> Event {
-        Event::new(
-            self.event_id,
-            Events::NumericalEvent(self.current_slider_value),
-        )
+    fn set_hover(&mut self, mouse_pos: Vector2i) {
+        for ele in self.compact_button_mut() {
+            ele.set_hover(mouse_pos);
+        }
     }
-}
+    fn is_hover(&self) -> bool {
+        self.increment_button.is_hover()
+            || self.decrement_button.is_hover()
+            || self.pointer.is_hover()
+            || self.slider.is_hover()
+    }
 
-impl QuadColorPickerTrait for IncrementDecrementPointerSlider {}
+    cast_actionable_element!();
+}
 
 impl Slider for IncrementDecrementPointerSlider {
     fn slider_global_bounds(&mut self) -> IntRect {
@@ -517,7 +535,7 @@ impl Slider for IncrementDecrementPointerSlider {
         self.text.set_text(&self.current_slider_value.to_string());
         self.text.set_ui_position(
             UIPosition {
-                top: Some(2 * -self.text.global_bounds().height - self.scale as i32),
+                top: Some(-self.text.global_bounds().height - self.pointer.global_bounds().height),
                 bottom: None,
                 left: Some(i32::from(slider_percentage)),
                 right: Some(i32::from(u16::MAX - slider_percentage)),

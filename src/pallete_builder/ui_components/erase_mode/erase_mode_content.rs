@@ -1,10 +1,10 @@
-use tracing::{error, warn};
+use tracing::warn;
 use ui::{
     dom_controller::DomController,
-    elements::{traits::Element as ElementTrait, Element},
+    elements::traits::Element as ElementTrait,
     events::{Event, Events},
+    syncs::Syncs,
 };
-use utils::center_of_rect;
 
 pub fn perform_events(events: &Vec<Event>, erase_enabled: &mut bool) {
     for event in events {
@@ -34,12 +34,7 @@ pub fn sync_events(dom_controller: &mut DomController, erase_enabled: bool) {
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                let Element::Button(ele) = ele else { error!("{:#?} Element isn't Button", ele); return; };
-                if let Events::BooleanEvent(state) = ele.triggered_event().event {
-                    if erase_enabled ^ state {
-                        ele.bind_pressed(center_of_rect!(i32, ele.global_bounds()));
-                    }
-                }
+                ele.sync(Syncs::Boolean(erase_enabled));
             }
             sync_id => {
                 warn!(

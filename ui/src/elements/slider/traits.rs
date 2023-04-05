@@ -1,4 +1,4 @@
-use sfml::graphics::{Color, IntRect};
+use sfml::graphics::IntRect;
 use sfml::{
     system::{Vector2, Vector2f, Vector2i},
     window::Event as SFMLEvent,
@@ -12,43 +12,7 @@ use crate::ui_settings::controls::possible_binds::PossibleBinds;
 use crate::ui_settings::controls::possible_inputs::PossibleInputs;
 use crate::ui_settings::UISettings;
 
-/// This is a dirty and ghetto way to allow me to set quadcolorpicker's coord colors externally
-/// without downcasting with Any
-pub trait QuadColorPickerTrait {
-    fn set_top_left_color(&mut self, _color: Color) {
-        Default::default()
-    }
-
-    fn set_top_right_color(&mut self, _color: Color) {
-        Default::default()
-    }
-
-    fn set_bottom_right_color(&mut self, _color: Color) {
-        Default::default()
-    }
-
-    fn set_bottom_left_color(&mut self, _color: Color) {
-        Default::default()
-    }
-
-    fn top_left_color(&self) -> Color {
-        Default::default()
-    }
-
-    fn top_right_color(&self) -> Color {
-        Default::default()
-    }
-
-    fn bottom_right_color(&self) -> Color {
-        Default::default()
-    }
-
-    fn bottom_left_color(&self) -> Color {
-        Default::default()
-    }
-}
-
-pub trait Slider: ActionableElement + Debug + QuadColorPickerTrait {
+pub trait Slider: ActionableElement + Debug {
     fn slider_global_bounds(&mut self) -> IntRect;
     fn is_dragging(&self) -> bool;
     fn min_slider_value(&mut self) -> Vector2f;

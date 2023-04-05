@@ -3,9 +3,11 @@ use sfml::{
     system::{Vector2f, Vector2i, Vector2u},
     window::Event as SFMLEvent,
 };
+use tracing::warn;
 use utils::{
     arithmetic_util_functions::{i32_from_u32, i32_from_usize, u16_from_usize},
     quads::Quad,
+    resource_manager::ResourceManager,
     sfml_util_functions::vector2i_from_vector2u,
 };
 
@@ -16,12 +18,14 @@ use crate::{
         },
         Element,
     },
-    events::{Event, EventId, Events},
+    events::{Event, EventId, Events, EMPTY_EVENT},
+    syncs::ui_syncs_not_synced_str,
+    syncs::Syncs,
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
 
-use super::traits::{QuadColorPickerTrait, Slider};
+use super::traits::Slider;
 
 const NUM_OF_QUADS: u8 = 6;
 
@@ -83,6 +87,7 @@ pub struct HueColorPicker {
     curr_hue: u16,
     is_hover: bool,
     is_dragging: bool,
+    rerender: bool,
     hover_element: Element,
 }
 
@@ -94,8 +99,6 @@ impl HueColorPicker {
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        
-
         Self {
             position,
             event_id,
@@ -107,6 +110,7 @@ impl HueColorPicker {
             is_hover: false,
             is_dragging: false,
             hover_element,
+            rerender: true,
         }
     }
 
@@ -126,7 +130,14 @@ impl HueColorPicker {
 }
 
 impl ElementTrait for HueColorPicker {
-    cast_element!();
+    fn global_bounds(&self) -> IntRect {
+        self.global_bounds
+    }
+
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+        Slider::event_handler(self, ui_settings, event)
+    }
+
     fn update_size(&mut self) {
         // Make sure width is of a multiple of 6
         self.global_bounds.width =
@@ -146,6 +157,20 @@ impl ElementTrait for HueColorPicker {
         self.set_quad_positions();
     }
 
+    fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
+        self.position = ui_position;
+        self.update_size();
+        self.update_position(relative_rect);
+    }
+
+    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
+        if self.rerender {
+            vec![EMPTY_EVENT]
+        } else {
+            vec![]
+        }
+    }
+
     fn render(&mut self, window: &mut RenderTexture) {
         let rs = RenderStates::default();
         for quad in &self.quads {
@@ -153,33 +178,31 @@ impl ElementTrait for HueColorPicker {
         }
 
         self.hover_element.render(window);
-    }
-
-    fn global_bounds(&self) -> IntRect {
-        self.global_bounds
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
+        self.rerender = false;
     }
 
     fn sync_id(&self) -> u16 {
         self.sync_id
     }
 
-    fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
-        self.position = ui_position;
-        self.update_size();
-        self.update_position(relative_rect);
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::Numerical(degree) = sync else {
+            warn!(ui_syncs_not_synced_str!(), Syncs::Numerical(Default::default()), sync);
+            return;
+        };
+        self.rerender = true;
+        self.set_current_slider_value(Vector2f::new(degree, degree));
     }
 
     fn box_clone(&self) -> Box<dyn ElementTrait> {
         Box::new(self.clone())
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Slider::event_handler(self, ui_settings, event)
-    }
+    cast_element!();
 }
 
 impl ActionableElement for HueColorPicker {
@@ -207,8 +230,6 @@ impl ActionableElement for HueColorPicker {
         )
     }
 }
-
-impl QuadColorPickerTrait for HueColorPicker {}
 
 impl Slider for HueColorPicker {
     fn slider_global_bounds(&mut self) -> IntRect {
@@ -244,7 +265,9 @@ impl Slider for HueColorPicker {
                 right: Some(i32::from(u16::MAX - slider_percentage)),
             },
             self.global_bounds,
-        )
+        );
+
+        self.rerender = true;
     }
 
     fn box_clone(&self) -> Box<dyn Slider> {

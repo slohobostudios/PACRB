@@ -92,7 +92,8 @@ fn quad_color_picker_loader(
         element_loader(
             resource_manager,
             minidom_element
-                .children().next()
+                .children()
+                .next()
                 .ok_or("Inner slider icon element not found")?,
             get_scale(minidom_element).unwrap_or(default_scale),
             get_font_size(minidom_element).unwrap_or(default_font_size),
@@ -145,7 +146,8 @@ pub fn hue_color_picker_loader(
         element_loader(
             resource_manager,
             minidom_element
-                .children().next()
+                .children()
+                .next()
                 .ok_or("Inner slider icon element not found")?,
             get_scale(minidom_element).unwrap_or(default_scale),
             get_font_size(minidom_element).unwrap_or(default_font_size),

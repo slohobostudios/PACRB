@@ -106,7 +106,7 @@ impl PalleteBuilder {
             _ => {}
         }
 
-        if events.is_empty() {
+        if !events.is_empty() {
             return;
         }
 
