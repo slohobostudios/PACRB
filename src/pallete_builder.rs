@@ -7,11 +7,10 @@ use sfml::{
     },
     SfBox,
 };
+use ui::{dom_controller::DomControllerInterface, ui_settings::UISettings};
+use utils::resource_manager::ResourceManager;
 
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{dom_controller::DomControllerInterface, ui_settings::UISettings},
-};
+use crate::generate_ramp_mode_event_handler_arguments;
 
 use self::{
     color_grid::{color_cell::CELL_SIZE, undo_redo::UndoRedoCell, ColorGrid},
@@ -47,6 +46,7 @@ pub struct PalleteBuilder {
     view: SfBox<View>,
     is_dragging_erase: bool,
     is_dragging_screen: bool,
+    lmb_dragging_from_ui_component: bool,
     previous_mouse_position: Vector2i,
     undo_redo: UndoRedoCell,
 }
@@ -56,10 +56,10 @@ impl PalleteBuilder {
         let color_grid = ColorGrid::new();
         Self {
             current_mode: Mode::NormalMode(Default::default()),
-            hsv_selector: HSVSelector::new(&resource_manager, &ui_settings),
-            config_selector: ConfigSelector::new(&resource_manager, &ui_settings),
-            confirm_color_ramp: ConfirmColorRamp::new(&resource_manager, &ui_settings),
-            erase_mode: EraseMode::new(&resource_manager, &ui_settings),
+            hsv_selector: HSVSelector::new(resource_manager, ui_settings),
+            config_selector: ConfigSelector::new(resource_manager, ui_settings),
+            confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
+            erase_mode: EraseMode::new(resource_manager, ui_settings),
             is_dragging_erase: false,
             is_dragging_screen: false,
             previous_mouse_position: Default::default(),
@@ -72,7 +72,17 @@ impl PalleteBuilder {
             ),
             color_grid,
             undo_redo: Default::default(),
+            lmb_dragging_from_ui_component: false,
         }
+    }
+
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 4] {
+        [
+            &mut self.config_selector,
+            &mut self.hsv_selector,
+            &mut self.erase_mode,
+            &mut self.confirm_color_ramp,
+        ]
     }
 
     pub fn event_handler(
@@ -81,23 +91,52 @@ impl PalleteBuilder {
         ui_settings: &mut UISettings,
         event: Event,
     ) {
-        let mut events = self
-            .config_selector
-            .event_handler(window, ui_settings, event);
-        events.append(&mut self.hsv_selector.event_handler(window, ui_settings, event));
-        events.append(&mut self.erase_mode.event_handler(window, ui_settings, event));
-        events.append(
-            &mut self
-                .confirm_color_ramp
-                .event_handler(window, ui_settings, event),
-        );
+        let mut events = Vec::new();
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            events.append(&mut dci.event_handler(window, ui_settings, event))
+        }
 
-        if events.len() > 0 {
+        // Whenever configs change, we need to modify the ramp, if it is ramping
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            if self.confirm_color_ramp.is_enabled() {
+                ramp_mode.regenerate_ramp_new_config(generate_ramp_mode_event_handler_arguments!(
+                    self, event
+                ))
+            }
+
+            if self.confirm_color_ramp.cancel_ramp() {
+                self.confirm_color_ramp.set_enable(false);
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
+            }
+        }
+
+        match &mut self.current_mode {
+            Mode::NormalMode(_) if self.config_selector.current_config().auto_ramping => {
+                self.current_mode = Mode::RampMode(RampMode::default())
+            }
+            Mode::RampMode(ramp_mode) if !self.config_selector.current_config().auto_ramping => {
+                self.confirm_color_ramp.set_enable(false);
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
+                self.current_mode = Mode::NormalMode(NormalMode::default())
+            }
+            _ => {}
+        }
+
+        if !events.is_empty() && !self.lmb_dragging_from_ui_component {
+            if matches!(event, Event::MouseButtonPressed { .. }) {
+                self.lmb_dragging_from_ui_component = true;
+            }
+            return;
+        } else if self.lmb_dragging_from_ui_component
+            && matches!(event, Event::MouseButtonReleased { .. })
+        {
+            self.lmb_dragging_from_ui_component = false;
             return;
         }
 
         self.view_event_handler(&event);
         let event = self.correct_mouse_pos_event(event, window);
+        self.general_mouse_button_event_handler(&event);
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
@@ -113,23 +152,28 @@ impl PalleteBuilder {
                 ))
             }
             Mode::RampMode(ramp_mode) => {
-                ramp_mode.event_handler(&mut RampModeEventHandlerArguments::new(
-                    &mut self.color_grid,
-                    event,
-                    &self.hsv_selector,
-                    &self.erase_mode,
-                    &mut self.undo_redo,
-                    &mut self.confirm_color_ramp,
-                    &mut self.config_selector,
-                ))
+                ramp_mode.event_handler(generate_ramp_mode_event_handler_arguments!(self, event))
             }
         }
     }
 
     pub fn update(&mut self, resource_manager: &ResourceManager) {
-        self.config_selector.update(resource_manager);
-        self.hsv_selector.update(resource_manager);
-        self.erase_mode.update(resource_manager);
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            dci.update(resource_manager);
+        }
+
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            ramp_mode.update(&mut RampModeEventHandlerArguments::new(
+                &mut self.color_grid,
+                Event::Closed,
+                &self.hsv_selector,
+                &self.erase_mode,
+                &mut self.undo_redo,
+                &mut self.confirm_color_ramp,
+                &self.config_selector,
+            ))
+        }
+
         self.color_grid.update();
     }
 
@@ -137,9 +181,9 @@ impl PalleteBuilder {
         window.set_view(&self.view);
         self.color_grid.render(window);
 
-        self.config_selector.render(window);
-        self.erase_mode.render(window);
-        self.hsv_selector.render(window);
+        for dci in self.dom_controller_interfaces_iter_mut() {
+            dci.render(window);
+        }
     }
 }
 
@@ -260,9 +304,9 @@ impl PalleteBuilder {
     }
 
     fn drag_screen_event_handler(&mut self, event: &Event) {
-        match event {
+        match *event {
             // Begin dragging the screen around
-            &Event::MouseButtonPressed { button, x, y }
+            Event::MouseButtonPressed { button, x, y }
                 if (button == Button::Right || button == Button::Middle) =>
             {
                 self.is_dragging_screen = true;
@@ -270,14 +314,14 @@ impl PalleteBuilder {
             }
 
             // Make sure the middle or right button is still pressed. If not, stop dragging
-            &Event::MouseMoved { x: _, y: _ }
+            Event::MouseMoved { x: _, y: _ }
                 if self.is_dragging_screen
                     && !(Button::Middle.is_pressed() || Button::Right.is_pressed()) =>
             {
                 self.is_dragging_screen = false;
             }
             // Actually drag the screen around
-            &Event::MouseMoved { x, y } if self.is_dragging_screen => {
+            Event::MouseMoved { x, y } if self.is_dragging_screen => {
                 let mouse_diff = Vector2::new(x, y) - self.previous_mouse_position;
                 self.previous_mouse_position = Vector2::new(x, y) - mouse_diff;
                 let center = self.view.center();
@@ -285,7 +329,7 @@ impl PalleteBuilder {
             }
 
             // Finished dragging the screen around
-            &Event::MouseButtonReleased { button, x: _, y: _ }
+            Event::MouseButtonReleased { button, x: _, y: _ }
                 if self.is_dragging_screen
                     && (button == Button::Right || button == Button::Middle) =>
             {
@@ -296,9 +340,9 @@ impl PalleteBuilder {
     }
 
     fn undo_redo_event_handler(&mut self, event: &Event) {
-        match event {
+        match *event {
             // Undo
-            &Event::KeyPressed {
+            Event::KeyPressed {
                 code,
                 alt: _,
                 ctrl,
@@ -309,7 +353,7 @@ impl PalleteBuilder {
             }
 
             // Redo
-            &Event::KeyPressed {
+            Event::KeyPressed {
                 code,
                 alt: _,
                 ctrl,
@@ -321,4 +365,38 @@ impl PalleteBuilder {
             _ => {}
         }
     }
+
+    fn general_mouse_button_event_handler(&mut self, event: &Event) {
+        match *event {
+            Event::MouseButtonPressed { button, x, y }
+                if (Key::LControl.is_pressed() || Key::RControl.is_pressed())
+                    && button == Button::Left =>
+            {
+                if let Some(idx) = self.color_grid.coord_to_idx(Vector2::new(x, y)) {
+                    if self.color_grid[idx.x][idx.y].borrow().draw_full_cell() {
+                        let hsv = self.color_grid[idx.x][idx.y]
+                            .borrow()
+                            .full_cell_current_color();
+                        self.hsv_selector.set_hsv_color(hsv)
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! generate_ramp_mode_event_handler_arguments {
+    ($self: ident, $event: ident) => {
+        &mut RampModeEventHandlerArguments::new(
+            &mut $self.color_grid,
+            $event,
+            &$self.hsv_selector,
+            &$self.erase_mode,
+            &mut $self.undo_redo,
+            &mut $self.confirm_color_ramp,
+            &$self.config_selector,
+        )
+    };
 }

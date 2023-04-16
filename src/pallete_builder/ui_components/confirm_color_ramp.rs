@@ -1,14 +1,5 @@
 use sfml::graphics::RenderWindow;
 
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::Event,
-        ui_settings::UISettings,
-    },
-};
-
 mod confirm_color_ramp_content;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -33,13 +24,14 @@ pub struct ConfirmColorRamp {
     confirm_color_ramp_dom: DomController,
     enable: bool,
     orientation: Orientation,
+    cancel: bool,
 }
 
 impl ConfirmColorRamp {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
         let mut confirm_color_ramp_dom = DomController::new(
-            &resource_manager,
-            &ui_settings,
+            resource_manager,
+            ui_settings,
             include_str!("confirm_color_ramp/confirm_color_ramp_content.xml"),
         );
         confirm_color_ramp_content::sync_events(&mut confirm_color_ramp_dom, false);
@@ -48,20 +40,34 @@ impl ConfirmColorRamp {
             confirm_color_ramp_dom,
             enable: false,
             orientation: Orientation::Vertical,
+            cancel: false,
         }
     }
 
     pub fn set_enable(&mut self, enable: bool) {
         self.enable = enable;
+        self.cancel = false;
         confirm_color_ramp_content::sync_events(&mut self.confirm_color_ramp_dom, enable);
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enable
     }
 
     pub fn orientation(&self) -> Orientation {
         self.orientation
     }
+
+    pub fn cancel_ramp(&self) -> bool {
+        self.cancel
+    }
 }
 
 use sfml::window::Event as SFMLEvent;
+use ui::dom_controller::{DomController, DomControllerInterface};
+use ui::events::Event;
+use ui::ui_settings::UISettings;
+use utils::resource_manager::ResourceManager;
 
 impl DomControllerInterface for ConfirmColorRamp {
     fn event_handler(
@@ -70,7 +76,7 @@ impl DomControllerInterface for ConfirmColorRamp {
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event> {
-        if !self.enable {
+        if !matches!(event, SFMLEvent::Resized { .. }) && !self.enable {
             return Default::default();
         }
         let events = self
@@ -80,6 +86,7 @@ impl DomControllerInterface for ConfirmColorRamp {
             &events,
             &mut self.enable,
             &mut self.orientation,
+            &mut self.cancel,
         );
         events
     }
@@ -88,7 +95,7 @@ impl DomControllerInterface for ConfirmColorRamp {
         if !self.enable {
             return Default::default();
         }
-        self.confirm_color_ramp_dom.update(&resource_manager)
+        self.confirm_color_ramp_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

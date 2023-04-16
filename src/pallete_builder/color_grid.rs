@@ -9,8 +9,7 @@ use sfml::{
     graphics::RenderWindow,
     system::{Vector2, Vector2i},
 };
-
-use crate::utils::{
+use utils::{
     arithmetic_util_functions::u32_from_usize, sfml_util_functions::vector2i_from_vector2u,
 };
 
@@ -51,11 +50,9 @@ impl ColorGrid {
 
         let offset_mouse_pos = coord - top_left_cell_position;
 
-        Some(
-            (offset_mouse_pos.cwise_div(cell_size))
-                .try_into_other()
-                .ok()?,
-        )
+        (offset_mouse_pos.cwise_div(cell_size))
+            .try_into_other()
+            .ok()
     }
 
     pub fn is_idx_valid(&self, idx: Vector2<usize>) -> bool {

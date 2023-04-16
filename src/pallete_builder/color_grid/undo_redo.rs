@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use crate::center_of_rect;
+use utils::center_of_rect;
 
 use super::{color_cell::ColorCell, ColorGrid};
 
@@ -83,7 +83,7 @@ impl UndoRedoCell {
     /// MUST provide a clone to the previous color cell before the change occurs
     pub fn change_made(&mut self, previous_color_cell: ColorCell, new_color_cell: ColorCell) {
         // If erasing an already erased cell, do not insert into cell_changes
-        if previous_color_cell.draw_full_cell == false && new_color_cell.draw_full_cell == false {
+        if !previous_color_cell.draw_full_cell && !new_color_cell.draw_full_cell {
             return;
         }
         self.cell_changes.truncate(self.current_idx + 1);

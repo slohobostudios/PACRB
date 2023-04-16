@@ -1,13 +1,10 @@
 use sfml::{graphics::RenderWindow, window::Event as SFMLEvent};
-
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::Event,
-        ui_settings::UISettings,
-    },
+use ui::{
+    dom_controller::{DomController, DomControllerInterface},
+    events::Event,
+    ui_settings::UISettings,
 };
+use utils::resource_manager::ResourceManager;
 
 use self::erase_mode_content::{perform_events, sync_events};
 
@@ -24,8 +21,8 @@ impl EraseMode {
         let mut em = Self {
             erase_disabled: true,
             erase_mode_dom: DomController::new(
-                &resource_manager,
-                &ui_settings,
+                resource_manager,
+                ui_settings,
                 include_str!("erase_mode/erase_mode_content.xml"),
             ),
         };
@@ -53,7 +50,7 @@ impl DomControllerInterface for EraseMode {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.erase_mode_dom.update(&resource_manager)
+        self.erase_mode_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

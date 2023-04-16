@@ -1,6 +1,6 @@
-<RootNode scale="8" font_size="48" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="6" font_size="40" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
-    type="Fixed3x3RepeatableBackground"
+    type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     position="b:15,r:455"
     size="x:200,y:60"
@@ -18,7 +18,7 @@
         false_click_frame_id="5"        
         event_id="1"
         sync_id="1"/>
-      <Text position="t:3,b:7,l:-20">
+      <Text position="l:-20">
         Erase
       </Text>
     </Grid>

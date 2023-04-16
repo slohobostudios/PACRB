@@ -26,7 +26,7 @@ impl HoverHandler {
             y: i32,
             cells_in_hover_state: &mut Vec<RcColorCell>,
         ) {
-            if let Some(color_cell) = color_grid.coord_to_cell_mut(Vector2::new(x, y)).clone() {
+            if let Some(color_cell) = color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
                 cells_in_hover_state.push(color_cell.clone());
                 color_cell.borrow_mut().set_hover(true);
             }

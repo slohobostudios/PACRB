@@ -6,7 +6,7 @@ use sfml::{
 use super::{
     color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell, ColorGrid},
     hover_handler::HoverHandler,
-    hsv_color::HSV,
+    hsv_color::Hsv,
     ui_components::{erase_mode::EraseMode, hsv_selector::HSVSelector},
 };
 
@@ -42,8 +42,8 @@ impl<'color_grid, 'undo_redo, 'hsv_selector, 'erase_mode>
 pub struct NormalMode {
     hover_handler: HoverHandler,
     is_dragging_cell: bool,
-    color_being_dragged: HSV,
-    cells_dragged_over: Vec<(HSV, bool, RcColorCell)>,
+    color_being_dragged: Hsv,
+    cells_dragged_over: Vec<(Hsv, bool, RcColorCell)>,
 }
 
 impl NormalMode {
@@ -65,7 +65,7 @@ impl NormalMode {
         }
 
         fn empty_cells_dragged_over(
-            cells_dragged_over: &mut Vec<(HSV, bool, RcColorCell)>,
+            cells_dragged_over: &mut Vec<(Hsv, bool, RcColorCell)>,
             undo_redo: &mut UndoRedoCell,
         ) {
             for (hsv, is_full_cell, cell) in &mut *cells_dragged_over {

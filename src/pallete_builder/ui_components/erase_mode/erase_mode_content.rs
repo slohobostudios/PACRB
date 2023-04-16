@@ -1,8 +1,10 @@
-use crate::{
-    center_of_rect,
-    ui::{dom_controller::DomController, events::*},
+use tracing::warn;
+use ui::{
+    dom_controller::DomController,
+    elements::traits::Element as ElementTrait,
+    events::{Event, Events},
+    syncs::Syncs,
 };
-use tracing::{error, warn};
 
 pub fn perform_events(events: &Vec<Event>, erase_enabled: &mut bool) {
     for event in events {
@@ -26,19 +28,13 @@ fn event1(event: &Event, erase_enabled: &mut bool) {
     }
 }
 
-use crate::ui::elements::{traits::Element as ElementTrait, Element};
 pub fn sync_events(dom_controller: &mut DomController, erase_enabled: bool) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                let Element::Button(ele) = ele else { error!("{:#?} Element isn't Button", ele); return; };
-                if let Events::BooleanEvent(state) = ele.triggered_event().event {
-                    if erase_enabled ^ state {
-                        ele.bind_pressed(center_of_rect!(i32, ele.global_bounds()));
-                    }
-                }
+                ele.sync(Syncs::Boolean(!erase_enabled));
             }
             sync_id => {
                 warn!(

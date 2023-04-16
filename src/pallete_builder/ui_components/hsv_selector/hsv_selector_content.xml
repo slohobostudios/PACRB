@@ -1,13 +1,13 @@
-<RootNode scale="6" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
-    type="Fixed3x3RepeatableBackground"
+    type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     position="b:15,r:15"
     size="x:380,y:310"
     frame_id="0">
     <Slider 
       type="QuadColorPicker"
-      position="t:30"
+      position="t:16"
       top_left_color="r:255,g:255,b:255,a:255"
       top_right_color="r:255,g:0,b:0,a:255"
       bottom_right_color="r:0,g:0,b:0,a:255"
@@ -27,7 +27,7 @@
     </Slider>
     <Slider
       type="HueColorPicker"
-      position="t:296"
+      position="t:280"
       size="x:360,y:12"
       event_id="2"
       sync_id="2"
@@ -41,5 +41,19 @@
         click_frame_id="0"
         />
     </Slider>
+  </Background>
+  <Background
+    type="Repeatable3x3Background"
+    asset="dark_blue_background.png"
+    position="b:135,r:455"
+    padding="t:10,b:10,l:20,r:20"
+    frame_id="0">
+    <TextBox
+      type="FixedSizeOneLineTextbox"
+      color="#091d1e"
+      size="x:160"
+      event_id="3"
+      sync_id="3">
+    </TextBox>
   </Background>
 </RootNode>

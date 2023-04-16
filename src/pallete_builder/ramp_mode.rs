@@ -3,16 +3,21 @@ use sfml::{
     window::{mouse::Button, Event},
 };
 
+use self::color_ramper::ColorRamper;
+
 use super::{
-    color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell, ColorGrid, GRID_SIZE},
+    color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell, ColorGrid},
     hover_handler::HoverHandler,
+    hsv_color::Hsv,
     ui_components::{
-        config_selector::ConfigSelector,
-        confirm_color_ramp::{ConfirmColorRamp, Orientation},
+        config_selector::{Config, ConfigSelector},
+        confirm_color_ramp::ConfirmColorRamp,
         erase_mode::EraseMode,
         hsv_selector::HSVSelector,
     },
 };
+
+mod color_ramper;
 
 pub struct RampModeEventHandlerArguments<
     'color_grid,
@@ -27,7 +32,7 @@ pub struct RampModeEventHandlerArguments<
     hsv_selector: &'hsv_selector HSVSelector,
     config_selector: &'config_selector ConfigSelector,
     erase_mode: &'erase_mode EraseMode,
-    confirm_color_ramp: &'confirm_color_ramp ConfirmColorRamp,
+    confirm_color_ramp: &'confirm_color_ramp mut ConfirmColorRamp,
     undo_redo: &'undo_redo mut UndoRedoCell,
 }
 
@@ -54,7 +59,7 @@ impl<
         hsv_selector: &'hsv_selector HSVSelector,
         erase_mode: &'erase_mode EraseMode,
         undo_redo: &'undo_redo mut UndoRedoCell,
-        confirm_color_ramp: &'confirm_color_ramp ConfirmColorRamp,
+        confirm_color_ramp: &'confirm_color_ramp mut ConfirmColorRamp,
         config_selector: &'config_selector ConfigSelector,
     ) -> Self {
         Self {
@@ -72,134 +77,98 @@ impl<
 #[derive(Clone, Debug, Default)]
 pub struct RampMode {
     hover_handler: HoverHandler,
-    ramp: Vec<RcColorCell>,
+    ramp: ColorRamper,
+    previous_config: Config,
+    previous_color: Hsv,
+    middle_cell: Option<RcColorCell>,
+    original_middle_cell_color: Option<Hsv>,
 }
 
 impl RampMode {
-    fn clear_ramp(&mut self, undo_redo: &mut UndoRedoCell) {
-        for cell in &mut self.ramp {
-            cell.borrow_mut().empty_the_cell(undo_redo);
+    pub fn regenerate_ramp_new_config(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if self.previous_config != args.config_selector.current_config()
+            || self.previous_color != args.hsv_selector.curr_color()
+        {
+            self.ramp.create_ramp(self.ramp.ramp_start_coord(), args);
         }
 
-        self.ramp = Vec::new();
-    }
-
-    /// Creates a ramp based on the configuration, current orientation, and possibly selected color
-    ///
-    /// Returns None on failure
-    fn create_ramp(&mut self, args: &mut RampModeEventHandlerArguments) -> Option<()> {
-        self.clear_ramp(args.undo_redo);
-        let event = if let Event::MouseButtonReleased { button, x, y } = args.event {
-            if button != Button::Left {
-                return None;
-            }
-            (button, Vector2::new(x, y))
-        } else {
-            return None;
-        };
-
-        let (min, max) = match args.confirm_color_ramp.orientation() {
-            Orientation::Horizontal => {
-                let idx = args.color_grid.coord_to_idx(event.1)?;
-                let mut right_most_idx = idx.x;
-                let mut max_idx =
-                    idx.x + usize::from(args.config_selector.current_config().num_of_shades);
-                if max_idx >= GRID_SIZE {
-                    max_idx = GRID_SIZE - 1
-                }
-
-                for x in idx.x..=max_idx {
-                    if !args.color_grid.is_idx_valid(Vector2::new(x, idx.y))
-                        || args.color_grid[x][idx.y].borrow_mut().draw_full_cell()
-                    {
-                        break;
-                    }
-                    right_most_idx += 1
-                }
-
-                let mut left_most_idx = idx.x;
-                let min_idx = idx.x.saturating_sub(usize::from(
-                    args.config_selector.current_config().num_of_shades,
-                ));
-
-                for x in idx.x..=min_idx {
-                    if !args.color_grid.is_idx_valid(Vector2::new(x, idx.y))
-                        || args.color_grid[x][idx.y].borrow_mut().draw_full_cell()
-                    {
-                        break;
-                    }
-                    left_most_idx -= 1;
-                }
-                (
-                    Vector2::new(left_most_idx, idx.y),
-                    Vector2::new(right_most_idx, idx.y),
-                )
-            }
-            Orientation::Vertical => {
-                let idx = args.color_grid.coord_to_idx(event.1)?;
-                let mut top_most_idx = idx.y;
-                let min_idx = idx.y.saturating_sub(usize::from(
-                    args.config_selector.current_config().num_of_shades,
-                ));
-
-                for y in idx.y..=min_idx {
-                    if !args.color_grid.is_idx_valid(Vector2::new(idx.x, y))
-                        || args.color_grid[idx.x][y].borrow_mut().draw_full_cell()
-                    {
-                        break;
-                    }
-                    top_most_idx -= 1;
-                }
-
-                let mut bottom_most_idx = idx.y;
-                let mut max_idx =
-                    idx.y + usize::from(args.config_selector.current_config().num_of_shades);
-                if max_idx >= GRID_SIZE {
-                    max_idx = GRID_SIZE - 1
-                }
-
-                for y in idx.y..=max_idx {
-                    if !args.color_grid.is_idx_valid(Vector2::new(idx.y, y))
-                        || args.color_grid[idx.x][y].borrow_mut().draw_full_cell()
-                    {
-                        break;
-                    }
-                    bottom_most_idx -= 1;
-                }
-
-                (
-                    Vector2::new(idx.x, top_most_idx),
-                    Vector2::new(idx.x, bottom_most_idx),
-                )
-            }
-        };
-
-        Some(())
+        self.previous_color = args.hsv_selector.curr_color();
+        self.previous_config = args.config_selector.current_config();
     }
 
     pub fn event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
-        if !self.ramp_being_shown() {
-            self.no_ramping_event_handler(args);
+        if !self.ramp.ramp_being_shown() {
+            self.no_ramp_event_handler(args);
         } else {
-            self.ramping_event_handler(args);
+            self.ramp_event_handler(args);
         }
     }
 
-    fn no_ramping_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
+    fn no_ramp_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
         self.hover_handler
-            .event_handler(args.event, &mut args.color_grid);
+            .event_handler(args.event, args.color_grid);
 
         if args.erase_mode.erase_mode_enabled() {
             return;
         }
+
+        match args.event {
+            Event::MouseButtonPressed { button, x, y } if button == Button::Left => {
+                let coord = Vector2::new(x, y);
+                if let Some(starting_idx) = args.color_grid.coord_to_idx(coord) {
+                    if args.color_grid[starting_idx.x][starting_idx.y]
+                        .borrow()
+                        .draw_full_cell()
+                    {
+                        self.middle_cell =
+                            Some(args.color_grid[starting_idx.x][starting_idx.y].clone());
+                        self.original_middle_cell_color = Some(
+                            self.middle_cell
+                                .clone()
+                                .unwrap()
+                                .borrow()
+                                .full_cell_current_color(),
+                        );
+                    }
+                }
+                self.ramp.create_ramp(coord, args);
+                self.previous_config = args.config_selector.current_config();
+                self.previous_color = args.hsv_selector.curr_color();
+                args.confirm_color_ramp.set_enable(true);
+            }
+            _ => {}
+        }
     }
 
-    fn ramping_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
+    fn ramp_event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if !args.confirm_color_ramp.is_enabled() {
+            self.ramp = Default::default();
+            return;
+        }
+
         self.hover_handler.unhover_all_cells();
     }
 
-    pub fn ramp_being_shown(&self) -> bool {
-        self.ramp.len() != 0
+    pub fn update(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if !self.ramp.ramp_being_shown() {
+        } else {
+            self.ramp_update(args);
+        }
+    }
+
+    pub fn ramp_update(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if self.ramp.current_orientation() != args.confirm_color_ramp.orientation() {
+            self.ramp.change_orientation(args)
+        }
+    }
+
+    pub fn clear_the_ramp(&mut self, undo_redo: &mut UndoRedoCell) {
+        self.ramp.clear_ramp(undo_redo);
+        if let (Some(middle_cell), Some(color)) =
+            (&mut self.middle_cell, self.original_middle_cell_color)
+        {
+            middle_cell.borrow_mut().fill_the_cell(undo_redo, color);
+        }
     }
 }
 

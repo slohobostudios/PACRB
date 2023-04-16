@@ -1,16 +1,14 @@
-use crate::{
-    assets::resource_manager::ResourceManager,
-    ui::{
-        dom_controller::{DomController, DomControllerInterface},
-        events::*,
-        ui_settings::UISettings,
-    },
-};
 use sfml::{graphics::RenderWindow, window::Event as SFMLEvent};
+use ui::{
+    dom_controller::{DomController, DomControllerInterface},
+    events::Event,
+    ui_settings::UISettings,
+};
+use utils::resource_manager::ResourceManager;
 
 mod config_selector_content;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Config {
     pub auto_ramping: bool,
     pub num_of_shades: u8,
@@ -35,14 +33,13 @@ impl Default for Config {
 pub struct ConfigSelector {
     config_selector_dom: DomController,
     current_config: Config,
-    config_changed: bool,
 }
 
 impl ConfigSelector {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
         let mut config_selector_dom = DomController::new(
-            &resource_manager,
-            &ui_settings,
+            resource_manager,
+            ui_settings,
             include_str!("config_selector/config_selector_content.xml"),
         );
         let new_config = Default::default();
@@ -51,7 +48,6 @@ impl ConfigSelector {
         Self {
             config_selector_dom,
             current_config: new_config,
-            config_changed: true,
         }
     }
 
@@ -67,17 +63,15 @@ impl DomControllerInterface for ConfigSelector {
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event> {
-        let previous_config = self.current_config;
         let events = self
             .config_selector_dom
             .event_handler(window, ui_settings, event);
         config_selector_content::perform_events(&events, &mut self.current_config);
-        self.config_changed = previous_config != self.current_config;
         events
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.config_selector_dom.update(&resource_manager)
+        self.config_selector_dom.update(resource_manager)
     }
 
     fn render(&mut self, window: &mut RenderWindow) {
