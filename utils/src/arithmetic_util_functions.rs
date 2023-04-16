@@ -1,3 +1,5 @@
+use std::ops::Sub;
+
 use tracing::error;
 
 /// # Usage
@@ -54,3 +56,22 @@ macro_rules! convert_int_or_print_error_and_return_min {
     };
 }
 convert_int_or_print_error_and_return_min!(u32_from_i32, i32, u32);
+
+/// Calculates whether two values are within a set standard deviation between eachother
+/// UB if you pass in a float that is -inf, inf, or NaN.
+pub fn values_within_standard_deviation<T: PartialOrd + Sub>(
+    val: T,
+    other_val: T,
+    standard_deviation: T,
+) -> bool
+where
+    <T as Sub>::Output: PartialOrd<T>,
+{
+    let (min, max) = if val > other_val {
+        (other_val, val)
+    } else {
+        (val, other_val)
+    };
+
+    max - min <= standard_deviation
+}

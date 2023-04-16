@@ -6,11 +6,14 @@ use sfml::{
 use self::color_ramper::ColorRamper;
 
 use super::{
-    color_grid::{undo_redo::UndoRedoCell, ColorGrid},
+    color_grid::{color_cell::RcColorCell, undo_redo::UndoRedoCell, ColorGrid},
     hover_handler::HoverHandler,
+    hsv_color::Hsv,
     ui_components::{
-        config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
-        erase_mode::EraseMode, hsv_selector::HSVSelector,
+        config_selector::{Config, ConfigSelector},
+        confirm_color_ramp::ConfirmColorRamp,
+        erase_mode::EraseMode,
+        hsv_selector::HSVSelector,
     },
 };
 
@@ -75,9 +78,24 @@ impl<
 pub struct RampMode {
     hover_handler: HoverHandler,
     ramp: ColorRamper,
+    previous_config: Config,
+    previous_color: Hsv,
+    middle_cell: Option<RcColorCell>,
+    original_middle_cell_color: Option<Hsv>,
 }
 
 impl RampMode {
+    pub fn regenerate_ramp_new_config(&mut self, args: &mut RampModeEventHandlerArguments) {
+        if self.previous_config != args.config_selector.current_config()
+            || self.previous_color != args.hsv_selector.curr_color()
+        {
+            self.ramp.create_ramp(self.ramp.ramp_start_coord(), args);
+        }
+
+        self.previous_color = args.hsv_selector.curr_color();
+        self.previous_config = args.config_selector.current_config();
+    }
+
     pub fn event_handler(&mut self, args: &mut RampModeEventHandlerArguments) {
         if !self.ramp.ramp_being_shown() {
             self.no_ramp_event_handler(args);
@@ -96,7 +114,26 @@ impl RampMode {
 
         match args.event {
             Event::MouseButtonPressed { button, x, y } if button == Button::Left => {
-                self.ramp.create_ramp(Vector2::new(x, y), args);
+                let coord = Vector2::new(x, y);
+                if let Some(starting_idx) = args.color_grid.coord_to_idx(coord) {
+                    if args.color_grid[starting_idx.x][starting_idx.y]
+                        .borrow()
+                        .draw_full_cell()
+                    {
+                        self.middle_cell =
+                            Some(args.color_grid[starting_idx.x][starting_idx.y].clone());
+                        self.original_middle_cell_color = Some(
+                            self.middle_cell
+                                .clone()
+                                .unwrap()
+                                .borrow()
+                                .full_cell_current_color(),
+                        );
+                    }
+                }
+                self.ramp.create_ramp(coord, args);
+                self.previous_config = args.config_selector.current_config();
+                self.previous_color = args.hsv_selector.curr_color();
                 args.confirm_color_ramp.set_enable(true);
             }
             _ => {}
@@ -127,6 +164,11 @@ impl RampMode {
 
     pub fn clear_the_ramp(&mut self, undo_redo: &mut UndoRedoCell) {
         self.ramp.clear_ramp(undo_redo);
+        if let (Some(middle_cell), Some(color)) =
+            (&mut self.middle_cell, self.original_middle_cell_color)
+        {
+            middle_cell.borrow_mut().fill_the_cell(undo_redo, color);
+        }
     }
 }
 

@@ -93,13 +93,16 @@ impl traits::Element for Div {
             .for_each(|ele| ele.update_position(relative_rect));
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.update(resource_manager));
+            let mut event = ele.update(resource_manager);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
 
-        events
+        (events, rerender)
     }
 
     fn set_ui_position(
@@ -120,12 +123,15 @@ impl traits::Element for Div {
         Box::new(self.clone())
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.event_handler(ui_settings, event))
+            let mut event = ele.event_handler(ui_settings, event);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
 
-        events
+        (events, rerender)
     }
 }

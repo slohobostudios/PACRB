@@ -19,7 +19,7 @@ fn main() {
     const WINDOW_SIZE: (u32, u32) = (1280, 720);
     // Create a new window
     let mut window = RenderWindow::new(WINDOW_SIZE, "PACRB", Style::DEFAULT, &Default::default());
-    window.set_vertical_sync_enabled(false);
+    window.set_vertical_sync_enabled(true);
     let mut ui_settings = UISettings::from_file();
     ui_settings.save_settings();
     let resource_manager = ResourceManager::new();
@@ -43,7 +43,7 @@ fn main() {
         pallete_builder.update(&resource_manager);
         window.clear(Color::rgb(35, 38, 39));
         pallete_builder.render(&mut window);
-        window.draw(fps_counter.fps_text());
+        // window.draw(fps_counter.fps_text());
         window.display();
     }
 }

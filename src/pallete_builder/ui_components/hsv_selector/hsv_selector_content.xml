@@ -1,4 +1,4 @@
-<RootNode scale="6" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
@@ -41,5 +41,19 @@
         click_frame_id="0"
         />
     </Slider>
+  </Background>
+  <Background
+    type="Repeatable3x3Background"
+    asset="dark_blue_background.png"
+    position="b:135,r:455"
+    padding="t:10,b:10,l:20,r:20"
+    frame_id="0">
+    <TextBox
+      type="FixedSizeOneLineTextbox"
+      color="#091d1e"
+      size="x:160"
+      event_id="3"
+      sync_id="3">
+    </TextBox>
   </Background>
 </RootNode>

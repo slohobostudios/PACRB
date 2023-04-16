@@ -24,6 +24,7 @@ pub struct ConfirmColorRamp {
     confirm_color_ramp_dom: DomController,
     enable: bool,
     orientation: Orientation,
+    cancel: bool,
 }
 
 impl ConfirmColorRamp {
@@ -39,11 +40,13 @@ impl ConfirmColorRamp {
             confirm_color_ramp_dom,
             enable: false,
             orientation: Orientation::Vertical,
+            cancel: false,
         }
     }
 
     pub fn set_enable(&mut self, enable: bool) {
         self.enable = enable;
+        self.cancel = false;
         confirm_color_ramp_content::sync_events(&mut self.confirm_color_ramp_dom, enable);
     }
 
@@ -53,6 +56,10 @@ impl ConfirmColorRamp {
 
     pub fn orientation(&self) -> Orientation {
         self.orientation
+    }
+
+    pub fn cancel_ramp(&self) -> bool {
+        self.cancel
     }
 }
 
@@ -79,6 +86,7 @@ impl DomControllerInterface for ConfirmColorRamp {
             &events,
             &mut self.enable,
             &mut self.orientation,
+            &mut self.cancel,
         );
         events
     }

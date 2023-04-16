@@ -142,18 +142,16 @@ impl Element for RepeatableSpritesButton {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = self.rerender;
         let mut events = Vec::new();
         for r_sprite in self.compact_repeat_sprites_mut() {
-            events.append(&mut r_sprite.update(resource_manager));
+            let mut event = r_sprite.update(resource_manager);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
 
-        if self.rerender {
-            self.rerender = false;
-            events.push(EMPTY_EVENT);
-        }
-
-        events
+        (events, rerender)
     }
 
     fn box_clone(&self) -> Box<dyn Element> {
@@ -166,9 +164,10 @@ impl Element for RepeatableSpritesButton {
             UIMouseStates::Hover => self.hover_repeatable_sprites.render(window),
             UIMouseStates::Click => self.click_repeatable_sprites.render(window),
         }
+        self.rerender = false;
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Button::event_handler(self, ui_settings, event)
     }
 }

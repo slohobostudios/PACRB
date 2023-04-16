@@ -15,9 +15,12 @@ pub trait Element {
     /// Gets the global bounds of an element
     fn global_bounds(&self) -> IntRect;
 
-    /// Handles events from SFML and returns a linked list of the events that has occured
+    /// Handles events from SFML and returns a vector of the events that has occured along with
+    /// a bool.
+    ///
+    /// the boolean indicates whether we need a rerender to occur
     #[allow(unused_variables)]
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Default::default()
     }
 
@@ -31,9 +34,11 @@ pub trait Element {
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect);
 
     /// Runs an update event on the element
-    /// Returns a linked list of events that has occured
+    /// Returns a vector of events that has occured along with a bool
+    ///
+    /// the boolean indicates whether we need a rerender to occur
     #[allow(unused_variables)]
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
         Default::default()
     }
 
@@ -51,12 +56,14 @@ pub trait Element {
     }
 
     /// Syncs the element via the Sync information
-    ///
     /// By default does nothing
+    ///
+    /// WARNING:
+    /// This functions may cause side-effects. You should ONLY use it when needed.
+    /// Calling this function may cause state changes and put the exterior code in a
+    /// incorrect state.
     #[allow(unused_variables)]
-    fn sync(&mut self, sync: Syncs) {
-        dbg!(sync, self.sync_id());
-    }
+    fn sync(&mut self, sync: Syncs) {}
 
     fn box_clone(&self) -> Box<dyn Element>;
 

@@ -10,6 +10,8 @@ use sfml::{
 use ui::{dom_controller::DomControllerInterface, ui_settings::UISettings};
 use utils::resource_manager::ResourceManager;
 
+use crate::generate_ramp_mode_event_handler_arguments;
+
 use self::{
     color_grid::{color_cell::CELL_SIZE, undo_redo::UndoRedoCell, ColorGrid},
     normal_mode::{NormalMode, NormalModeEventHandlerArguments},
@@ -44,6 +46,7 @@ pub struct PalleteBuilder {
     view: SfBox<View>,
     is_dragging_erase: bool,
     is_dragging_screen: bool,
+    lmb_dragging_from_ui_component: bool,
     previous_mouse_position: Vector2i,
     undo_redo: UndoRedoCell,
 }
@@ -69,6 +72,7 @@ impl PalleteBuilder {
             ),
             color_grid,
             undo_redo: Default::default(),
+            lmb_dragging_from_ui_component: false,
         }
     }
 
@@ -92,26 +96,47 @@ impl PalleteBuilder {
             events.append(&mut dci.event_handler(window, ui_settings, event))
         }
 
-        match self.current_mode {
+        // Whenever configs change, we need to modify the ramp, if it is ramping
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            if self.confirm_color_ramp.is_enabled() {
+                ramp_mode.regenerate_ramp_new_config(generate_ramp_mode_event_handler_arguments!(
+                    self, event
+                ))
+            }
+
+            if self.confirm_color_ramp.cancel_ramp() {
+                self.confirm_color_ramp.set_enable(false);
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
+            }
+        }
+
+        match &mut self.current_mode {
             Mode::NormalMode(_) if self.config_selector.current_config().auto_ramping => {
                 self.current_mode = Mode::RampMode(RampMode::default())
             }
-            Mode::RampMode(_) if !self.config_selector.current_config().auto_ramping => {
+            Mode::RampMode(ramp_mode) if !self.config_selector.current_config().auto_ramping => {
                 self.confirm_color_ramp.set_enable(false);
-                if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
-                    ramp_mode.clear_the_ramp(&mut self.undo_redo);
-                }
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
                 self.current_mode = Mode::NormalMode(NormalMode::default())
             }
             _ => {}
         }
 
-        if !events.is_empty() {
+        if !events.is_empty() && !self.lmb_dragging_from_ui_component {
+            if matches!(event, Event::MouseButtonPressed { .. }) {
+                self.lmb_dragging_from_ui_component = true;
+            }
+            return;
+        } else if self.lmb_dragging_from_ui_component
+            && matches!(event, Event::MouseButtonReleased { .. })
+        {
+            self.lmb_dragging_from_ui_component = false;
             return;
         }
 
         self.view_event_handler(&event);
         let event = self.correct_mouse_pos_event(event, window);
+        self.general_mouse_button_event_handler(&event);
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
@@ -127,15 +152,7 @@ impl PalleteBuilder {
                 ))
             }
             Mode::RampMode(ramp_mode) => {
-                ramp_mode.event_handler(&mut RampModeEventHandlerArguments::new(
-                    &mut self.color_grid,
-                    event,
-                    &self.hsv_selector,
-                    &self.erase_mode,
-                    &mut self.undo_redo,
-                    &mut self.confirm_color_ramp,
-                    &self.config_selector,
-                ))
+                ramp_mode.event_handler(generate_ramp_mode_event_handler_arguments!(self, event))
             }
         }
     }
@@ -348,4 +365,38 @@ impl PalleteBuilder {
             _ => {}
         }
     }
+
+    fn general_mouse_button_event_handler(&mut self, event: &Event) {
+        match *event {
+            Event::MouseButtonPressed { button, x, y }
+                if (Key::LControl.is_pressed() || Key::RControl.is_pressed())
+                    && button == Button::Left =>
+            {
+                if let Some(idx) = self.color_grid.coord_to_idx(Vector2::new(x, y)) {
+                    if self.color_grid[idx.x][idx.y].borrow().draw_full_cell() {
+                        let hsv = self.color_grid[idx.x][idx.y]
+                            .borrow()
+                            .full_cell_current_color();
+                        self.hsv_selector.set_hsv_color(hsv)
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! generate_ramp_mode_event_handler_arguments {
+    ($self: ident, $event: ident) => {
+        &mut RampModeEventHandlerArguments::new(
+            &mut $self.color_grid,
+            $event,
+            &$self.hsv_selector,
+            &$self.erase_mode,
+            &mut $self.undo_redo,
+            &mut $self.confirm_color_ramp,
+            &$self.config_selector,
+        )
+    };
 }

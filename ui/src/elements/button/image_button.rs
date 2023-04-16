@@ -171,12 +171,8 @@ impl Button for ImageButton {
 impl Element for ImageButton {
     cast_element!();
 
-    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
-        Vec::from(if self.rerender {
-            &[EMPTY_EVENT][..]
-        } else {
-            &[][..]
-        })
+    fn update(&mut self, _resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        (Default::default(), self.rerender)
     }
 
     fn update_size(&mut self) {
@@ -204,7 +200,7 @@ impl Element for ImageButton {
         self.global_bounds
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Button::event_handler(self, ui_settings, event)
     }
 

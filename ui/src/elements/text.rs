@@ -1,8 +1,5 @@
 use super::traits::{cast_element, Element};
-use crate::{
-    events::{Event, EMPTY_EVENT},
-    utils::positioning::UIPosition,
-};
+use crate::{events::Event, utils::positioning::UIPosition};
 use sfml::{
     graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable},
     system::Vector2,
@@ -113,11 +110,7 @@ impl Element for Text {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
-        if self.rerender {
-            vec![EMPTY_EVENT]
-        } else {
-            vec![]
-        }
+    fn update(&mut self, _resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        (Default::default(), self.rerender)
     }
 }

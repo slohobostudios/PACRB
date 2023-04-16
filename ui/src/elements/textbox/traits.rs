@@ -5,7 +5,7 @@ use sfml::{
 
 use crate::{
     elements::traits::ActionableElement,
-    events::{Event, EMPTY_EVENT},
+    events::Event,
     ui_settings::{
         controls::{possible_binds::PossibleBinds, possible_inputs::PossibleInputs},
         UISettings,
@@ -18,14 +18,20 @@ pub(super) const CURSOR_FONT: &str = "SourceCodePro-SemiBold.ttf";
 pub(super) const CURSOR_CHAR: char = '\u{2581}';
 pub(super) const BLINK_INTERVAL: Duration = Duration::from_millis(900);
 
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct TextBoxTriggeredEvent {
+    pub string: String,
+    pub selected: bool,
+}
+
 pub trait TextBox: ActionableElement + Debug {
     fn move_cursor(&mut self, new_cursor_idx: usize);
     fn move_cursor_left(&mut self);
     fn move_cursor_right(&mut self);
-    fn utf32_str(&self) -> &str;
-    fn ascii_str(&self) -> Option<String>;
     fn box_clone(&self) -> Box<dyn TextBox>;
     fn text_entered(&mut self, event: SFMLEvent);
+    fn select_everything(&mut self);
+    fn make_select_box_dissappear(&mut self);
     fn deselect(&mut self);
     fn is_selected(&self) -> bool;
     fn is_dragging(&self) -> bool;
@@ -33,8 +39,7 @@ pub trait TextBox: ActionableElement + Debug {
     fn copy(&self);
     fn paste(&mut self);
     fn drag_mouse(&mut self, mouse_pos: Vector2i);
-    fn set_string(&mut self, string: &str);
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         self.set_hover(ui_settings.cursor_position);
         match event {
             // Escape
@@ -49,7 +54,7 @@ pub trait TextBox: ActionableElement + Debug {
                 .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::Escape) =>
             {
                 self.deselect();
-                vec![EMPTY_EVENT]
+                (vec![self.triggered_event()], true)
             }
             // Cut, Copy, and Paste
             // This will be hardcoded per system. No binds for this
@@ -63,7 +68,7 @@ pub trait TextBox: ActionableElement + Debug {
                 system: _,
             } if code == Key::X && ctrl => {
                 self.cut();
-                vec![self.triggered_event()]
+                (vec![self.triggered_event()], true)
             }
 
             // Copy
@@ -75,7 +80,7 @@ pub trait TextBox: ActionableElement + Debug {
                 system: _,
             } if code == Key::C && ctrl => {
                 self.copy();
-                vec![EMPTY_EVENT]
+                (vec![], true)
             }
 
             // Paste
@@ -87,13 +92,25 @@ pub trait TextBox: ActionableElement + Debug {
                 system: _,
             } if code == Key::V && ctrl => {
                 self.paste();
-                vec![self.triggered_event()]
+                (vec![self.triggered_event()], true)
+            }
+
+            // Select Everythinhg
+            SFMLEvent::KeyPressed {
+                code,
+                alt: _,
+                ctrl,
+                shift: _,
+                system: _,
+            } if code == Key::A && ctrl && self.is_selected() => {
+                self.select_everything();
+                (vec![], true)
             }
 
             // Mouse dragging and selection
             SFMLEvent::MouseMoved { x: _, y: _ } if self.is_dragging() => {
                 self.drag_mouse(ui_settings.cursor_position);
-                vec![EMPTY_EVENT]
+                (vec![], true)
             }
             SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
                 if ui_settings.binds.is_bind_pressed_and_binded(
@@ -101,8 +118,13 @@ pub trait TextBox: ActionableElement + Debug {
                     PossibleBinds::Select,
                 ) =>
             {
+                let original_selected_state = self.is_selected();
                 self.bind_pressed(ui_settings.cursor_position);
-                vec![EMPTY_EVENT]
+                if original_selected_state ^ self.is_selected() {
+                    (vec![self.triggered_event()], true)
+                } else {
+                    (vec![], false)
+                }
             }
             SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
                 if ui_settings.binds.is_bind_released_and_binded(
@@ -111,7 +133,7 @@ pub trait TextBox: ActionableElement + Debug {
                 ) =>
             {
                 self.bind_released(ui_settings.cursor_position);
-                vec![EMPTY_EVENT]
+                (vec![], self.is_dragging())
             }
             SFMLEvent::KeyPressed {
                 code,
@@ -124,7 +146,8 @@ pub trait TextBox: ActionableElement + Debug {
                 .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::UILeft) =>
             {
                 self.move_cursor_left();
-                vec![EMPTY_EVENT]
+                self.make_select_box_dissappear();
+                (vec![], true)
             }
             SFMLEvent::KeyPressed {
                 code,
@@ -137,7 +160,8 @@ pub trait TextBox: ActionableElement + Debug {
                 .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::UIRight) =>
             {
                 self.move_cursor_right();
-                vec![EMPTY_EVENT]
+                self.make_select_box_dissappear();
+                (vec![], true)
             }
             SFMLEvent::KeyPressed {
                 code,
@@ -149,8 +173,13 @@ pub trait TextBox: ActionableElement + Debug {
                 .binds
                 .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
             {
+                let original_selected_state = self.is_selected();
                 self.bind_pressed(ui_settings.cursor_position);
-                vec![EMPTY_EVENT]
+                if original_selected_state ^ self.is_selected() {
+                    (vec![self.triggered_event()], true)
+                } else {
+                    (vec![], false)
+                }
             }
             SFMLEvent::KeyReleased {
                 code,
@@ -163,11 +192,11 @@ pub trait TextBox: ActionableElement + Debug {
                 .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
             {
                 self.bind_released(ui_settings.cursor_position);
-                vec![EMPTY_EVENT]
+                (vec![], self.is_dragging())
             }
             SFMLEvent::TextEntered { unicode: _ } if self.is_selected() => {
                 self.text_entered(event);
-                vec![self.triggered_event()]
+                (vec![self.triggered_event()], true)
             }
             _ => Default::default(),
         }

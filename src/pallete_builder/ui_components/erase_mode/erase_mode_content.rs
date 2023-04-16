@@ -34,7 +34,7 @@ pub fn sync_events(dom_controller: &mut DomController, erase_enabled: bool) {
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                ele.sync(Syncs::Boolean(erase_enabled));
+                ele.sync(Syncs::Boolean(!erase_enabled));
             }
             sync_id => {
                 warn!(

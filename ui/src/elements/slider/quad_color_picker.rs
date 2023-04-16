@@ -17,7 +17,7 @@ use crate::{
         },
         Element,
     },
-    events::{Event, EventId, Events, EMPTY_EVENT},
+    events::{Event, EventId, Events},
     syncs::Syncs,
     ui_settings::UISettings,
     utils::positioning::UIPosition,
@@ -25,12 +25,19 @@ use crate::{
 
 use super::traits::Slider;
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct QuadColorPickerSync {
     pub top_left_color: Option<Color>,
     pub top_right_color: Option<Color>,
     pub bottom_left_color: Option<Color>,
     pub bottom_right_color: Option<Color>,
+    /// Calculates the position based off of a percentage.
+    /// x: 0% and y: 0% is the top left corner, and x:100% and y: 100%
+    /// is the bottom right corner.
+    ///
+    /// The caclulation is done via floating point values between 0-65535
+    /// 65535 being 100% and 0 being 0%
+    pub hover_element_position_percentage: Option<Vector2<u16>>,
 }
 
 /// This struct NEEDS to be defined on the heap.
@@ -132,14 +139,12 @@ impl QuadColorPicker {
 }
 
 impl ElementTrait for QuadColorPicker {
-    cast_element!();
+    fn global_bounds(&self) -> IntRect {
+        self.global_bounds
+    }
 
-    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
-        if self.rerender {
-            vec![EMPTY_EVENT]
-        } else {
-            vec![]
-        }
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
+        Slider::event_handler(self, ui_settings, event)
     }
     fn update_size(&mut self) {
         self.global_bounds.width = i32_from_u32(self.size.x);
@@ -157,36 +162,28 @@ impl ElementTrait for QuadColorPicker {
         Quad::mut_quad_positions_to_rect(&mut self.quad, self.global_bounds.as_other());
     }
 
-    fn render(&mut self, window: &mut RenderTexture) {
-        let rs = RenderStates::default();
-        window.draw_primitives(&self.quad.0, PrimitiveType::QUADS, &rs);
-        self.hover_element.render(window);
-    }
-
-    fn global_bounds(&self) -> IntRect {
-        self.global_bounds
-    }
-
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
-        Slider::event_handler(self, ui_settings, event)
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
-    }
-
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
         self.position = ui_position;
         self.update_size();
         self.update_position(relative_rect);
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
+    fn update(&mut self, _resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        (Default::default(), self.rerender)
+    }
+
+    fn render(&mut self, window: &mut RenderTexture) {
+        let rs = RenderStates::default();
+        window.draw_primitives(&self.quad.0, PrimitiveType::QUADS, &rs);
+        self.hover_element.render(window);
     }
 
     fn sync_id(&self) -> u16 {
         self.sync_id
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 
     fn sync(&mut self, sync: Syncs) {
@@ -206,7 +203,16 @@ impl ElementTrait for QuadColorPicker {
         if let Some(color) = sync_struct.bottom_right_color {
             self.set_bottom_right_color(color)
         }
+        if let Some(new_slider_value) = sync_struct.hover_element_position_percentage {
+            self.set_slider_position_by_percent(new_slider_value)
+        }
     }
+
+    fn box_clone(&self) -> Box<dyn ElementTrait> {
+        Box::new(self.clone())
+    }
+
+    cast_element!();
 }
 
 impl ActionableElement for QuadColorPicker {
@@ -285,6 +291,7 @@ impl Slider for QuadColorPicker {
                 self.size.y as f32,
             );
         }
+        self.rerender = true;
 
         self.hover_element.set_ui_position(
             UIPosition {

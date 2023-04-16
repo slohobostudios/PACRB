@@ -14,19 +14,36 @@
       </Text>
     </Div>
   </Button>
-  <Button
-    type="TilingButton"
-    asset="3x3_tilable_standalone_button.png"
-    position="b:15"
-    frame_id="0"
-    hover_frame_id="1"
-    click_frame_id="2"
-    event_id="1"
-    sync_id="0">
-    <Div padding="t:10,b:10,l:25,r:25">
-      <Text>
-        Confirm Ramp Complete
-      </Text>
-    </Div>
-  </Button>
+  <Grid pagination_size="x:2,y:1" position="b:15" size="x:340">
+    <Button
+      type="TilingButton"
+      asset="3x3_tilable_standalone_button.png"
+      position="b:15"
+      frame_id="0"
+      hover_frame_id="1"
+      click_frame_id="2"
+      event_id="1"
+      sync_id="0">
+      <Div padding="t:10,b:10,l:25,r:25">
+        <Text>
+          Confirm
+        </Text>
+      </Div>
+    </Button>
+    <Button
+      type="TilingButton"
+      asset="3x3_tilable_standalone_button.png"
+      position="b:15"
+      frame_id="0"
+      hover_frame_id="1"
+      click_frame_id="2"
+      event_id="3"
+      sync_id="0">
+      <Div padding="t:10,b:10,l:25,r:25">
+        <Text>
+          Cancel
+        </Text>
+      </Div>
+    </Button>
+  </Grid>
 </RootNode>

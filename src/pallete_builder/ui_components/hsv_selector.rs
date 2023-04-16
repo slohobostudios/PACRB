@@ -1,6 +1,6 @@
 use sfml::{
     graphics::{FloatRect, IntRect, PrimitiveType, RenderStates, RenderTarget, RenderWindow},
-    system::Vector2,
+    system::{Vector2, Vector2i},
     window::Event as SFMLEvent,
 };
 use std::str::FromStr;
@@ -23,6 +23,8 @@ pub struct HSVSelector {
     current_color_rect: Quad,
     display_current_color: bool,
     current_color: Hsv,
+    hex_string: String,
+    current_aspect_ratio: Vector2i,
 }
 
 impl HSVSelector {
@@ -40,12 +42,45 @@ impl HSVSelector {
             },
             display_current_color: false,
             current_color_rect: Quad::from(FloatRect::new(0., 0., 64., 64.)),
+            hex_string: Default::default(),
+            current_aspect_ratio: ui_settings.aspect_ratio.computed_resolution().as_other(),
         };
-        sync_events(&mut hsis.hsi_selector_dom, hsis.current_color);
+        sync_events(
+            &mut hsis.hsi_selector_dom,
+            hsis.current_color,
+            &hsis.hex_string,
+        );
         hsis.current_color_rect
             .set_quad_to_one_color(hsis.current_color.into());
 
         hsis
+    }
+
+    fn color_current_color_rect(&mut self) {
+        let rect = Quad::into_rect(&self.current_color_rect);
+        self.current_color_rect.mut_quad_positions_to_rect(
+            UIPosition::from_str("r:45,b:365")
+                .unwrap()
+                .center_with_size(
+                    IntRect::from_vecs(Vector2::new(0, 0), self.current_aspect_ratio),
+                    rect.size().as_other(),
+                )
+                .as_other(),
+        );
+        self.current_color_rect
+            .set_quad_to_one_color(self.current_color.into());
+    }
+
+    pub fn set_hsv_color(&mut self, hsv: Hsv) {
+        self.current_color = hsv;
+        self.color_current_color_rect();
+
+        self.hex_string = hsv.to_string();
+        sync_events(
+            &mut self.hsi_selector_dom,
+            self.current_color,
+            &self.hex_string,
+        );
     }
 
     pub fn curr_color(&self) -> Hsv {
@@ -60,26 +95,17 @@ impl DomControllerInterface for HSVSelector {
         ui_settings: &mut UISettings,
         event: SFMLEvent,
     ) -> Vec<Event> {
+        self.current_aspect_ratio = ui_settings.aspect_ratio.computed_resolution().as_other();
         let events = self
             .hsi_selector_dom
             .event_handler(window, ui_settings, event);
-        perform_events(&events, &mut self.hsi_selector_dom, &mut self.current_color);
-
-        let rect = Quad::into_rect(&self.current_color_rect);
-        self.current_color_rect.mut_quad_positions_to_rect(
-            UIPosition::from_str("r:45,b:365")
-                .unwrap()
-                .center_with_size(
-                    IntRect::from_vecs(
-                        Vector2::new(0, 0),
-                        ui_settings.aspect_ratio.computed_resolution().as_other(),
-                    ),
-                    rect.size().as_other(),
-                )
-                .as_other(),
+        perform_events(
+            &events,
+            &mut self.hsi_selector_dom,
+            &mut self.current_color,
+            &mut self.hex_string,
         );
-        self.current_color_rect
-            .set_quad_to_one_color(self.current_color.into());
+        self.color_current_color_rect();
         self.display_current_color = true;
         if events.is_empty() {
             self.display_current_color = false;

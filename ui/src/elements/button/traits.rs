@@ -13,7 +13,7 @@ use std::{fmt::Debug, ops::Deref};
 pub trait Button: ActionableElement + Debug {
     fn box_clone(&self) -> Box<dyn Button>;
     fn current_mouse_state(&self) -> UIMouseStates;
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         self.set_hover(ui_settings.cursor_position);
         match event {
             SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
@@ -24,7 +24,7 @@ pub trait Button: ActionableElement + Debug {
                     ) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
-                Vec::from([EMPTY_EVENT])
+                (Default::default(), true)
             }
             SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
                 if self.is_hover()
@@ -34,13 +34,13 @@ pub trait Button: ActionableElement + Debug {
                     ) =>
             {
                 self.bind_released(ui_settings.cursor_position);
-                Vec::from([self.triggered_event()])
+                (vec![self.triggered_event()], true)
             }
             SFMLEvent::MouseMoved { x: _, y: _ }
                 if self.is_hover() && ui_settings.binds.is_bind_pressed(PossibleBinds::Select) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
-                Vec::from([EMPTY_EVENT])
+                (Default::default(), true)
             }
             SFMLEvent::KeyPressed {
                 code,
@@ -55,7 +55,7 @@ pub trait Button: ActionableElement + Debug {
                 ) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
-                Vec::from([EMPTY_EVENT])
+                (Default::default(), true)
             }
             SFMLEvent::KeyReleased {
                 code,
@@ -70,9 +70,9 @@ pub trait Button: ActionableElement + Debug {
                 ) =>
             {
                 self.bind_released(ui_settings.cursor_position);
-                Vec::from([self.triggered_event()])
+                (vec![self.triggered_event()], true)
             }
-            _ if self.is_hover() => Vec::from([EMPTY_EVENT]),
+            _ if self.is_hover() => (Default::default(), true),
             _ => Default::default(),
         }
     }

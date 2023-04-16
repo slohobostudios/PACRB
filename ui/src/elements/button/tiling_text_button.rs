@@ -146,6 +146,7 @@ impl TraitElement for TilingButton {
     fn render(&mut self, window: &mut RenderTexture) {
         self.backgrounds.render(window);
         self.inner_element.render(window);
+        self.rerender = false;
     }
 
     fn global_bounds(&self) -> IntRect {
@@ -195,7 +196,7 @@ impl TraitElement for TilingButton {
         self.inner_element.update_position(self.global_bounds);
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Button::event_handler(&mut self.backgrounds, ui_settings, event);
         Button::event_handler(self, ui_settings, event)
     }
@@ -218,13 +219,10 @@ impl TraitElement for TilingButton {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let mut events = self.backgrounds.update(resource_manager);
-
-        if self.rerender {
-            self.rerender = false;
-            events.push(EMPTY_EVENT);
-        }
-        events
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = self.rerender;
+        let background_event = self.backgrounds.update(resource_manager);
+        rerender |= background_event.1;
+        (background_event.0, rerender)
     }
 }

@@ -62,24 +62,24 @@ pub trait Slider: ActionableElement + Debug {
         )
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event>
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool)
     where
         Self: Sized,
     {
-        fn bind_pressed(self_: &mut dyn Slider, ui_settings: &UISettings) -> Vec<Event> {
+        fn bind_pressed(self_: &mut dyn Slider, ui_settings: &UISettings) -> (Vec<Event>, bool) {
             let prev_event = self_.triggered_event();
             self_.bind_pressed(ui_settings.cursor_position);
             if prev_event != self_.triggered_event() {
-                Vec::from([self_.triggered_event()])
+                (vec![self_.triggered_event()], true)
             } else {
                 Default::default()
             }
         }
-        fn bind_released(self_: &mut dyn Slider, ui_settings: &UISettings) -> Vec<Event> {
+        fn bind_released(self_: &mut dyn Slider, ui_settings: &UISettings) -> (Vec<Event>, bool) {
             let prev_event = self_.triggered_event();
             self_.bind_released(ui_settings.cursor_position);
             if prev_event != self_.triggered_event() {
-                Vec::from([self_.triggered_event()])
+                (vec![self_.triggered_event()], true)
             } else {
                 Default::default()
             }
@@ -128,7 +128,7 @@ pub trait Slider: ActionableElement + Debug {
             }
             SFMLEvent::MouseMoved { x: _, y: _ } if self.is_dragging() => {
                 self.set_slider_position_by_cursor_coords(ui_settings.cursor_position);
-                Vec::from([self.triggered_event()])
+                (vec![self.triggered_event()], true)
             }
             _ => Default::default(),
         }

@@ -11,8 +11,8 @@ pub mod asset;
 
 pub const ASSETS_PATH: &str = "assets/";
 pub const MISSING_TEXTURE_ID: &str = "missing_texture.png";
-pub const DEFAULT_FONT_ID: &str = "SourceCodePro-SemiBold.ttf";
-// pub const DEFAULT_FONT_ID: &str = "m6x11.ttf";
+// pub const DEFAULT_FONT_ID: &str = "SourceCodePro-SemiBold.ttf";
+pub const DEFAULT_FONT_ID: &str = "m6x11.ttf";
 
 pub fn load_sfml_logo() -> sfml::SfBox<Texture> {
     let file_name = &format!("{}{}", ASSETS_PATH, "sfml-logo-big.png")[..];
@@ -169,13 +169,13 @@ impl ResourceManager {
     }
 
     pub fn fetch_font_with_id(&self, id: &str) -> &RcFont {
-        match self.fonts.get(id) {
-            Some(v) => v,
-            None => self
-                .fonts
+        self.fonts.get(id).unwrap_or_else(|| {
+            warn!("No font {:?} exists!", id);
+
+            self.fonts
                 .get(DEFAULT_FONT_ID)
-                .expect("No default font available!"),
-        }
+                .expect("No default font available!")
+        })
     }
 
     pub fn fetch_current_font(&self) -> &RcFont {

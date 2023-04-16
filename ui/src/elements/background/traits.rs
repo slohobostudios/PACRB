@@ -27,22 +27,26 @@ use std::fmt::Debug;
 pub trait BackgroundElement: Background + ElementTrait + Debug {
     fn box_clone(&self) -> Box<dyn BackgroundElement>;
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.event_handler(ui_settings, event));
+            let mut event = ele.event_handler(ui_settings, event);
+            events.append(&mut event.0);
+            rerender |= event.1;
         }
 
         self.set_hover(ui_settings.cursor_position);
         match event {
-            SFMLEvent::MouseMoved { x: _, y: _ } if self.is_hover() => events.push(EMPTY_EVENT),
+            SFMLEvent::MouseMoved { x: _, y: _ } if self.is_hover() => rerender = true,
             SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
                 ) && self.global_bounds().contains(ui_settings.cursor_position) =>
             {
-                events.push(EMPTY_EVENT)
+                rerender = true;
+                events.push(EMPTY_EVENT);
             }
             SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
                 if ui_settings.binds.is_bind_released_and_binded(
@@ -50,7 +54,8 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
                     PossibleBinds::Select,
                 ) && self.global_bounds().contains(ui_settings.cursor_position) =>
             {
-                events.push(EMPTY_EVENT)
+                rerender = true;
+                events.push(EMPTY_EVENT);
             }
             SFMLEvent::KeyReleased {
                 code,
@@ -63,7 +68,8 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
                 .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
                 && self.global_bounds().contains(ui_settings.cursor_position) =>
             {
-                events.push(EMPTY_EVENT)
+                rerender = true;
+                events.push(EMPTY_EVENT);
             }
             SFMLEvent::KeyPressed {
                 code,
@@ -76,12 +82,13 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
                 .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
                 && self.global_bounds().contains(ui_settings.cursor_position) =>
             {
-                events.push(EMPTY_EVENT)
+                rerender = true;
+                events.push(EMPTY_EVENT);
             }
             _ => {}
         }
 
-        events
+        (events, rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
@@ -103,12 +110,15 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
         }
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.mut_children() {
-            events.append(&mut ele.update(resource_manager));
+            let mut event = ele.update(resource_manager);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
-        events
+        (events, rerender)
     }
 }
 

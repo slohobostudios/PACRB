@@ -88,7 +88,7 @@ impl traits::Element for Repeatable3x3Background {
         self.background.global_bounds()
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         BackgroundElement::event_handler(self, ui_settings, event)
     }
 
@@ -109,11 +109,16 @@ impl traits::Element for Repeatable3x3Background {
         self.update_element_position();
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
-        events.append(&mut self.background.update(resource_manager));
-        events.append(&mut BackgroundElement::update(self, resource_manager));
-        events
+        let mut background_event = self.background.update(resource_manager);
+        rerender |= background_event.1;
+        events.append(&mut background_event.0);
+        let mut background_event = BackgroundElement::update(self, resource_manager);
+        rerender |= background_event.1;
+        events.append(&mut background_event.0);
+        (events, rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {

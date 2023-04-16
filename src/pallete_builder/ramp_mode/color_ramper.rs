@@ -18,6 +18,17 @@ pub struct ColorRamper {
 }
 
 impl ColorRamper {
+    pub fn ramp_start_coord(&self) -> Vector2i {
+        if let Some(ramp_start_cell) = self.min_ramp.get(0) {
+            center_of_rect!(i32, ramp_start_cell.borrow().global_bounds())
+        } else if let Some(ramp_start_cell) = self.max_ramp.get(0) {
+            center_of_rect!(i32, ramp_start_cell.borrow().global_bounds())
+        } else {
+            error!("Unable to get the first/starting ramp coordinate!");
+            Default::default()
+        }
+    }
+
     pub fn current_orientation(&self) -> Orientation {
         self.current_orientation
     }
@@ -126,14 +137,16 @@ impl ColorRamper {
 
         for (i, color_cell) in self.min_ramp.iter_mut().enumerate() {
             let i = i as i16;
-            let h = starting_color.h - i * i16::from(config.hue_shift);
+            let h = starting_color
+                .h
+                .saturating_sub(i * i16::from(config.hue_shift));
             let s = clamp_to_primitive_bounds!(
                 u8,
-                i16::from(starting_color.s) - i * i16::from(config.saturation_shift)
+                i16::from(starting_color.s).saturating_sub(i * i16::from(config.saturation_shift))
             );
             let v = clamp_to_primitive_bounds!(
                 u8,
-                i16::from(starting_color.v) - i * i16::from(config.value_shift)
+                i16::from(starting_color.v).saturating_sub(i * i16::from(config.value_shift))
             );
             color_cell
                 .borrow_mut()
@@ -141,14 +154,16 @@ impl ColorRamper {
         }
         for (i, color_cell) in self.max_ramp.iter_mut().enumerate() {
             let i = i as i16;
-            let h = starting_color.h + i * i16::from(config.hue_shift);
+            let h = starting_color
+                .h
+                .saturating_add(i * i16::from(config.hue_shift));
             let s = clamp_to_primitive_bounds!(
                 u8,
-                i16::from(starting_color.s) + i * i16::from(config.saturation_shift)
+                i16::from(starting_color.s).saturating_add(i * i16::from(config.saturation_shift))
             );
             let v = clamp_to_primitive_bounds!(
                 u8,
-                i16::from(starting_color.v) + i * i16::from(config.value_shift)
+                i16::from(starting_color.v).saturating_add(i * i16::from(config.value_shift))
             );
             color_cell
                 .borrow_mut()

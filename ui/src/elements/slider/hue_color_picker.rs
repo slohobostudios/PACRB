@@ -18,7 +18,7 @@ use crate::{
         },
         Element,
     },
-    events::{Event, EventId, Events, EMPTY_EVENT},
+    events::{Event, EventId, Events},
     syncs::ui_syncs_not_synced_str,
     syncs::Syncs,
     ui_settings::UISettings,
@@ -134,7 +134,7 @@ impl ElementTrait for HueColorPicker {
         self.global_bounds
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Slider::event_handler(self, ui_settings, event)
     }
 
@@ -163,12 +163,8 @@ impl ElementTrait for HueColorPicker {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, _resource_manager: &ResourceManager) -> Vec<Event> {
-        if self.rerender {
-            vec![EMPTY_EVENT]
-        } else {
-            vec![]
-        }
+    fn update(&mut self, _resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        (Default::default(), self.rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {

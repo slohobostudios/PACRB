@@ -8,7 +8,7 @@ use utils::resource_manager::ResourceManager;
 
 mod config_selector_content;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Config {
     pub auto_ramping: bool,
     pub num_of_shades: u8,

@@ -19,13 +19,13 @@ use crate::{
         text::Text,
         traits::{cast_actionable_element, cast_element, ActionableElement, Element},
     },
-    events::{Event, EventId, Events, EMPTY_EVENT},
+    events::{Event, EventId, Events},
     syncs::{ui_syncs_not_synced_str, Syncs},
     ui_settings::UISettings,
     utils::positioning::UIPosition,
 };
 
-use super::traits::{TextBox, BLINK_INTERVAL, CURSOR_CHAR, CURSOR_FONT};
+use super::traits::{TextBox, TextBoxTriggeredEvent, BLINK_INTERVAL, CURSOR_CHAR, CURSOR_FONT};
 
 const START_HORIZONTAL_OFFSET: UIPosition = UIPosition {
     left: Some(5),
@@ -123,11 +123,16 @@ impl FixedSizeOneLineTextbox {
     }
 
     fn create_cursor(resource_manager: &ResourceManager, font_size: u32) -> RcText {
-        RcText::new(
+        let mut cursor = RcText::new(
             &CURSOR_CHAR.to_string(),
             resource_manager.fetch_font_with_id(CURSOR_FONT),
             font_size,
-        )
+        );
+        cursor.set_origin(Vector2::new(
+            cursor.local_bounds().left,
+            cursor.local_bounds().top,
+        ));
+        cursor
     }
 
     fn is_text_too_big(&self) -> bool {
@@ -142,14 +147,22 @@ impl FixedSizeOneLineTextbox {
         } else {
             self.display_cursor
         };
+
         if change_cursor {
             self.display_cursor = !self.display_cursor;
-            self.cursor.set_position(
-                self.rendered_text
-                    .rc_text()
-                    .find_character_pos(self.cursor_idx.saturating_sub(self.starting_idx)),
-            );
+            let mut pos = self
+                .rendered_text
+                .rc_text()
+                .find_character_pos(self.cursor_idx.saturating_sub(self.starting_idx));
+            pos.y = UIPosition::END_VERTICAL
+                .center(
+                    self.global_bounds,
+                    self.cursor.global_bounds().size().as_other(),
+                )
+                .y as f32;
+            self.cursor.set_position(pos);
             self.instant_since_cursor_blink = Instant::now();
+            self.rerender = true;
         }
     }
 
@@ -164,12 +177,6 @@ impl FixedSizeOneLineTextbox {
         self.instant_since_cursor_blink = Instant::now() - 2 * BLINK_INTERVAL;
         self.display_cursor = false;
         self.cursor_update();
-    }
-
-    fn make_select_box_dissappear(&mut self) {
-        self.select_start_idx = None;
-        self.select_end_idx = None;
-        self.select_rect = None;
     }
 
     /// Sets up self.select_rect to be ready for display
@@ -201,7 +208,6 @@ impl FixedSizeOneLineTextbox {
             width += get_character_width_at_idx(self.rendered_text.rc_text(), idx)
                 .unwrap_or(glyph_width);
         }
-
         let Some(start_pos) = start_pos else { return; };
         let height = self.rendered_text.global_bounds().height;
         self.select_rect = Some(RectangleShape::from_rect(Rect::new(
@@ -253,7 +259,7 @@ impl Element for FixedSizeOneLineTextbox {
         self.global_bounds
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         TextBox::event_handler(self, ui_settings, event)
     }
 
@@ -295,7 +301,7 @@ impl Element for FixedSizeOneLineTextbox {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
         // If cursor was constructed via default, the cursor character may not
         // have been initialized. This gives it a chance to initialize.
         if let Ok(cursor_str) = self.cursor.string().try_to_rust_string() {
@@ -308,11 +314,7 @@ impl Element for FixedSizeOneLineTextbox {
         }
 
         self.cursor_update();
-        if self.rerender {
-            vec![EMPTY_EVENT]
-        } else {
-            vec![]
-        }
+        (Default::default(), self.rerender)
     }
 
     fn render(&mut self, render_texture: &mut sfml::graphics::RenderTexture) {
@@ -358,7 +360,13 @@ impl ActionableElement for FixedSizeOneLineTextbox {
     cast_actionable_element!();
 
     fn triggered_event(&self) -> Event {
-        Event::new(self.event_id, Events::StringEvent(self.string.clone()))
+        Event::new(
+            self.event_id,
+            Events::TextBoxEvent(TextBoxTriggeredEvent {
+                string: self.string.clone(),
+                selected: self.selected,
+            }),
+        )
     }
 
     fn bind_pressed(&mut self, mouse_pos: sfml::system::Vector2i) {
@@ -375,19 +383,23 @@ impl ActionableElement for FixedSizeOneLineTextbox {
 
         self.rerender = true;
         self.bind_pressed_location = Some(mouse_pos);
-        self.move_cursor(
-            self.starting_idx
-                + self
-                    .get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
-                    .unwrap_or(self.rendered_text.text().len()),
-        );
+        let cursor_pos = self.starting_idx
+            + self
+                .get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
+                .unwrap_or(self.rendered_text.text().len());
+        let cursor_pos = if cursor_pos >= self.string.len().saturating_sub(1) {
+            cursor_pos + 1
+        } else {
+            cursor_pos
+        };
+        self.move_cursor(cursor_pos);
         self.make_cursor_appear();
     }
 
     fn bind_released(&mut self, mouse_pos: sfml::system::Vector2i) {
         self.set_hover(mouse_pos);
 
-        if self.hover || self.is_dragging() {
+        if self.is_dragging() {
             self.rerender = true;
         }
         if self.is_dragging() {
@@ -406,161 +418,6 @@ impl ActionableElement for FixedSizeOneLineTextbox {
 }
 
 impl TextBox for FixedSizeOneLineTextbox {
-    fn drag_mouse(&mut self, mouse_pos: Vector2i) {
-        if !self.is_dragging() {
-            return;
-        }
-        self.make_cursor_appear();
-        self.rerender = true;
-        let Some( glyph )= glyph_from_rc_text(self.rendered_text.rc_text(), 'A' as u32) else {
-            return;
-        };
-
-        // This is logic to start dragging the mouse
-        if self.select_end_idx.is_none() {
-            let Some(start_mouse_pos) = self.bind_pressed_location else {
-                error!("self.bind_pressed_location is none!");
-                return;
-            };
-            if let (Some(start_idx), Some(end_idx)) = (
-                self.get_character_idx_of_rc_text_at_point_fully_clamped(start_mouse_pos),
-                self.get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos),
-            ) {
-                if start_idx != end_idx {
-                    self.select_start_idx = Some(self.starting_idx + start_idx);
-                    self.select_end_idx = Some(self.starting_idx + end_idx);
-                }
-            }
-            if (start_mouse_pos.x - mouse_pos.x).abs() > glyph.bounds().width as i32
-                && self.select_start_idx.is_none()
-            {
-                if let Some(start_idx) =
-                    self.get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
-                {
-                    self.select_start_idx = Some(self.starting_idx + start_idx);
-                    self.select_end_idx = Some(self.starting_idx + start_idx);
-                }
-            }
-            self.calculate_select_box();
-
-            return;
-        }
-
-        // This is logic for dragging the mouse
-        let adjusted_cursor_idx = self
-            .get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
-            .unwrap_or(self.cursor_idx);
-        if adjusted_cursor_idx == 0 {
-            self.move_cursor_left();
-        } else if adjusted_cursor_idx >= self.rendered_text.text().len().saturating_sub(1) {
-            self.move_cursor_right();
-        } else {
-            self.move_cursor(self.starting_idx + adjusted_cursor_idx);
-        }
-        self.select_end_idx = Some(self.cursor_idx);
-        self.calculate_select_box();
-    }
-
-    fn is_dragging(&self) -> bool {
-        self.bind_pressed_location.is_some()
-    }
-
-    fn utf32_str(&self) -> &str {
-        &self.string
-    }
-
-    fn ascii_str(&self) -> Option<String> {
-        if self.string.is_ascii() {
-            Some(self.string.to_ascii_lowercase())
-        } else {
-            None
-        }
-    }
-
-    fn box_clone(&self) -> Box<dyn TextBox> {
-        Box::new(self.clone())
-    }
-
-    fn text_entered(&mut self, event: SFMLEvent) {
-        if let SFMLEvent::TextEntered { unicode } = event {
-            // Back space
-            if unicode == 0x08 as char {
-                // delete select box
-                if let (Some(select_start_idx), Some(select_end_idx)) =
-                    (self.select_start_idx, self.select_end_idx)
-                {
-                    let start = select_start_idx.min(select_end_idx);
-                    let end = select_start_idx.max(select_end_idx);
-                    // Some logic depends on the select box being nonexistent,
-                    // so we don't lock up in a loop somwhere
-                    self.make_select_box_dissappear();
-                    self.move_cursor(end);
-                    for _ in start..=end {
-                        self.trigger_backspace_event()
-                    }
-                    self.move_cursor_right();
-                    self.move_cursor_right();
-                }
-                // delete character
-                else if self.cursor_idx != 0 {
-                    if self.cursor_idx >= self.string.len() {
-                        self.string.pop();
-                    } else {
-                        self.string.remove(self.cursor_idx);
-                    }
-                }
-                // If the cursor idx is 0, go ahead and do delete
-                else if !self.string.is_empty() {
-                    self.string.remove(0);
-                }
-                self.move_cursor_left();
-            }
-            // Delete
-            else if unicode == 0x7f as char {
-                // delete select box
-                if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
-                    self.trigger_backspace_event();
-                    self.move_cursor_left();
-                } else if self.string.chars().nth(self.cursor_idx + 1).is_some() {
-                    self.string.remove(self.cursor_idx + 1);
-                    self.move_cursor(self.cursor_idx);
-                } else if self.string.chars().nth(self.cursor_idx).is_some() {
-                    self.string.remove(self.cursor_idx);
-                    self.move_cursor(self.cursor_idx);
-                }
-            }
-            // Ignore return carriage, newline, and any other weird characters
-            else if (unicode as u8) < 0x20 {
-            } else {
-                if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
-                    self.trigger_backspace_event();
-                }
-                if self.cursor_idx >= self.string.len().saturating_sub(1) {
-                    self.string.push(unicode);
-                } else {
-                    self.string.insert(self.cursor_idx, unicode);
-                }
-                self.move_cursor_right();
-            }
-            self.rerender = true;
-            self.make_select_box_dissappear();
-        } else {
-            error!("Event is not a TextEntered event! {:#?}", event)
-        }
-    }
-
-    fn is_selected(&self) -> bool {
-        self.selected
-    }
-
-    fn move_cursor_left(&mut self) {
-        self.move_cursor(self.cursor_idx.saturating_sub(1))
-    }
-
-    fn move_cursor_right(&mut self) {
-        self.move_cursor(self.cursor_idx.saturating_add(1))
-    }
-
     fn move_cursor(&mut self, new_cursor_idx: usize) {
         self.rerender = true;
         self.make_cursor_disappear();
@@ -630,10 +487,120 @@ impl TextBox for FixedSizeOneLineTextbox {
         self.make_cursor_appear();
     }
 
+    fn move_cursor_left(&mut self) {
+        self.move_cursor(self.cursor_idx.saturating_sub(1))
+    }
+
+    fn move_cursor_right(&mut self) {
+        self.move_cursor(self.cursor_idx.saturating_add(1))
+    }
+
+    fn box_clone(&self) -> Box<dyn TextBox> {
+        Box::new(self.clone())
+    }
+
+    fn text_entered(&mut self, event: SFMLEvent) {
+        if let SFMLEvent::TextEntered { unicode } = event {
+            // Back space
+            if unicode == 0x08 as char {
+                // delete select box
+                if let (Some(select_start_idx), Some(select_end_idx)) =
+                    (self.select_start_idx, self.select_end_idx)
+                {
+                    let start = select_start_idx.min(select_end_idx);
+                    let end = select_start_idx.max(select_end_idx);
+                    // Some logic depends on the select box being nonexistent,
+                    // so we don't lock up in a loop somwhere
+                    self.make_select_box_dissappear();
+                    self.move_cursor(end);
+                    for _ in start..=end {
+                        self.trigger_backspace_event()
+                    }
+                    self.move_cursor_right();
+                    self.move_cursor_right();
+                }
+                // delete character
+                else if self.cursor_idx != 0 {
+                    if self.cursor_idx >= self.string.len() {
+                        self.string.pop();
+                    } else {
+                        self.string.remove(self.cursor_idx.saturating_sub(1));
+                    }
+                }
+                // If the cursor idx is 0, go ahead and do delete
+                else if !self.string.is_empty() {
+                    self.string.remove(0);
+                }
+                self.move_cursor_left();
+            }
+            // Delete
+            else if unicode == 0x7f as char {
+                // delete select box
+                if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
+                    self.trigger_backspace_event();
+                    self.move_cursor_left();
+                } else if self.string.chars().nth(self.cursor_idx + 1).is_some() {
+                    self.string.remove(self.cursor_idx + 1);
+                    self.move_cursor(self.cursor_idx);
+                } else if self.string.chars().nth(self.cursor_idx).is_some() {
+                    self.string.remove(self.cursor_idx);
+                    self.move_cursor(self.cursor_idx);
+                }
+            } else if unicode == '\r' {
+                self.deselect()
+            }
+            // Ignore return carriage, newline, and any other weird characters
+            else if (unicode as u8) < 0x20 || unicode == '\u{1}' {
+            } else {
+                if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
+                    self.trigger_backspace_event();
+                }
+                if self.cursor_idx >= self.string.len().saturating_sub(1) {
+                    self.string.push(unicode);
+                } else {
+                    self.string.insert(self.cursor_idx, unicode);
+                }
+                self.move_cursor_right();
+            }
+            self.rerender = true;
+
+            if unicode != '\u{1}' {
+                self.make_select_box_dissappear();
+            }
+        } else {
+            error!("Event is not a TextEntered event! {:#?}", event)
+        }
+    }
+
+    fn select_everything(&mut self) {
+        if !self.string.is_empty() && self.is_selected() {
+            self.rerender = true;
+            self.select_start_idx = Some(0);
+            self.select_end_idx = Some(self.string.len().saturating_sub(1));
+            self.make_cursor_appear();
+            self.calculate_select_box();
+            self.move_cursor(0);
+        }
+    }
+
+    fn make_select_box_dissappear(&mut self) {
+        self.select_start_idx = None;
+        self.select_end_idx = None;
+        self.select_rect = None;
+    }
+
     fn deselect(&mut self) {
         self.make_cursor_disappear();
         self.selected = false;
         self.make_select_box_dissappear();
+    }
+
+    fn is_selected(&self) -> bool {
+        self.selected
+    }
+
+    fn is_dragging(&self) -> bool {
+        self.bind_pressed_location.is_some()
     }
 
     fn cut(&mut self) {
@@ -672,10 +639,59 @@ impl TextBox for FixedSizeOneLineTextbox {
         }
     }
 
-    fn set_string(&mut self, string: &str) {
-        self.string = string.to_owned();
-        self.move_cursor(self.string.len());
+    fn drag_mouse(&mut self, mouse_pos: Vector2i) {
+        if !self.is_dragging() {
+            return;
+        }
+        self.make_cursor_appear();
         self.rerender = true;
+        let Some( glyph )= glyph_from_rc_text(self.rendered_text.rc_text(), 'A' as u32) else {
+            return;
+        };
+
+        // This is logic to start dragging the mouse
+        if self.select_end_idx.is_none() {
+            let Some(start_mouse_pos) = self.bind_pressed_location else {
+                error!("self.bind_pressed_location is none!");
+                return;
+            };
+            if let (Some(start_idx), Some(end_idx)) = (
+                self.get_character_idx_of_rc_text_at_point_fully_clamped(start_mouse_pos),
+                self.get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos),
+            ) {
+                if start_idx != end_idx {
+                    self.select_start_idx = Some(self.starting_idx + start_idx);
+                    self.select_end_idx = Some(self.starting_idx + end_idx);
+                }
+            }
+            if (start_mouse_pos.x - mouse_pos.x).abs() > glyph.bounds().width as i32
+                && self.select_start_idx.is_none()
+            {
+                if let Some(start_idx) =
+                    self.get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
+                {
+                    self.select_start_idx = Some(self.starting_idx + start_idx);
+                    self.select_end_idx = Some(self.starting_idx + start_idx);
+                }
+            }
+            self.calculate_select_box();
+
+            return;
+        }
+
+        // This is logic for dragging the mouse
+        let adjusted_cursor_idx = self
+            .get_character_idx_of_rc_text_at_point_fully_clamped(mouse_pos)
+            .unwrap_or(self.cursor_idx);
+        if adjusted_cursor_idx == 0 {
+            self.move_cursor_left();
+        } else if adjusted_cursor_idx >= self.rendered_text.text().len().saturating_sub(1) {
+            self.move_cursor_right();
+        } else {
+            self.move_cursor(self.starting_idx + adjusted_cursor_idx);
+        }
+        self.select_end_idx = Some(self.cursor_idx);
+        self.calculate_select_box();
     }
 }
 

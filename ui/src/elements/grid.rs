@@ -179,13 +179,16 @@ impl Grid {
 
 impl ElementTrait for Grid {
     cast_element!();
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
-            events.append(&mut ele.update(resource_manager));
+            let mut event = ele.update(resource_manager);
+            rerender = event.1;
+            events.append(&mut event.0);
         }
 
-        events
+        (events, rerender)
     }
 
     fn update_size(&mut self) {
@@ -214,12 +217,15 @@ impl ElementTrait for Grid {
         self.global_bounds
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
-            events.append(&mut ele.event_handler(ui_settings, event));
+            let mut event = ele.event_handler(ui_settings, event);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
-        events
+        (events, rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {

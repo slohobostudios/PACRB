@@ -155,15 +155,16 @@ impl Element for BooleanImageButton {
         self.global_bounds
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let mut events = self.truth_button.update(resource_manager);
-        events.append(&mut self.false_button.update(resource_manager));
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = self.rerender;
+        let truth_button_event = self.truth_button.update(resource_manager);
+        rerender |= truth_button_event.1;
+        let mut events = truth_button_event.0;
+        let mut false_button_event = self.false_button.update(resource_manager);
+        rerender |= false_button_event.1;
+        events.append(&mut false_button_event.0);
 
-        if self.rerender {
-            events.push(EMPTY_EVENT);
-        }
-
-        events
+        (events, rerender)
     }
 
     fn update_size(&mut self) {
@@ -195,15 +196,17 @@ impl Element for BooleanImageButton {
         self.rerender = false;
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
-        events.append(&mut Element::event_handler(
-            self.current_button_mut(),
-            ui_settings,
-            event,
-        ));
-        events.append(&mut Button::event_handler(self, ui_settings, event));
-        events
+        let mut curr_button_event =
+            Element::event_handler(self.current_button_mut(), ui_settings, event);
+        rerender |= curr_button_event.1;
+        events.append(&mut curr_button_event.0);
+        let mut event = Button::event_handler(self, ui_settings, event);
+        rerender |= curr_button_event.1;
+        events.append(&mut event.0);
+        (events, rerender)
     }
 
     fn box_clone(&self) -> Box<dyn Element> {
@@ -219,10 +222,9 @@ impl Element for BooleanImageButton {
             warn!(ui_syncs_not_synced_str!(), Syncs::Boolean(Default::default()), sync);
             return;
         };
-
         if state ^ self.state {
             self.rerender = true;
-            self.bind_pressed(center_of_rect!(i32, self.global_bounds))
+            self.bind_released(center_of_rect!(i32, self.global_bounds));
         }
     }
 

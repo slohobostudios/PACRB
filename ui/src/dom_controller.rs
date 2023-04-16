@@ -42,7 +42,7 @@ impl DomController {
     pub fn reset_view(&mut self, ui_settings: &UISettings) -> Vec<Event> {
         let view_size =
             vector_to_rect_with_zeroed_origin!(f32, ui_settings.aspect_ratio.computed_resolution());
-        let events = self.root_node.event_handler(
+        let (events, _) = self.root_node.event_handler(
             ui_settings,
             SFMLEvent::Resized {
                 width: view_size.width as u32,
@@ -70,21 +70,17 @@ impl DomControllerInterface for DomController {
             SFMLEvent::Resized { .. } => self.reset_view(ui_settings),
             _ => {
                 let events = self.root_node.event_handler(ui_settings, event);
-                if !events.is_empty() {
-                    self.needs_rerender = true;
-                }
-                events
+                self.needs_rerender |= events.1;
+                events.0
             }
         }
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let events = self.root_node.update(resource_manager);
-        if !events.is_empty() {
-            self.needs_rerender = true;
-        }
+        self.needs_rerender |= events.1;
 
-        events
+        events.0
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

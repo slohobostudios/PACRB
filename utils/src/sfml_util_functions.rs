@@ -35,7 +35,8 @@ pub fn try_from_color_hash_owned_string_to_sfml_color(s: String) -> Result<Color
 // Converts hash #FFFFFF or #FFFFFFFF to SFML::Color
 pub fn try_from_color_hash_string_to_sfml_color(hex: &str) -> Result<Color, Box<dyn Error>> {
     let error = || SimpleError::new(format!("hex string is not valid: {hex}"));
-    let digits = hex.trim().strip_prefix('#').ok_or_else(error)?;
+    let hex = hex.trim();
+    let digits = hex.strip_prefix('#').unwrap_or(hex);
     let mut iter = digits.chars().map(|c| c.to_digit(16).map(|d| d as u8));
     let mut next_component = || Some(iter.next()?? << 4 | iter.next()??);
     let red = next_component().ok_or_else(error)?;

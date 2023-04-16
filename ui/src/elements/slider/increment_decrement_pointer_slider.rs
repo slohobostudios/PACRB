@@ -265,7 +265,7 @@ impl Element for IncrementDecrementPointerSlider {
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
     }
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         if self.is_dragging {
             self.pointer
                 .as_mut_element()
@@ -353,14 +353,13 @@ impl Element for IncrementDecrementPointerSlider {
         self.update_position(relative_rect);
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        let mut events = if self.rerender {
-            vec![EMPTY_EVENT]
-        } else {
-            vec![]
-        };
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = self.rerender;
+        let mut events = Vec::new();
         for ele in self.compact_ele_mut() {
-            events.append(&mut ele.update(resource_manager));
+            let mut event = ele.update(resource_manager);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
 
         if self.increment_decrement_click_state.update_needed() {
@@ -384,7 +383,7 @@ impl Element for IncrementDecrementPointerSlider {
             }
         }
 
-        events
+        (events, rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
@@ -490,6 +489,7 @@ impl Slider for IncrementDecrementPointerSlider {
     fn is_dragging(&self) -> bool {
         self.is_dragging
     }
+
     fn min_slider_value(&mut self) -> Vector2f {
         Vector2f::new(self.min_max_slider_values.0, 0.)
     }

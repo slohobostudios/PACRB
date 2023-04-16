@@ -113,7 +113,7 @@ impl Default for Element {
     }
 }
 
-use crate::{events::*, ui_settings::UISettings, utils::positioning::UIPosition};
+use crate::{events::*, syncs::Syncs, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
     window::Event as SFMLEvent,
@@ -123,7 +123,6 @@ use utils::resource_manager::ResourceManager;
 use self::traits::cast_element;
 
 impl traits::Element for Element {
-    cast_element!();
     fn global_bounds(&self) -> IntRect {
         if let Some(ele) = self.get_ele_with_element_trait() {
             ele.global_bounds()
@@ -131,8 +130,7 @@ impl traits::Element for Element {
             Default::default()
         }
     }
-
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
             ele.event_handler(ui_settings, event)
         } else {
@@ -152,29 +150,26 @@ impl traits::Element for Element {
         }
     }
 
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
+        if let Some(ele) = self.get_mut_ele_with_element_trait() {
+            ele.set_ui_position(ui_position, relative_rect);
+        }
+    }
+
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
+        let mut rerender = false;
         let mut events = Vec::new();
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
-            events.append(&mut ele.update(resource_manager));
+            let mut event = ele.update(resource_manager);
+            rerender |= event.1;
+            events.append(&mut event.0);
         }
-        events
+        (events, rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
             ele.render(window);
-        }
-    }
-
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
-    }
-
-    fn event_id(&self) -> EventId {
-        if let Some(ele) = self.get_ele_with_element_trait() {
-            ele.event_id()
-        } else {
-            0
         }
     }
 
@@ -186,9 +181,23 @@ impl traits::Element for Element {
         }
     }
 
-    fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
+    fn sync(&mut self, sync: Syncs) {
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
-            ele.set_ui_position(ui_position, relative_rect);
+            ele.sync(sync)
         }
     }
+
+    fn event_id(&self) -> EventId {
+        if let Some(ele) = self.get_ele_with_element_trait() {
+            ele.event_id()
+        } else {
+            0
+        }
+    }
+
+    fn box_clone(&self) -> Box<dyn traits::Element> {
+        Box::new(self.clone())
+    }
+
+    cast_element!();
 }

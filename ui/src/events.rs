@@ -1,5 +1,7 @@
 use sfml::system::Vector2f;
 
+use crate::elements::textbox::traits::TextBoxTriggeredEvent;
+
 pub type EventId = u16;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -34,6 +36,7 @@ pub enum Events {
     NumericalEvent(f32),
     Vector2fEvent(Vector2f),
     StringEvent(String),
+    TextBoxEvent(TextBoxTriggeredEvent),
     #[default]
     Null,
 }

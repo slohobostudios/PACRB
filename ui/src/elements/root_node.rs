@@ -45,7 +45,7 @@ impl RootNode {
 
 impl ElementTrait for RootNode {
     cast_element!();
-    fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+    fn update(&mut self, resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
         self.div.update(resource_manager)
     }
 
@@ -64,7 +64,7 @@ impl ElementTrait for RootNode {
         self.relative_rect
     }
 
-    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> Vec<Event> {
+    fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         self.div.event_handler(ui_settings, event)
     }
 

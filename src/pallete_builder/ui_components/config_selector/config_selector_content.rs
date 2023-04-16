@@ -54,7 +54,6 @@ fn event5(event: Event, config: &mut Config) {
     }
 }
 
-use sfml::system::Vector2f;
 pub fn sync_events(dom_controller: &mut DomController, config: &Config) {
     dom_controller
         .root_node
@@ -64,28 +63,16 @@ pub fn sync_events(dom_controller: &mut DomController, config: &Config) {
                 ele.sync(Syncs::Boolean(config.auto_ramping));
             }
             2 => {
-                ele.sync(Syncs::Vector2f(Vector2f::new(
-                    config.hue_shift.into(),
-                    0f32,
-                )));
+                ele.sync(Syncs::Numerical(config.hue_shift.into()));
             }
             3 => {
-                ele.sync(Syncs::Vector2f(Vector2f::new(
-                    config.num_of_shades.into(),
-                    0f32,
-                )));
+                ele.sync(Syncs::Numerical(config.num_of_shades.into()));
             }
             4 => {
-                ele.sync(Syncs::Vector2f(Vector2f::new(
-                    config.saturation_shift.into(),
-                    0f32,
-                )));
+                ele.sync(Syncs::Numerical(config.saturation_shift.into()));
             }
             5 => {
-                ele.sync(Syncs::Vector2f(Vector2f::new(
-                    config.value_shift.into(),
-                    0f32,
-                )));
+                ele.sync(Syncs::Numerical(config.value_shift.into()));
             }
             sync_id => {
                 warn!(
