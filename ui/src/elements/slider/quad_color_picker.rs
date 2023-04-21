@@ -65,12 +65,12 @@ impl QuadColorPicker {
         size: Vector2u,
         top_left_color: Color,
         top_right_color: Color,
-        bottom_left_color: Color,
         bottom_right_color: Color,
+        bottom_left_color: Color,
         event_id: u16,
         sync_id: u16,
     ) -> Self {
-        Self {
+        let mut qcp = Self {
             hover_element,
             position,
             global_bounds: IntRect::from_vecs(Default::default(), vector2i_from_vector2u(size)),
@@ -99,7 +99,10 @@ impl QuadColorPicker {
             size,
             is_hover: false,
             rerender: true,
-        }
+        };
+        qcp.update_size();
+
+        qcp
     }
     pub fn set_top_left_color(&mut self, color: Color) {
         self.quad[0].color = color;
@@ -176,6 +179,7 @@ impl ElementTrait for QuadColorPicker {
         let rs = RenderStates::default();
         window.draw_primitives(&self.quad.0, PrimitiveType::QUADS, &rs);
         self.hover_element.render(window);
+        self.rerender = false;
     }
 
     fn sync_id(&self) -> u16 {
