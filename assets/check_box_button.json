@@ -1,6 +1,5 @@
-{ "frames": [
-   {
-    "filename": "check_box 0.aseprite",
+{ "frames": {
+   "check_box_button 0.aseprite": {
     "frame": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -8,8 +7,7 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    },
-   {
-    "filename": "check_box 1.aseprite",
+   "check_box_button 1.aseprite": {
     "frame": { "x": 16, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -17,8 +15,7 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    },
-   {
-    "filename": "check_box 2.aseprite",
+   "check_box_button 2.aseprite": {
     "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -26,8 +23,7 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    },
-   {
-    "filename": "check_box 3.aseprite",
+   "check_box_button 3.aseprite": {
     "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -35,8 +31,7 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    },
-   {
-    "filename": "check_box 4.aseprite",
+   "check_box_button 4.aseprite": {
     "frame": { "x": 64, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -44,8 +39,7 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    },
-   {
-    "filename": "check_box 5.aseprite",
+   "check_box_button 5.aseprite": {
     "frame": { "x": 80, "y": 0, "w": 16, "h": 16 },
     "rotated": false,
     "trimmed": false,
@@ -53,10 +47,10 @@
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
    }
- ],
+ },
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.3-beta21-x64",
+  "version": "1.3-rc1-x64",
   "image": "check_box_button.png",
   "format": "RGBA8888",
   "size": { "w": 96, "h": 16 },
