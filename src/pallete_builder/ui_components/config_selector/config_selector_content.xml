@@ -1,23 +1,23 @@
-<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="4" font_size="18" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
     <Background
          type="Repeatable3x3Background"
          asset="dark_blue_background.png"
          position="t:15,l:15"
-         size="x:300,y:850"
+         size="x:170,y:430"
          frame_id="0">
-        <Text font_size="48" position="t:50">
+        <Text font_size="26" position="t:10">
             CONFIGURATION
         </Text>
         <Grid
              pagination_size="x:1,y:5"
              grid_layout="x:1,y:5"
-             size="x:263,y:750"
-             position="t:50"
-             scale="3">
+             size="x:150,y:400"
+             position="t:0"
+             scale="1.7">
             <Grid
                  pagination_size="x:2,y:1"
                  grid_layout="x:2,y:1"
-                 size="x:263,y:0"
+                 size="x:150,y:0"
                  position="b:0">
                 <Button
                     type="BooleanImageButton"
@@ -32,11 +32,11 @@
                     event_id="1"
                     sync_id="1"
                     />
-                <Text position="l:-60,t:-10">
+                <Text position="l:-40">
                     Auto Ramping
                 </Text>
             </Grid>
-            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:150,y:100">
                 <Text position="l:1,b:0">
                     Hue Shift:
                 </Text>
@@ -50,12 +50,12 @@
                     frame_id="0"
                     hover_frame_id="1"
                     click_frame_id="2"
-                    size="x:150,y:0"
+                    size="x:70,y:0"
                     event_id="2"
                     sync_id="2"
                     />
             </Grid>
-            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:150,y:100">
                 <Text position="l:1,b:0">
                     Saturation shift:
                 </Text>
@@ -69,12 +69,12 @@
                     frame_id="0"
                     hover_frame_id="1"
                     click_frame_id="2"
-                    size="x:150,y:0"
+                    size="x:70,y:0"
                     event_id="4"
                     sync_id="4"
                     />
             </Grid>
-            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+            <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:150,y:100">
                 <Text position="l:1,b:0">
                     Value shift:
                 </Text>
@@ -88,12 +88,12 @@
                     frame_id="0"
                     hover_frame_id="1"
                     click_frame_id="2"
-                    size="x:150,y:0"
+                    size="x:70,y:0"
                     event_id="5"
                     sync_id="5"
                     />
             </Grid>
-           <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:263,y:187">
+           <Grid pagination_size="x:1,y:2" grid_layout="x:1,y:2" size="x:150,y:100">
                 <Text position="l:1,b:0">
                    Num of Shades: 
                 </Text>
@@ -107,7 +107,7 @@
                     frame_id="0"
                     hover_frame_id="1"
                     click_frame_id="2"
-                    size="x:150,y:0"
+                    size="x:70,y:0"
                     event_id="3"
                     sync_id="3"
                     />

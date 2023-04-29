@@ -6,7 +6,7 @@ pub struct SimpleError {
 }
 
 impl SimpleError {
-    pub fn new(reason: String) -> Self {
+    pub const fn new(reason: String) -> Self {
         Self { reason }
     }
 }

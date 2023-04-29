@@ -1,11 +1,11 @@
-<RootNode scale="6" font_size="40" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
-    position="b:15,r:455"
-    size="x:200,y:60"
+    position="b:7,r:208"
+    size="x:100,y:30"
     frame_id="0">
-    <Grid size="x:200,y:75" pagination_size="x:2,y:1" scale="3">
+    <Grid size="x:100,y:30" pagination_size="x:2,y:1" scale="1.7">
       <Button
         position="l:4,r:6"
         type="BooleanImageButton"
@@ -18,7 +18,7 @@
         false_click_frame_id="5"        
         event_id="1"
         sync_id="1"/>
-      <Text position="l:-20">
+      <Text position="l:-10">
         Erase
       </Text>
     </Grid>

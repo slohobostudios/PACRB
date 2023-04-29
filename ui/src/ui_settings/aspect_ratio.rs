@@ -1,11 +1,28 @@
-use crate::ui_settings::UISettingOptions;
+use crate::ui_settings::DEFAULT_UI_SETTING_OPTIONS;
 use serde::{Deserialize, Serialize};
 use sfml::system::Vector2;
-use std::{collections::LinkedList, error::Error};
+use std::{collections::LinkedList, error::Error, str::FromStr};
 use utils::simple_error::SimpleError;
 
+macro_rules! const_ratio {
+    ($aspect_ratio:expr, $base_resolution:expr) => {
+        AspectRatio {
+            aspect_ratio: Vector2::new($aspect_ratio.0, $aspect_ratio.1),
+            base_resolution: Vector2::new($base_resolution.0, $base_resolution.1),
+            computed_resolution: Vector2::new(0., 0.),
+            current_resolution: Vector2::new(0., 0.),
+        }
+    };
+}
+
+pub const NUMBER_OF_DEFAULT_ASPECT_RATIOS: usize = 2;
+pub(super) const DEFAULT_ASPECT_RATIOS: [AspectRatio; NUMBER_OF_DEFAULT_ASPECT_RATIOS] = [
+    const_ratio!((16., 9.), (1024., 576.)),
+    const_ratio!((4., 3.), (1024., 768.)),
+];
+
 // Look into docs/UI/scaling.lorien for an explanation
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct AspectRatio {
     aspect_ratio: Vector2<f32>,
     base_resolution: Vector2<f32>,
@@ -20,7 +37,7 @@ impl AspectRatio {
     ) -> Result<Self, SimpleError> {
         if base_resolution.y * aspect_ratio.x / aspect_ratio.y != base_resolution.x {
             return Err(SimpleError::new(
-                "Base_resolution's aspect_ratio does not match given aspect_ratio".to_owned(),
+                "Base_resolution's aspect_ratio does not match given aspect_ratio".to_string(),
             ));
         }
 
@@ -93,12 +110,18 @@ impl AspectRatio {
         )
         .as_other()
     }
+}
 
-    pub fn to_ar_string(&self) -> String {
+impl ToString for AspectRatio {
+    fn to_string(&self) -> String {
         format!("{}:{}", self.aspect_ratio.x, self.aspect_ratio.y)
     }
+}
 
-    pub fn try_from_ar_string(string: &str) -> Result<Self, Box<dyn Error>> {
+impl FromStr for AspectRatio {
+    type Err = Box<dyn Error>;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
         let strings: Vec<&str> = string.split(':').collect();
 
         if strings.len() != 2 {
@@ -107,7 +130,7 @@ impl AspectRatio {
                 string
             ))));
         } else if let (Ok(x), Ok(y)) = (strings[0].parse::<f32>(), strings[1].parse::<f32>()) {
-            let potential_settings = UISettingOptions::from_file();
+            let potential_settings = DEFAULT_UI_SETTING_OPTIONS;
             for potential_aspect_ratio in potential_settings.aspect_ratios.iter() {
                 if Vector2::new(x, y) == potential_aspect_ratio.aspect_ratio {
                     return Ok(*potential_aspect_ratio);
@@ -132,18 +155,16 @@ mod test {
 
     #[test]
     fn to_from_ar_string() {
-        let potential_aspect_ratios = UISettingOptions::from_file().aspect_ratios;
+        let potential_aspect_ratios = DEFAULT_UI_SETTING_OPTIONS.aspect_ratios;
 
         for potential_aspect_ratio in potential_aspect_ratios.iter() {
-            assert!(
-                AspectRatio::try_from_ar_string(&potential_aspect_ratio.to_ar_string()).is_ok()
-            );
+            assert!(AspectRatio::from_str(&potential_aspect_ratio.to_string()).is_ok());
         }
 
         // failing try_from_ar_string
-        assert!(AspectRatio::try_from_ar_string("dddvfgbdas;kj").is_err());
-        assert!(AspectRatio::try_from_ar_string("99999:99999").is_err());
-        assert!(AspectRatio::try_from_ar_string("16:9:16:9").is_err());
+        assert!(AspectRatio::from_str("dddvfgbdas;kj").is_err());
+        assert!(AspectRatio::from_str("99999:99999").is_err());
+        assert!(AspectRatio::from_str("16:9:16:9").is_err());
     }
 
     #[test]

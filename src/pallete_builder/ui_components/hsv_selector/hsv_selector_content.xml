@@ -1,21 +1,22 @@
-<RootNode scale="6" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
-    position="b:15,r:15"
-    size="x:380,y:310"
+    position="b:7,r:7"
+    size="x:170,y:160"
     frame_id="0">
-    <Slider 
+    
+<Slider 
       type="QuadColorPicker"
-      position="t:16"
+      position="t:4"
       top_left_color="r:255,g:255,b:255,a:255"
       top_right_color="r:255,g:0,b:0,a:255"
       bottom_right_color="r:255,g:0,b:0,a:255"
       bottom_left_color="r:255,g:255,b:255,a:255"
-      size="x:360,y:256"
+      size="x:165,y:140"
       event_id="1"
       sync_id="1"
-      scale="2"
+      scale="1"
       >
       <Button
         type="ImageButton"
@@ -27,14 +28,14 @@
     </Slider>
     <Slider
      type="QuadColorPicker"
-      position="t:16"
+      position="t:4"
       top_left_color="r:0,g:0,b:0,a:0"
       top_right_color="r:0,g:0,b:0,a:0"
       bottom_right_color="r:0,g:0,b:0,a:255"
       bottom_left_color="r:0,g:0,b:0,a:255"
-      size="x:360,y:256"
+      size="x:165,y:140"
       sync_id="4"
-      scale="2">
+      scale="1">
       <Button
         type="ImageButton"
         asset="small_circle.png"
@@ -45,11 +46,11 @@
     </Slider>
     <Slider
       type="HueColorPicker"
-      position="t:280"
-      size="x:360,y:12"
+      position="t:150"
+      size="x:165,y:6"
       event_id="2"
       sync_id="2"
-      scale="2"
+      scale="1"
       >
       <Button
         type="ImageButton"
@@ -63,15 +64,15 @@
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
-    position="b:135,r:455"
-    padding="t:10,b:10,l:20,r:20"
+    position="b:70,r:208"
+    padding="t:5,b:5,l:10,r:10"
     frame_id="0">
-    <TextBox
-      type="FixedSizeOneLineTextbox"
-      color="#091d1e"
-      size="x:160"
-      event_id="3"
-      sync_id="3">
-    </TextBox>
-  </Background>
+      <TextBox
+        type="FixedSizeOneLineTextbox"
+        color="#091d1e"
+        size="x:80"
+        event_id="3"
+        sync_id="3">
+      </TextBox>  
+    </Background>
 </RootNode>

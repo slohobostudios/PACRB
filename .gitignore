@@ -12,5 +12,6 @@
 runtime.log
 
 *.zip
+*.tar.gz
 
 release/

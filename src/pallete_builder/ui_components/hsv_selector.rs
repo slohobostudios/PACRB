@@ -41,7 +41,7 @@ impl HSVSelector {
                 v: 255 / 2,
             },
             display_current_color: false,
-            current_color_rect: Quad::from(FloatRect::new(0., 0., 64., 64.)),
+            current_color_rect: Quad::from(FloatRect::new(0., 0., 32., 32.)),
             hex_string: Default::default(),
             current_aspect_ratio: ui_settings.aspect_ratio.computed_resolution().as_other(),
         };
@@ -59,7 +59,7 @@ impl HSVSelector {
     fn color_current_color_rect(&mut self) {
         let rect = Quad::into_rect(&self.current_color_rect);
         self.current_color_rect.mut_quad_positions_to_rect(
-            UIPosition::from_str("r:45,b:365")
+            UIPosition::from_str("r:22,b:192")
                 .unwrap()
                 .center_with_size(
                     IntRect::from_vecs(Vector2::new(0, 0), self.current_aspect_ratio),

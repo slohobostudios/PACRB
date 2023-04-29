@@ -1,30 +1,30 @@
-<RootNode scale="4" font_size="36" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Button
     type="TilingButton"
     asset="3x3_tilable_standalone_button.png"
-    position="b:100"
+    position="b:55"
     frame_id="0"
     hover_frame_id="1"
     click_frame_id="2"
     event_id="2"
     sync_id="0">
-    <Div padding="t:10,b:10,l:25,r:25">
+    <Div padding="t:7,b:7,l:12,r:12">
       <Text>
         Orientation
       </Text>
     </Div>
   </Button>
-  <Grid pagination_size="x:2,y:1" position="b:15" size="x:340">
+  <Grid pagination_size="x:2,y:1" position="b:7" size="x:200">
     <Button
       type="TilingButton"
       asset="3x3_tilable_standalone_button.png"
-      position="b:15"
+      position="b:0"
       frame_id="0"
       hover_frame_id="1"
       click_frame_id="2"
       event_id="1"
       sync_id="0">
-      <Div padding="t:10,b:10,l:25,r:25">
+      <Div padding="t:7,b:7,l:12,r:12">
         <Text>
           Confirm
         </Text>
@@ -33,13 +33,13 @@
     <Button
       type="TilingButton"
       asset="3x3_tilable_standalone_button.png"
-      position="b:15"
+      position="b:0"
       frame_id="0"
       hover_frame_id="1"
       click_frame_id="2"
       event_id="3"
       sync_id="0">
-      <Div padding="t:10,b:10,l:25,r:25">
+      <Div padding="t:7,b:7,l:12,r:12">
         <Text>
           Cancel
         </Text>
