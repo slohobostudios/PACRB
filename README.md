@@ -4,6 +4,10 @@ PACRB: Pixel Art Color Ramping Builder
 PACRB is a tool to help pixel artist create seemless and beautiful palletes easily.
 PACRB has a color ramper that will allow you to create palletes seamlessly.
 
+## Download
+
+https://github.com/slohobostudios/PACRB/releases/tag/0.1.0
+
 # NOTES
 
 PACRB does not, and will not support alpha values (transparency values)

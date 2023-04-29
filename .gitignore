@@ -10,3 +10,8 @@
 **/*.rs.bk
 
 runtime.log
+
+*.zip
+*.tar.gz
+
+release/

@@ -21,6 +21,11 @@ fn main() {
     let mut window = RenderWindow::new(WINDOW_SIZE, "PACRB", Style::DEFAULT, &Default::default());
     window.set_vertical_sync_enabled(true);
     let mut ui_settings = UISettings::from_file();
+    // This prevents ui elements from creating render textures that are of size 0x0
+    ui_settings.event_handler(Event::Resized {
+        width: WINDOW_SIZE.0,
+        height: WINDOW_SIZE.1,
+    });
     ui_settings.save_settings();
     let resource_manager = ResourceManager::new();
     let mut fps_counter = FPSCounter::new(&resource_manager, 60);

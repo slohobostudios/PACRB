@@ -3,13 +3,20 @@ use sfml::{
     system::{Vector2, Vector2i},
     window::Event,
 };
-use std::{error::Error, fs::File, io::BufReader};
+use std::{
+    error::Error,
+    fs::File,
+    io::BufReader,
+    sync::{Mutex, PoisonError},
+};
 use tracing::error;
 
 pub mod aspect_ratio;
 pub mod controls;
-use aspect_ratio::AspectRatio;
+use aspect_ratio::{AspectRatio, DEFAULT_ASPECT_RATIOS, NUMBER_OF_DEFAULT_ASPECT_RATIOS};
 use controls::Bindings;
+
+static FILE_MUTEX: Mutex<()> = Mutex::new(());
 
 const SETTINGS_LOCK_FILE_NAME: &str = "UISettings.lock.json";
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -45,9 +52,9 @@ impl UISettings {
     }
 
     pub fn save_settings(&self) {
-        use std::thread;
         let clone = self.clone();
-        thread::spawn(move || {
+        std::thread::spawn(move || {
+            let _guard = FILE_MUTEX.lock().unwrap_or_else(PoisonError::into_inner);
             if let Err(error) = clone.try_save_settings() {
                 error!(
                     "Failed to save settings to QuestHearth.lock.json: {:#?}",
@@ -56,7 +63,7 @@ impl UISettings {
                 false
             } else {
                 true
-            }
+            };
         });
     }
 
@@ -76,15 +83,15 @@ impl UISettings {
                 self.aspect_ratio.compute_resolution();
             }
             Event::MouseButtonPressed { button: _, x, y } => {
-                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y));
             }
             Event::MouseButtonReleased { button: _, x, y } => {
-                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y));
             }
             Event::MouseMoved { x, y } => {
-                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y))
+                self.cursor_position = self.aspect_ratio.relative_mouse_coords(Vector2::new(x, y));
             }
-            _ => {}
+            _ => (),
         }
     }
 }
@@ -93,8 +100,7 @@ impl Default for UISettings {
     fn default() -> Self {
         Self {
             cursor_position: Default::default(),
-            aspect_ratio: AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1920., 1080.))
-                .unwrap(),
+            aspect_ratio: DEFAULT_UI_SETTING_OPTIONS.aspect_ratios[0],
             show_fps: false,
             vsync: true,
             has_new_settings: true,
@@ -104,38 +110,15 @@ impl Default for UISettings {
 }
 
 // ******************************************** THESE ARE ALL THE POSSIBLE UI SETTINGS AVAILABLE ********************************************
-const ALL_SETTINGS_LOCK_FILE_NAME: &str = "UISettingOptions.json";
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct UISettingOptions {
-    pub aspect_ratios: Vec<AspectRatio>,
+    pub aspect_ratios: [AspectRatio; NUMBER_OF_DEFAULT_ASPECT_RATIOS],
+    pub show_fps: bool,
+    pub vsync: bool,
 }
 
-impl UISettingOptions {
-    fn serialize_from_file() -> Result<UISettingOptions, Box<dyn Error>> {
-        let file = File::open(ALL_SETTINGS_LOCK_FILE_NAME)?;
-        let reader = BufReader::new(file);
-
-        let result = serde_json::from_reader(reader)?;
-
-        Ok(result)
-    }
-
-    pub fn from_file() -> Self {
-        match UISettingOptions::serialize_from_file() {
-            Ok(v) => v,
-            Err(e) => {
-                error!("{:#?}", e);
-                Default::default()
-            }
-        }
-    }
-}
-
-impl Default for UISettingOptions {
-    fn default() -> Self {
-        let ui_settings_default: UISettings = Default::default();
-        Self {
-            aspect_ratios: vec![ui_settings_default.aspect_ratio; 100],
-        }
-    }
-}
+pub const DEFAULT_UI_SETTING_OPTIONS: UISettingOptions = UISettingOptions {
+    aspect_ratios: DEFAULT_ASPECT_RATIOS,
+    show_fps: false,
+    vsync: true,
+};
