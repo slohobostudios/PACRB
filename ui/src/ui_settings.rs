@@ -57,13 +57,10 @@ impl UISettings {
             let _guard = FILE_MUTEX.lock().unwrap_or_else(PoisonError::into_inner);
             if let Err(error) = clone.try_save_settings() {
                 error!(
-                    "Failed to save settings to QuestHearth.lock.json: {:#?}",
-                    error
-                );
-                false
-            } else {
-                true
-            };
+                    "Failed to save settings to {}: {:#?}",
+                    SETTINGS_LOCK_FILE_NAME, error
+                )
+            }
         });
     }
 
