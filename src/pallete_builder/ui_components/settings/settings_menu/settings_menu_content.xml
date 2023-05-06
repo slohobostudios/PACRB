@@ -1,0 +1,28 @@
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+  <Button
+    type="TilingButton"
+    asset="3x3_transparent_tilable.png"
+    frame_id="0"
+    hover_frame_id="0"
+    click_frame_id="0"
+    event_id="1"
+    position="t:0,l:0"
+    size="x:65536,y:65536">
+    <Div/>
+  </Button>
+  <Background
+    type="Repeatable3x3Background"
+    asset="dark_blue_background.png"
+    frame_id="0">
+    <Div scale="2" size="x:800,y:500">
+      <Button
+        type="ImageButton"
+        asset="x_button.png"
+        position="t:10,r:10"
+        frame_id="0"
+        hover_frame_id="1"
+        click_frame_id="2"
+        event_id="2"/>
+    </Div>
+  </Background>
+</RootNode>

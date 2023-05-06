@@ -19,16 +19,16 @@ pub mod syncs;
 pub mod ui_settings;
 pub mod utils;
 
-const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+const XML_DOC: &str = r##"<RootNode scale="2" font_size="16" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
-    position="b:15,r:15"
-    size="x:400,y:350"
+    position="b:7,r:7"
+    size="x:200,y:175"
     frame_id="0">
     <Grid
-      size="x:380,y:330"
-      pagination_size="x:4,y:4"
+      size="x:190,y:115"
+      pagination_size="x:2,y:2"
       >
       <Button
         type="BooleanImageButton"
@@ -54,7 +54,7 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xml
         hover_frame_id="1"
         click_frame_id="2"
         >
-        <Div padding="t:10,b:10,l:10,r:10">
+        <Div padding="t:5,b:5,l:5,r:5">
           <Text disable_padding="true">
             Test
           </Text>
@@ -68,22 +68,34 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="24" color="#f7e5e4" xml
     frame_id="0"
     hover_frame_id="1"
     click_frame_id="2"
-    position="r:25,t:25"
+    position="r:12,t:12"
     >
-    <Div padding="t:10,b:10,l:10,r:10">
+    <Div padding="t:5,b:5,l:5,r:5">
       <Text disable_padding="true">
         Test
       </Text>
+    </Div>
+  </Button>
+  <Button
+    type="TilingButton"
+    asset="3x3_tilable_standalone_button.png"
+    frame_id="0"
+    hover_frame_id="1"
+    click_frame_id="2"
+    position="r:12,t:52"
+    >
+    <Div padding="t:5,b:5,l:5,r:5">
+      <Image type="Icon" name="gear"/>
     </Div>
   </Button>
   <Background
     type="Repeatable3x3Background"
     asset="dark_blue_background.png"
     frame_id="0"
-    padding="t:50,b:50,l:50,r:50">
+    padding="t:25,b:25,l:25,r:25">
   <TextBox
     type="FixedSizeOneLineTextbox"
-    size="x:400,y:0"
+    size="x:200,y:0"
     color="#081a1b"
     >
   </TextBox>

@@ -81,6 +81,9 @@ macro_rules! cast_element {
         fn as_mut_element(&mut self) -> &mut dyn crate::elements::traits::Element {
             self
         }
+        fn box_clone(&self) -> Box<dyn crate::elements::traits::Element> {
+            Box::new(self.clone())
+        }
     };
 }
 pub(crate) use cast_element;

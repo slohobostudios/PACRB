@@ -2,8 +2,9 @@ use crate::elements::Element;
 
 use super::{
     background_loader::background_loader, button_loader::button_loader, div_loader::div_loader,
-    grid_loader::grid_loader, missing_texture_loader::missing_texture_loader,
-    slider_loader::slider_loader, text_loader::text_loader, textbox_loader::textbox_loader,
+    grid_loader::grid_loader, image_loader::image_loader,
+    missing_texture_loader::missing_texture_loader, slider_loader::slider_loader,
+    text_loader::text_loader, textbox_loader::textbox_loader,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
@@ -86,6 +87,10 @@ pub fn element_loader(
             Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         },
         "Text" => Element::Text(text_loader(resource_manager, ele, default_font_size, default_color)),
+        "Image" => match image_loader(resource_manager, ele, default_scale) {
+            Ok(v) => Element::Image(v),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele)
+        },
         "Empty" => Element::Empty(()),
         _ => print_error_and_return_missing_texture(resource_manager,
             Box::new(SimpleError::new(format!(

@@ -119,10 +119,6 @@ impl traits::Element for Div {
         }
     }
 
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
-    }
-
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         let mut rerender = false;
         let mut events = Vec::new();

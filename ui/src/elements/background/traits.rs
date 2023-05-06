@@ -38,7 +38,10 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
 
         self.set_hover(ui_settings.cursor_position);
         match event {
-            SFMLEvent::MouseMoved { x: _, y: _ } if self.is_hover() => rerender = true,
+            SFMLEvent::MouseMoved { x: _, y: _ } if self.is_hover() => {
+                rerender |= false;
+                events.push(EMPTY_EVENT);
+            }
             SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(button),

@@ -10,6 +10,7 @@
 **/*.rs.bk
 
 runtime.log
+UISettings.lock.json
 
 *.zip
 *.tar.gz

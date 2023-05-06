@@ -91,17 +91,13 @@ impl Element for Text {
         self.rerender = true;
     }
 
-    fn render(&mut self, window: &mut RenderTexture) {
-        window.draw(&self.text);
+    fn render(&mut self, render_texture: &mut RenderTexture) {
+        render_texture.draw(&self.text);
         self.rerender = false;
     }
 
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {

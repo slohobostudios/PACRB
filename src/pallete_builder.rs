@@ -18,7 +18,7 @@ use self::{
     ramp_mode::{RampMode, RampModeEventHandlerArguments},
     ui_components::{
         config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
-        erase_mode::EraseMode, hsv_selector::HSVSelector,
+        erase_mode::EraseMode, hsv_selector::HSVSelector, settings::Settings,
     },
 };
 
@@ -42,6 +42,7 @@ pub struct PalleteBuilder {
     hsv_selector: HSVSelector,
     erase_mode: EraseMode,
     confirm_color_ramp: ConfirmColorRamp,
+    settings: Settings,
     color_grid: ColorGrid,
     view: SfBox<View>,
     is_dragging_erase: bool,
@@ -60,6 +61,7 @@ impl PalleteBuilder {
             config_selector: ConfigSelector::new(resource_manager, ui_settings),
             confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
             erase_mode: EraseMode::new(resource_manager, ui_settings),
+            settings: Settings::new(resource_manager, ui_settings),
             is_dragging_erase: false,
             is_dragging_screen: false,
             previous_mouse_position: Default::default(),
@@ -76,12 +78,13 @@ impl PalleteBuilder {
         }
     }
 
-    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 4] {
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 5] {
         [
             &mut self.config_selector,
             &mut self.hsv_selector,
             &mut self.erase_mode,
             &mut self.confirm_color_ramp,
+            &mut self.settings,
         ]
     }
 
@@ -92,6 +95,15 @@ impl PalleteBuilder {
         event: Event,
     ) {
         let mut events = Vec::new();
+        if (!self
+            .settings
+            .event_handler(window, ui_settings, event)
+            .is_empty()
+            || self.settings.is_displayed())
+            && !matches!(event, Event::Resized { .. })
+        {
+            return;
+        }
         for dci in self.dom_controller_interfaces_iter_mut() {
             events.append(&mut dci.event_handler(window, ui_settings, event))
         }

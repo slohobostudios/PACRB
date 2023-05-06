@@ -184,7 +184,7 @@ impl ElementTrait for Grid {
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
             let mut event = ele.update(resource_manager);
-            rerender = event.1;
+            rerender |= event.1;
             events.append(&mut event.0);
         }
 
@@ -232,10 +232,6 @@ impl ElementTrait for Grid {
         for ele in self.expose_paginated_elements_mut() {
             ele.render(window);
         }
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {

@@ -69,9 +69,9 @@ fn grid_elements_loader(
 /// # Usage
 ///
 /// ## Optional
-/// - size ([`Vector2`])
-/// - position ([`UIPosition`])
-/// - pagination_size ([`Vector2`])
+/// - size ([`Vector2`](sfml::system::Vector2))
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
+/// - pagination_size ([`Vector2`](sfml::system::Vector2))
 pub fn grid_loader(
     resource_manager: &ResourceManager,
     ele: &MinidomElement,

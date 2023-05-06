@@ -1,0 +1,15 @@
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+  <Button
+    type="TilingButton"
+    asset="3x3_tilable_standalone_button.png"
+    frame_id="0"
+    hover_frame_id="1"
+    click_frame_id="2"
+    event_id="1"
+    position="t:7,r:7"
+    >
+    <Div padding="t:5,b:5,l:5,r:5">
+      <Image type="Icon" name="gear" scale="2"/>
+    </Div>
+  </Button>
+</RootNode>

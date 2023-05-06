@@ -22,7 +22,7 @@ use utils::{
 /// - click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - scale ([`f32`])
 /// - event_id ([`u16`])
 /// - sync_id ([`u16`])
@@ -63,7 +63,7 @@ fn image_button_loader(
 /// - click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - scale ([`f32`])
 /// - event_id ([`u16`])
 /// - sync_id ([`u16`])
@@ -115,7 +115,7 @@ fn tiling_button_loader(
 /// - false_click_frame_id ([`usize`])
 ///
 /// ## Optional:
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - scale ([`f32`])
 /// - event_id ([`u16`])
 /// - sync_id ([`u16`])

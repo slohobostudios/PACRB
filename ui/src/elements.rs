@@ -2,6 +2,7 @@ pub mod background;
 pub mod button;
 pub mod div;
 pub mod grid;
+pub mod image;
 pub mod missing_texture;
 pub mod root_node;
 pub mod slider;
@@ -21,6 +22,7 @@ pub enum Element {
     Div(div::Div),
     Grid(grid::Grid),
     Text(text::Text),
+    Image(image::Image),
     RootNode(root_node::RootNode),
     Empty(()),
 }
@@ -38,6 +40,7 @@ impl Element {
             Div(_) => "Div",
             Grid(_) => "Grid",
             Text(_) => "Text",
+            Image(_) => "Image",
             RootNode(_) => "RootNode",
             Empty(_) => "Empty",
         }
@@ -55,6 +58,7 @@ impl Element {
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
             Empty(_) => None,
         }
@@ -72,6 +76,7 @@ impl Element {
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
             Empty(_) => None,
         }
@@ -193,10 +198,6 @@ impl traits::Element for Element {
         } else {
             0
         }
-    }
-
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
     }
 
     cast_element!();

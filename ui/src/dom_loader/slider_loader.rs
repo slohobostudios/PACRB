@@ -28,11 +28,11 @@ use utils::{
 /// ## Optional
 /// - sync_id ([`u16`])
 /// - event_id ([`u16`])
-/// - size ([`Vector2`])
+/// - size ([`Vector2`](sfml::system::Vector2))
 /// - color ([`Color`])
 /// - font_size ([`u32`])
 /// - scale ([`f32`])
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 fn increment_decrement_pointer_slider_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -72,11 +72,11 @@ fn increment_decrement_pointer_slider_loader(
 /// - bottom_left_color)
 ///
 /// ## Optional:
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - scale ([`f32`])
 /// - event_id ([`u16`])
 /// - sync_id ([`u16`])
-/// - size ([`Vector2f`])
+/// - size ([`Vector2f`](sfml::system::Vector2f))
 fn quad_color_picker_loader(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
@@ -129,8 +129,8 @@ fn quad_color_picker_loader(
 /// - *CHILD_ELEMENT*
 ///
 /// ## Optional:
-/// - position ([`UIPosition`])
-/// - size ([`Vector2`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
+/// - size ([`Vector2`](sfml::system::Vector2))
 /// - font_size ([`u32`])
 /// - event_id ([`u16`])
 /// - sync_id ([`u16`])

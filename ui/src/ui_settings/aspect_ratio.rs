@@ -62,45 +62,15 @@ impl AspectRatio {
     }
 
     pub fn compute_resolution(&mut self) {
-        fn compute_radian_from_vec(vec: &Vector2<f32>) -> f32 {
-            (vec.x / vec.y).atan()
+        let mut smallest_base_resolution = self.aspect_ratio;
+        while smallest_base_resolution.x < self.current_resolution.x
+            && smallest_base_resolution.y < self.current_resolution.y
+        {
+            smallest_base_resolution += self.aspect_ratio;
         }
-        fn compute_area(vec: &Vector2<f32>) -> f32 {
-            vec.x * vec.y
-        }
-        let target_radian = compute_radian_from_vec(&self.current_resolution);
-        let target_area = compute_area(&self.base_resolution);
-        let mut resolution = self.base_resolution;
-        let mut current_radian = compute_radian_from_vec(&resolution);
+        let ratio = self.base_resolution.cwise_div(smallest_base_resolution);
 
-        let mut prev_resolutions = LinkedList::new();
-        'resolution_loop: loop {
-            if target_radian < current_radian {
-                if target_area > compute_area(&resolution) {
-                    resolution.y += 1.;
-                } else {
-                    resolution.x -= 1.;
-                }
-            } else if target_area > compute_area(&resolution) {
-                resolution.x += 1.;
-            } else {
-                resolution.y -= 1.;
-            }
-            current_radian = compute_radian_from_vec(&resolution);
-
-            if prev_resolutions.len() > 4 {
-                prev_resolutions.pop_back();
-            }
-
-            for prev_resolution in &mut prev_resolutions {
-                if prev_resolution == &mut resolution {
-                    break 'resolution_loop;
-                }
-            }
-            prev_resolutions.push_front(resolution);
-        }
-
-        self.computed_resolution = resolution;
+        self.computed_resolution = self.current_resolution.cwise_mul(ratio);
     }
 
     pub fn relative_mouse_coords(&self, mouse_pos: Vector2<i32>) -> Vector2<i32> {
@@ -172,12 +142,7 @@ mod test {
         let mut ar = AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1280., 720.)).unwrap();
         ar.current_resolution = Vector2::new(2180., 1320.);
         ar.compute_resolution();
-        assert!(
-            (ar.computed_resolution.x * ar.computed_resolution.y
-                - ar.base_resolution().x * ar.base_resolution().y)
-                .abs()
-                < 250.
-        );
+        assert_eq!(ar.computed_resolution, Vector2::new(1272.9927, 770.80286));
     }
 
     #[test]

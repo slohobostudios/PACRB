@@ -212,10 +212,6 @@ impl ElementTrait for QuadColorPicker {
         }
     }
 
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
-    }
-
     cast_element!();
 }
 

@@ -10,7 +10,7 @@ use utils::resource_manager::ResourceManager;
 ///
 /// ## Optional:
 /// - child element ([`String`])
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - font_size ([`u32`])
 /// - color ([`Color`])
 /// - disable_padding ([`bool`]) *Default = true*

@@ -294,10 +294,6 @@ impl Element for Repeatable3x3Sprite {
         self.global_bounds
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
         self.position = ui_position;
         self.update_size();

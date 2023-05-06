@@ -154,10 +154,6 @@ impl Element for RepeatableSpritesButton {
         (events, rerender)
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
     fn render(&mut self, window: &mut RenderTexture) {
         match self.current_mouse_state {
             UIMouseStates::Nothing => self.repeatable_sprites.render(window),

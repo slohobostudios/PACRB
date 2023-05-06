@@ -72,10 +72,6 @@ impl ElementTrait for RootNode {
         self.div.render(render_texture)
     }
 
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
-    }
-
     fn set_ui_position(&mut self, _: UIPosition, relative_rect: IntRect) {
         self.update_position(relative_rect);
     }

@@ -55,6 +55,19 @@ impl Asset {
         }
     }
 
+    pub fn fetch_frame_tag(&self, name: &str) -> FrameTag {
+        self.meta
+            .frame_tags
+            .iter()
+            .find(|frame_tag| frame_tag.name == name)
+            .cloned()
+            .unwrap_or_else(|| {
+                error!("Unable to find frame tag with name {:?}", name);
+
+                Default::default()
+            })
+    }
+
     /// Returns the duration of the animation in milliseconds
     pub fn total_animation_time_in_frame_tag(&self, frame_tag: &FrameTag) -> u32 {
         if let Ok(frames) = self.fetch_frames_in_frame_tag(frame_tag) {

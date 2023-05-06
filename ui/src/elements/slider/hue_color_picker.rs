@@ -194,10 +194,6 @@ impl ElementTrait for HueColorPicker {
         self.set_current_slider_value(Vector2f::new(degree, degree));
     }
 
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
-    }
-
     cast_element!();
 }
 

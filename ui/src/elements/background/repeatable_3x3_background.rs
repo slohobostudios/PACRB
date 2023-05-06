@@ -20,6 +20,8 @@ use sfml::{
 };
 use utils::resource_manager::ResourceManager;
 
+/// Loads a 9 slice scaling background.
+/// Uses [`Div`] internally, so it can use padding or a fixed size.
 #[derive(Clone, Debug)]
 pub struct Repeatable3x3Background {
     background: Repeatable3x3Sprite,
@@ -35,10 +37,13 @@ impl Repeatable3x3Background {
         position: UIPosition,
         background_asset_id: &str,
         background_frame_id: u16,
-        padding: Option<UIPosition>,
+        mut padding: Option<UIPosition>,
         desired_size: Option<Vector2u>,
         scale: f32,
     ) -> Self {
+        if padding.is_none() && desired_size.is_none() {
+            padding = Some(UIPosition::CENTER);
+        }
         let mut fsr33b = Self {
             div: Element::Div(Div::new(
                 resource_manager,
@@ -124,10 +129,6 @@ impl traits::Element for Repeatable3x3Background {
     fn render(&mut self, window: &mut RenderTexture) {
         self.background.render(window);
         BackgroundElement::render(self, window);
-    }
-
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {

@@ -204,10 +204,6 @@ impl Element for ImageButton {
         Button::event_handler(self, ui_settings, event)
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
     fn event_id(&self) -> EventId {
         self.event_id
     }

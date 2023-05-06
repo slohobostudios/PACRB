@@ -383,7 +383,8 @@ impl Element for IncrementDecrementPointerSlider {
             }
         }
 
-        (events, rerender)
+        self.rerender |= rerender;
+        (events, self.rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
@@ -411,10 +412,6 @@ impl Element for IncrementDecrementPointerSlider {
 
         self.set_current_slider_value(Vector2::new(new_slider_value, new_slider_value));
         self.rerender = true;
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
     }
 
     cast_element!();
@@ -542,6 +539,7 @@ impl Slider for IncrementDecrementPointerSlider {
             },
             relative_rect,
         );
+        self.rerender = true;
     }
 
     fn box_clone(&self) -> Box<dyn Slider> {
