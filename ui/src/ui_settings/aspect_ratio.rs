@@ -1,7 +1,8 @@
 use crate::ui_settings::DEFAULT_UI_SETTING_OPTIONS;
 use serde::{Deserialize, Serialize};
-use sfml::system::Vector2;
-use std::{collections::LinkedList, error::Error, str::FromStr};
+use sfml::{graphics::Texture, system::Vector2};
+use std::{error::Error, str::FromStr};
+use tracing::warn;
 use utils::simple_error::SimpleError;
 
 macro_rules! const_ratio {
@@ -62,6 +63,13 @@ impl AspectRatio {
     }
 
     pub fn compute_resolution(&mut self) {
+        if self.current_resolution.x < 1. || self.current_resolution.y < 1. {
+            warn!(
+                "Current resolution too small in axis: {:?}",
+                self.current_resolution
+            );
+            return;
+        }
         let mut smallest_base_resolution = self.aspect_ratio;
         while smallest_base_resolution.x < self.current_resolution.x
             && smallest_base_resolution.y < self.current_resolution.y
@@ -71,6 +79,27 @@ impl AspectRatio {
         let ratio = self.base_resolution.cwise_div(smallest_base_resolution);
 
         self.computed_resolution = self.current_resolution.cwise_mul(ratio);
+
+        // Allowing textures to get larger than the maximum allowable size for a GPU
+        // is problematic. With a little bit of math, we can constrict it to the
+        // maximum size per axis as needed. Why here? because dom_controller uses
+        // the view's resolution to create the texture to the size it needs.
+        // View get's it's resoution from this calculation. That's why here!!!
+        let maximum_size = Texture::maximum_size() as f32;
+
+        if self.computed_resolution.x > maximum_size {
+            let ratio = maximum_size / self.computed_resolution.x;
+            self.current_resolution.x = maximum_size;
+            self.current_resolution.y *= ratio;
+            self.compute_resolution();
+        }
+
+        if self.computed_resolution.y > maximum_size {
+            let ratio = maximum_size / self.computed_resolution.y;
+            self.computed_resolution.y = maximum_size;
+            self.current_resolution.x *= ratio;
+            self.compute_resolution();
+        }
     }
 
     pub fn relative_mouse_coords(&self, mouse_pos: Vector2<i32>) -> Vector2<i32> {
@@ -142,7 +171,7 @@ mod test {
         let mut ar = AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1280., 720.)).unwrap();
         ar.current_resolution = Vector2::new(2180., 1320.);
         ar.compute_resolution();
-        assert_eq!(ar.computed_resolution, Vector2::new(1272.9927, 770.80286));
+        assert_eq!(ar.current_resolution, Vector2::new(2180., 1320.));
     }
 
     #[test]
