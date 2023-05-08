@@ -18,13 +18,12 @@ pub struct RootNode {
 
 impl RootNode {
     pub fn new(
-        resource_manager: &ResourceManager,
+        _resource_manager: &ResourceManager,
         children: Vec<Element>,
         relative_rect: IntRect,
     ) -> Self {
         let mut w = Self {
             div: Div::new(
-                resource_manager,
                 Default::default(),
                 children,
                 Default::default(),

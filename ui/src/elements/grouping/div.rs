@@ -4,7 +4,7 @@ use utils::{arithmetic_util_functions::i32_from_u32, resource_manager::ResourceM
 
 use crate::{events::Event, ui_settings::UISettings, utils::positioning::UIPosition};
 
-use super::{
+use super::super::{
     traits::Element as ElementTrait,
     traits::{self, cast_element},
     Element,
@@ -21,7 +21,6 @@ pub struct Div {
 
 impl Div {
     pub fn new(
-        _resource_manager: &ResourceManager,
         position: UIPosition,
         children: Vec<Element>,
         mut padding: Option<UIPosition>,
@@ -55,6 +54,18 @@ impl Div {
 
     pub fn is_padding(&self) -> bool {
         self.size.is_none()
+    }
+
+    pub fn padding(&self) -> Option<UIPosition> {
+        self.padding
+    }
+
+    pub fn size(&self) -> Option<Vector2u> {
+        self.size
+    }
+
+    pub fn position(&self) -> UIPosition {
+        self.position
     }
 }
 

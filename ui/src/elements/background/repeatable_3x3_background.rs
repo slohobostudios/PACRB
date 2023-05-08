@@ -46,7 +46,6 @@ impl Repeatable3x3Background {
         }
         let mut fsr33b = Self {
             div: Element::Div(Div::new(
-                resource_manager,
                 Default::default(),
                 children,
                 padding,

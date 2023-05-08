@@ -1,7 +1,6 @@
 pub mod background;
 pub mod button;
-pub mod div;
-pub mod grid;
+pub mod grouping;
 pub mod image;
 pub mod missing_texture;
 pub mod root_node;
@@ -21,6 +20,7 @@ pub enum Element {
     Background(Box<dyn background::traits::BackgroundElement>),
     Div(div::Div),
     Grid(grid::Grid),
+    Sets(sets::Sets),
     Text(text::Text),
     Image(image::Image),
     RootNode(root_node::RootNode),
@@ -39,6 +39,7 @@ impl Element {
             Background(_) => "Background",
             Div(_) => "Div",
             Grid(_) => "Grid",
+            Sets(_) => "Sets",
             Text(_) => "Text",
             Image(_) => "Image",
             RootNode(_) => "RootNode",
@@ -57,6 +58,7 @@ impl Element {
             Background(ele) => Some(ele.as_element()),
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
+            Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
             Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
@@ -75,6 +77,7 @@ impl Element {
             Background(ele) => Some(ele.as_mut_element()),
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
+            Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
             Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
@@ -125,7 +128,10 @@ use sfml::{
 };
 use utils::resource_manager::ResourceManager;
 
-use self::traits::cast_element;
+use self::{
+    grouping::{div, grid, sets},
+    traits::cast_element,
+};
 
 impl traits::Element for Element {
     fn global_bounds(&self) -> IntRect {

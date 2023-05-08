@@ -63,6 +63,8 @@ impl AspectRatio {
     }
 
     pub fn compute_resolution(&mut self) {
+        // We invalidate anything less than one because it become problematic to
+        // compute division less than 1
         if self.current_resolution.x < 1. || self.current_resolution.y < 1. {
             warn!(
                 "Current resolution too small in axis: {:?}",
