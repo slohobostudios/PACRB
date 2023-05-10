@@ -1,5 +1,5 @@
 use super::utils::*;
-use crate::elements::text::Text;
+use crate::elements::misc::text::Text;
 use minidom::Element;
 use sfml::graphics::Color;
 use utils::resource_manager::ResourceManager;

@@ -1,4 +1,4 @@
-use super::traits::{cast_element, Element};
+use super::super::traits::{cast_element, Element};
 use crate::{events::Event, utils::positioning::UIPosition};
 use sfml::{
     graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable},

@@ -3,7 +3,7 @@ use std::error::Error;
 use minidom::Element;
 use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 
-use crate::elements::image::Image;
+use crate::elements::misc::image::Image;
 
 use super::utils::{get_scale, get_ui_position};
 

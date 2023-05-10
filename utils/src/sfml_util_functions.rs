@@ -20,13 +20,15 @@ macro_rules! vector_to_rect_with_zeroed_origin {
     };
 }
 
+use crate::string_util_functions::get_list_of_tuple_lists_from_string;
+
 use super::{simple_error::SimpleError, string_util_functions::get_tuple_list_from_string};
 use sfml::{
     graphics::{Color, Glyph, RcText, Rect, TextStyle},
     system::{Vector2i, Vector2u},
 };
 use std::{error::Error, ops::Add, str::FromStr};
-use tracing::error;
+use tracing::{error, warn};
 
 pub fn try_from_color_hash_owned_string_to_sfml_color(s: String) -> Result<Color, Box<dyn Error>> {
     try_from_color_hash_string_to_sfml_color(&s)
@@ -314,4 +316,48 @@ pub fn glyph_from_rc_text(text: &RcText, codepoint: u32) -> Option<Glyph> {
         text.style().intersects(TextStyle::BOLD),
         text.outline_thickness(),
     ))
+}
+
+/// Usage:
+///```
+/// # use utils::sfml_util_functions::vertex_array_from_string;
+/// # use sfml::system::Vector2f;
+/// let s = "(x:1,y:1),(x:2,y:2),(x:3,y:3),(x:4,y:4)";
+/// let vertices = vertex_array_from_string(s);
+/// assert_eq!(vertices[0].position, Vector2f::new(1., 1.));
+/// assert_eq!(vertices[1].position, Vector2f::new(2., 2.));
+/// assert_eq!(vertices[2].position, Vector2f::new(3., 3.));
+/// assert_eq!(vertices[3].position, Vector2f::new(4., 4.));
+///```
+pub fn vertex_array_from_string(string: &str) -> Vec<Vertex> {
+    let mut vertices = vec![];
+    for mut tuple_lists in get_list_of_tuple_lists_from_string(string) {
+        let (Some(Ok(t1)), Some(Ok(t2))) = (tuple_lists.next(), tuple_lists.next()) else {
+            warn!("Unable to extract tuple list! Skipping!");
+            continue;
+        };
+
+        let (Ok(x), Ok(y)) = (match (t1.0.to_lowercase().as_str(), t2.0.to_lowercase().as_str()) {
+            ("x", "y") => (t1.1.parse::<f32>(), t2.1.parse::<f32>()),
+            ("y", "x") => (t2.1.parse::<f32>(), t1.1.parse::<f32>()),
+            _ => {
+                warn!(
+                    "invalid tuple does not extract into x and y: {:?}, {:?}",
+                    t1, t2
+                );
+                continue;
+            }
+        }) else {
+            warn!(
+                "invalid tuple does not extract into x and y: {:?}, {:?}",
+                t1, t2
+            );            
+            continue;
+        };
+
+        vertices.push(Vertex::with_pos(Vector2::new(x,y)));
+    }
+    vertices.shrink_to_fit();
+
+    vertices
 }

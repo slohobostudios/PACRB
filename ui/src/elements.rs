@@ -1,11 +1,10 @@
 pub mod background;
 pub mod button;
 pub mod grouping;
-pub mod image;
+pub mod misc;
 pub mod missing_texture;
 pub mod root_node;
 pub mod slider;
-pub mod text;
 pub mod textbox;
 pub mod tiling_sprites;
 pub mod traits;
@@ -130,6 +129,7 @@ use utils::resource_manager::ResourceManager;
 
 use self::{
     grouping::{div, grid, sets},
+    misc::{image, text},
     traits::cast_element,
 };
 

@@ -6,7 +6,7 @@ use utils::resource_manager::ResourceManager;
 
 use crate::utils::positioning::UIPosition;
 
-use super::traits::{cast_element, Element};
+use super::super::traits::{cast_element, Element};
 
 #[derive(Debug, Clone)]
 pub struct Image {
