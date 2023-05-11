@@ -270,19 +270,27 @@ impl Element for Repeatable3x3Sprite {
     fn render(&mut self, window: &mut RenderTexture) {
         let mut rs = RenderStates::default();
         rs.set_texture(self.middle_sprite.texture());
-        window.draw_primitives(&self.middle_vertex_array.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(
+            &self.middle_vertex_array.0,
+            PrimitiveType::TRIANGLE_FAN,
+            &rs,
+        );
         let mut rs = RenderStates::default();
         rs.set_texture(self.top_sprite.texture());
-        window.draw_primitives(&self.top_vertex_array.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(&self.top_vertex_array.0, PrimitiveType::TRIANGLE_FAN, &rs);
         let mut rs = RenderStates::default();
         rs.set_texture(self.left_sprite.texture());
-        window.draw_primitives(&self.left_vertex_array.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(&self.left_vertex_array.0, PrimitiveType::TRIANGLE_FAN, &rs);
         let mut rs = RenderStates::default();
         rs.set_texture(self.right_sprite.texture());
-        window.draw_primitives(&self.right_vertex_array.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(&self.right_vertex_array.0, PrimitiveType::TRIANGLE_FAN, &rs);
         let mut rs = RenderStates::default();
         rs.set_texture(self.bottom_sprite.texture());
-        window.draw_primitives(&self.bottom_vertex_array.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(
+            &self.bottom_vertex_array.0,
+            PrimitiveType::TRIANGLE_FAN,
+            &rs,
+        );
 
         window.draw(&self.top_left_sprite);
         window.draw(&self.top_right_sprite);

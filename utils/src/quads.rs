@@ -1,8 +1,8 @@
-use std::ops::{Index, IndexMut};
+use std::ops::{Add, Index, IndexMut};
 
 use sfml::{
-    graphics::{Color, FloatRect, IntRect, RcSprite, Sprite, Vertex},
-    system::{Vector2, Vector2f},
+    graphics::{Color, FloatRect, IntRect, RcSprite, Rect, Sprite, Vertex},
+    system::Vector2,
 };
 use tracing::error;
 
@@ -10,6 +10,29 @@ use super::sfml_util_functions::{
     bottom_left_rect_coords, bottom_right_rect_coords, top_right_rect_coords,
 };
 
+fn rect_corner_positions<T: Add + Add<Output = T> + Copy>(
+    rect: Rect<T>,
+) -> (Vector2<T>, Vector2<T>, Vector2<T>, Vector2<T>) {
+    (
+        rect.position(),
+        top_right_rect_coords(rect),
+        bottom_right_rect_coords(rect),
+        bottom_left_rect_coords(rect),
+    )
+}
+
+/// Quad is an abstraction to TriangleFan, but used as if it were a quad.
+///
+/// MUST USE [`PrimitiveType::TriangleFan`] when rendering.
+///
+/// Order of vertices goes like this:
+///
+/// 1----2
+/// |\   |
+/// | \  |
+/// |  \ |
+/// |   \|
+/// 4----3
 #[derive(Clone, Default, Debug)]
 pub struct Quad(pub [Vertex; 4]);
 
@@ -29,24 +52,12 @@ impl Quad {
             );
             return Default::default();
         }
-        let rect_size_pos = bottom_right_rect_coords(rect);
+        let pos = rect_corner_positions(rect);
         Quad([
-            Vertex::new(rect.position(), VERTEX_DEFAULT_COLOR, self[0].tex_coords),
-            Vertex::new(
-                Vector2::new(rect_size_pos.x, rect.top),
-                VERTEX_DEFAULT_COLOR,
-                self[1].tex_coords,
-            ),
-            Vertex::new(
-                Vector2::new(rect_size_pos.x, rect_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                self[2].tex_coords,
-            ),
-            Vertex::new(
-                Vector2::new(rect.left, rect_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                self[3].tex_coords,
-            ),
+            Vertex::new(pos.0, VERTEX_DEFAULT_COLOR, self[0].tex_coords),
+            Vertex::new(pos.1, VERTEX_DEFAULT_COLOR, self[1].tex_coords),
+            Vertex::new(pos.2, VERTEX_DEFAULT_COLOR, self[2].tex_coords),
+            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, self[3].tex_coords),
         ])
     }
 
@@ -55,10 +66,11 @@ impl Quad {
     }
 
     pub fn mut_quad_positions_to_rect(&mut self, rect: FloatRect) {
-        self[0].position = rect.position();
-        self[1].position = Vector2f::new(rect.left + rect.width, rect.top);
-        self[2].position = Vector2f::new(rect.left + rect.width, rect.top + rect.height);
-        self[3].position = Vector2f::new(rect.left, rect.top + rect.height);
+        let pos = rect_corner_positions(rect);
+        self[0].position = pos.0;
+        self[1].position = pos.1;
+        self[2].position = pos.2;
+        self[3].position = pos.3;
     }
 
     pub fn set_quad_to_one_color(&mut self, color: Color) {
@@ -83,67 +95,40 @@ impl IndexMut<usize> for Quad {
 
 impl From<RcSprite> for Quad {
     fn from(sprite: RcSprite) -> Self {
-        let gl = sprite.global_bounds();
-        let gl_size_pos = bottom_right_rect_coords(gl);
-        let tx_rect = sprite.texture_rect().as_other();
-        let tx_rect_size_pos = bottom_right_rect_coords(tx_rect);
+        let pos = rect_corner_positions(sprite.global_bounds());
+        let tx = rect_corner_positions::<f32>(sprite.texture_rect().as_other());
 
         Quad([
-            Vertex::new(gl.position(), VERTEX_DEFAULT_COLOR, tx_rect.position()),
-            Vertex::new(
-                Vector2::new(gl_size_pos.x, gl.top),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect_size_pos.x, tx_rect.top),
-            ),
-            Vertex::new(
-                Vector2::new(gl_size_pos.x, gl_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect_size_pos.x, tx_rect_size_pos.y),
-            ),
-            Vertex::new(
-                Vector2::new(gl.left, gl_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect.left, tx_rect_size_pos.y),
-            ),
+            Vertex::new(pos.0, VERTEX_DEFAULT_COLOR, tx.0),
+            Vertex::new(pos.1, VERTEX_DEFAULT_COLOR, tx.1),
+            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.2),
+            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.3),
         ])
     }
 }
 
 impl<'a> From<Sprite<'a>> for Quad {
     fn from(sprite: Sprite) -> Self {
-        let gl = sprite.global_bounds();
-        let gl_size_pos = bottom_left_rect_coords(gl);
-        let tx_rect = sprite.texture_rect().as_other();
-        let tx_rect_size_pos = bottom_right_rect_coords(tx_rect);
+        let pos = rect_corner_positions(sprite.global_bounds());
+        let tx = rect_corner_positions::<f32>(sprite.texture_rect().as_other());
 
         Quad([
-            Vertex::new(gl.position(), VERTEX_DEFAULT_COLOR, tx_rect.position()),
-            Vertex::new(
-                Vector2::new(gl_size_pos.x, gl.top),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect_size_pos.x, tx_rect.top),
-            ),
-            Vertex::new(
-                Vector2::new(gl_size_pos.x, gl_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect_size_pos.x, tx_rect_size_pos.y),
-            ),
-            Vertex::new(
-                Vector2::new(gl.left, gl_size_pos.y),
-                VERTEX_DEFAULT_COLOR,
-                Vector2::new(tx_rect.left, tx_rect_size_pos.y),
-            ),
+            Vertex::new(pos.0, VERTEX_DEFAULT_COLOR, tx.0),
+            Vertex::new(pos.1, VERTEX_DEFAULT_COLOR, tx.1),
+            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.2),
+            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.3),
         ])
     }
 }
 
 impl From<FloatRect> for Quad {
     fn from(rect: FloatRect) -> Self {
+        let pos = rect_corner_positions(rect);
         Quad([
-            Vertex::with_pos(rect.position()),
-            Vertex::with_pos(top_right_rect_coords(rect)),
-            Vertex::with_pos(bottom_right_rect_coords(rect)),
-            Vertex::with_pos(bottom_left_rect_coords(rect)),
+            Vertex::with_pos(pos.0),
+            Vertex::with_pos(pos.1),
+            Vertex::with_pos(pos.2),
+            Vertex::with_pos(pos.3),
         ])
     }
 }

@@ -170,7 +170,7 @@ impl ElementTrait for HueColorPicker {
     fn render(&mut self, window: &mut RenderTexture) {
         let rs = RenderStates::default();
         for quad in &self.quads {
-            window.draw_primitives(&quad.0, PrimitiveType::QUADS, &rs)
+            window.draw_primitives(&quad.0, PrimitiveType::TRIANGLE_FAN, &rs)
         }
 
         self.hover_element.render(window);

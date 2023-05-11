@@ -177,7 +177,7 @@ impl ElementTrait for QuadColorPicker {
 
     fn render(&mut self, window: &mut RenderTexture) {
         let rs = RenderStates::default();
-        window.draw_primitives(&self.quad.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(&self.quad.0, PrimitiveType::TRIANGLE_FAN, &rs);
         self.hover_element.render(window);
         self.rerender = false;
     }

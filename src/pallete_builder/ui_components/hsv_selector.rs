@@ -122,7 +122,7 @@ impl DomControllerInterface for HSVSelector {
 
         if self.display_current_color {
             let rs = RenderStates::default();
-            window.draw_primitives(&self.current_color_rect.0, PrimitiveType::QUADS, &rs);
+            window.draw_primitives(&self.current_color_rect.0, PrimitiveType::TRIANGLE_FAN, &rs);
         }
     }
 }
