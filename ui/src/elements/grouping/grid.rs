@@ -36,7 +36,7 @@ impl Grid {
         for vec_elements in &mut elements {
             if vec_elements.len() < pagination_size.y.into() {
                 vec_elements.append(&mut vec![
-                    Element::Empty(());
+                    Element::Empty;
                     usize::from(pagination_size.y) - vec_elements.len()
                 ]);
                 vec_elements.shrink_to_fit();
@@ -44,7 +44,7 @@ impl Grid {
         }
 
         if elements.len() < pagination_size.x.into() {
-            let mut vec_of_empty_elements = vec![Element::Empty(()); pagination_size.y.into()];
+            let mut vec_of_empty_elements = vec![Element::Empty; pagination_size.y.into()];
             vec_of_empty_elements.shrink_to_fit();
             elements.append(&mut vec![
                 vec_of_empty_elements;

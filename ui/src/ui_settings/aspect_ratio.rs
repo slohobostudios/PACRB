@@ -65,7 +65,7 @@ impl AspectRatio {
     pub fn compute_resolution(&mut self) {
         // We invalidate anything less than one because it become problematic to
         // compute division less than 1
-        if self.current_resolution.x < 1. || self.current_resolution.y < 1. {
+        if self.current_resolution.x <= 4. || self.current_resolution.y <= 4. {
             warn!(
                 "Current resolution too small in axis: {:?}",
                 self.current_resolution
@@ -88,6 +88,14 @@ impl AspectRatio {
         // the view's resolution to create the texture to the size it needs.
         // View get's it's resoution from this calculation. That's why here!!!
         let maximum_size = Texture::maximum_size() as f32;
+
+        // This prevents the computed resolution from going above the GPU's limit.
+        // This is a hard stop. This does stop proper resolution scaling.
+        if self.computed_resolution.x > maximum_size || self.computed_resolution.y > maximum_size {
+            self.computed_resolution.x = self.computed_resolution.x.clamp(0., maximum_size);
+            self.computed_resolution.y = self.computed_resolution.y.clamp(1., maximum_size);
+            return;
+        }
 
         if self.computed_resolution.x > maximum_size {
             let ratio = maximum_size / self.computed_resolution.x;

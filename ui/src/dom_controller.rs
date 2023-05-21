@@ -27,7 +27,7 @@ impl DomController {
     ) -> Self {
         let view_size =
             vector_to_rect_with_zeroed_origin!(f32, ui_settings.aspect_ratio.computed_resolution());
-        Self {
+        let mut dc = Self {
             root_node: Element::RootNode(dom_loader(
                 resource_manager,
                 view_size.as_other(),
@@ -36,7 +36,10 @@ impl DomController {
             view: View::from_rect(view_size),
             needs_rerender: true,
             render_texture: RenderTexture::new(view_size.width as u32, view_size.height as u32),
-        }
+        };
+        dc.reset_view(ui_settings);
+
+        dc
     }
 
     pub fn reset_view(&mut self, ui_settings: &UISettings) -> Vec<Event> {

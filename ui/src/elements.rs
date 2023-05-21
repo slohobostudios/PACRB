@@ -9,7 +9,7 @@ pub mod textbox;
 pub mod tiling_sprites;
 pub mod traits;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum Element {
     MissingTexture(missing_texture::MissingTexture),
     Button(Box<dyn button::traits::Button>),
@@ -21,13 +21,15 @@ pub enum Element {
     Grid(grid::Grid),
     Sets(sets::Sets),
     Text(text::Text),
+    Primitive(primitive::Primitive),
     Image(image::Image),
     RootNode(root_node::RootNode),
-    Empty(()),
+    #[default]
+    Empty,
 }
 
 impl Element {
-    pub fn repr(&self) -> &'static str {
+    pub const fn repr(&self) -> &'static str {
         use Element::*;
         match self {
             MissingTexture(_) => "MissingTexture",
@@ -40,9 +42,10 @@ impl Element {
             Grid(_) => "Grid",
             Sets(_) => "Sets",
             Text(_) => "Text",
+            Primitive(_) => "Primitive",
             Image(_) => "Image",
             RootNode(_) => "RootNode",
-            Empty(_) => "Empty",
+            Empty => "Empty",
         }
     }
 
@@ -59,9 +62,10 @@ impl Element {
             Grid(ele) => Some(ele),
             Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Primitive(ele) => Some(ele),
             Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
-            Empty(_) => None,
+            Empty => None,
         }
     }
 
@@ -78,9 +82,10 @@ impl Element {
             Grid(ele) => Some(ele),
             Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Primitive(ele) => Some(ele),
             Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
-            Empty(_) => None,
+            Empty => None,
         }
     }
 
@@ -114,12 +119,6 @@ impl Element {
     }
 }
 
-impl Default for Element {
-    fn default() -> Self {
-        Self::Empty(())
-    }
-}
-
 use crate::{events::*, syncs::Syncs, ui_settings::UISettings, utils::positioning::UIPosition};
 use sfml::{
     graphics::{IntRect, RenderTexture},
@@ -129,7 +128,7 @@ use utils::resource_manager::ResourceManager;
 
 use self::{
     grouping::{div, grid, sets},
-    misc::{image, text},
+    misc::{image, primitive, text},
     traits::cast_element,
 };
 

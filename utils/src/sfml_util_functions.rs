@@ -139,7 +139,7 @@ where
 
         let amt = amt.parse::<T>()?;
 
-        match val.to_lowercase().as_str() {
+        match val.trim().to_lowercase().as_str() {
             "x" => vec.x = amt,
             "y" => vec.y = amt,
             _ => {
@@ -361,3 +361,4 @@ pub fn vertex_array_from_string(string: &str) -> Vec<Vertex> {
 
     vertices
 }
+

@@ -61,6 +61,7 @@ impl Sets {
             );
             return;
         }
+
         let mut div = Div::new(
             self.div.position(),
             self.sets[new_set].clone(),

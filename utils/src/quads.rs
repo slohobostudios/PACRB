@@ -10,6 +10,10 @@ use super::sfml_util_functions::{
     bottom_left_rect_coords, bottom_right_rect_coords, top_right_rect_coords,
 };
 
+// Documentation imports
+#[allow(unused_imports)]
+use sfml::graphics::PrimitiveType;
+
 fn rect_corner_positions<T: Add + Add<Output = T> + Copy>(
     rect: Rect<T>,
 ) -> (Vector2<T>, Vector2<T>, Vector2<T>, Vector2<T>) {
@@ -23,7 +27,7 @@ fn rect_corner_positions<T: Add + Add<Output = T> + Copy>(
 
 /// Quad is an abstraction to TriangleFan, but used as if it were a quad.
 ///
-/// MUST USE [`PrimitiveType::TriangleFan`] when rendering.
+/// MUST USE [(`PrimitiveType::TriangleFan`)] when rendering.
 ///
 /// Order of vertices goes like this:
 ///

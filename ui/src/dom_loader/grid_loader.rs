@@ -42,7 +42,7 @@ fn grid_elements_loader(
     for x in 0..grid_layout.x {
         grid.push(Vec::new());
         for _ in 0..grid_layout.y {
-            grid[x].push(Element::Empty(()));
+            grid[x].push(Element::Empty);
         }
         grid[x].shrink_to_fit();
     }

@@ -14,6 +14,7 @@ mod element_loader;
 mod grid_loader;
 mod image_loader;
 mod missing_texture_loader;
+mod primitive_loader;
 mod sets_loader;
 mod slider_loader;
 mod text_loader;

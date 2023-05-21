@@ -42,7 +42,7 @@ fn increment_decrement_pointer_slider_loader(
 ) -> Result<IncrementDecrementPointerSlider, Box<dyn Error>> {
     Ok(IncrementDecrementPointerSlider::new(
         resource_manager,
-        get_ui_position(minidom_element)?,
+        get_ui_position(minidom_element).unwrap_or_default(),
         get_scale(minidom_element).unwrap_or( default_scale),
         &get_asset_id(minidom_element)?,
         get_font_size(minidom_element).unwrap_or( default_font_size),

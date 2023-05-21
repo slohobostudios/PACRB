@@ -20,124 +20,103 @@ pub mod syncs;
 pub mod ui_settings;
 pub mod utils;
 
-const XML_DOC: &str = r##"<RootNode scale="2" font_size="16" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
-  <Background
-    type="Repeatable3x3Background"
-    asset="dark_blue_background.png"
-    position="b:7,r:7"
-    size="x:200,y:175"
-    frame_id="0">
-    <Grid
-      size="x:190,y:115"
-      pagination_size="x:2,y:2"
-      >
-      <Button
-        type="BooleanImageButton"
-        asset="check_box_button.png"
-        truth_frame_id="0"
-        truth_hover_frame_id="1"
-        truth_click_frame_id="2"
-        false_frame_id="3"
-        false_hover_frame_id="4"
-        false_click_frame_id="5"
-        />
-      <Button
-        type="ImageButton"
-        asset="x_button.png"
+const XML_DOC: &str = r##"<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+    <Background
+        type="Repeatable3x3Background"
+        asset="dark_blue_background.png"
         frame_id="0"
-        hover_frame_id="1"
-        click_frame_id="2"
-        />
-      <Button
+        size="x:800, y:500">
+        <Button
+            type="ImageButton"
+            asset="x_button.png"
+            position='t:5,r:5'
+            frame_id='0'
+            hover_frame_id='1'
+            click_frame_id='2'
+            scale='2'
+            event_id='1'/>
+        <Grid
+            position="l:-4"
+            size="x:100,y:400"
+            pagination_size="x:1,y:2"
+            grid_layout="x:1,y:2">
+            <Button
+                type="PrimitiveFillButton"
+                color="#242336"
+                hover_color="#51507a"
+                click_color="#8482c1"
+                event_id='2'>
+                <Text>
+                    Example 1
+                </Text>
+            </Button>
+            <Button
+                type="PrimitiveFillButton"
+                color="#242336"
+                hover_color="#51507a"
+                click_color="#8482c1"
+                event_id='3'>
+                <Text>
+                    Example 2
+                </Text>
+            </Button>
+        </Grid>
+        <Primitive 
+            type="TriangleFan"
+            position="l:96"
+            vertices="(x:0,y:0),(x:4,y:0),(x:4,y:400),(x:0,y:400)"
+            color="#f7e5e4"/>
+        <Sets position="l:56,r:43" size="x:702,y:400" sync_id='1'>
+            <Div size="x:702,y:400">
+                <Button 
+                    scale='2'
+                    type="BooleanImageButton"
+                    asset="check_box_button.png"
+                    truth_frame_id='0'
+                    truth_hover_frame_id='1'
+                    truth_click_frame_id='2'
+                    false_frame_id='3'
+                    false_hover_frame_id='4'
+                    false_click_frame_id='5'
+                    position="b:0,r:10"/>
+                <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:10,b:40"
+                    size="x:22,y:22"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'/>
+            </Div>
+            <Div size="x:702,y:400">
+                <Slider 
+                    type="IncrementPointerSlider"
+                    asset="slider.png"
+                    position='b:0'
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    min='-2147483647'
+                    max='2147483647'
+                    increment='10000000'
+                    scale='2'
+                    size='x:100'/>
+            </Div>
+        </Sets>
+    </Background>
+    <Button
         type="TilingButton"
-        asset="3x3_tilable_button_on_background.png"
+        asset="3x3_tilable_standalone_button.png"
+        position="r:5,b:5"
         frame_id="0"
         hover_frame_id="1"
-        click_frame_id="2"
-        >
+        click_frame_id="2">
         <Div padding="t:5,b:5,l:5,r:5">
-          <Text disable_padding="true">
-            Test
-          </Text>
+            <Text>
+                Button
+            </Text>
         </Div>
-      </Button>
-    </Grid>
-  </Background>
-  <Button
-    type="TilingButton"
-    asset="3x3_tilable_standalone_button.png"
-    frame_id="0"
-    hover_frame_id="1"
-    click_frame_id="2"
-    position="r:12,t:12"
-    >
-    <Div padding="t:5,b:5,l:5,r:5">
-      <Text disable_padding="true">
-        Test
-      </Text>
-    </Div>
-  </Button>
-  <Button
-    type="TilingButton"
-    asset="3x3_tilable_standalone_button.png"
-    frame_id="0"
-    hover_frame_id="1"
-    click_frame_id="2"
-    position="r:12,t:52"
-    >
-    <Div padding="t:5,b:5,l:5,r:5">
-      <Image type="Icon" name="gear"/>
-    </Div>
-  </Button>
-  <Background
-    type="Repeatable3x3Background"
-    asset="dark_blue_background.png"
-    frame_id="0"
-    padding="t:25,b:25,l:25,r:25">
-  <TextBox
-    type="FixedSizeOneLineTextbox"
-    size="x:200,y:0"
-    color="#081a1b"
-    >
-  </TextBox>
-  </Background>
-  <Background
-    type="Repeatable3x3Background"
-    asset="dark_blue_background.png"
-    frame_id="0"
-    position="b:12,l:12"
-    padding="t:5,b:5,l:5,r:5">
-    <Sets size="x:150,y:40" sync_id="1">
-      <Button
-        type="TilingButton"
-        asset="3x3_tilable_button_on_background.png"
-        frame_id="0"
-        hover_frame_id="1"
-        click_frame_id="2"
-        position="l:10"
-        event_id="1">
-        <Div padding="t:5,b:5,l:5,r:5">
-          <Text>
-            Go Right
-          </Text>
-        </Div>
-      </Button>
-      <Button
-        type="TilingButton"
-        asset="3x3_tilable_button_on_background.png"
-        frame_id="0"
-        hover_frame_id="1"
-        click_frame_id="2"
-        position="r:10"
-        event_id="2">
-        <Div padding="t:5,b:5,l:5,r:5">
-          <Text>
-            Go Left
-          </Text>
-        </Div>
-      </Button>
-    </Sets>
-  </Background>
+    </Button>
 </RootNode>"##;
 
 fn main() {
@@ -150,14 +129,6 @@ fn main() {
     let resource_manager = ResourceManager::new();
     let mut dom = DomController::new(&resource_manager, &ui_settings, XML_DOC);
     let mut fps_counter = FPSCounter::new(&resource_manager, 240);
-    dom.event_handler(
-        &mut window,
-        &mut ui_settings,
-        Event::Resized {
-            width: WINDOW_SIZE.0,
-            height: WINDOW_SIZE.1,
-        },
-    );
 
     while window.is_open() {
         while let Some(event) = window.poll_event() {
@@ -171,18 +142,21 @@ fn main() {
 
             for event in events {
                 match event.id {
-                    1 => dom.root_node.traverse_dom_mut(&mut |ele| {
-                        if ele.sync_id() == 1 {
-                            if let Element::Sets(sets) = ele {
-                                sets.set_current_set(1);
-                            }
-                        }
-                    }),
+                    1 => window.close(),
                     2 => dom.root_node.traverse_dom_mut(&mut |ele| {
                         if ele.sync_id() == 1 {
-                            if let Element::Sets(sets) = ele {
-                                sets.set_current_set(0);
-                            }
+                            let Element::Sets(sets) = ele else {
+                                panic!("This is supposed to be a set");
+                            };
+                            sets.set_current_set(0);
+                        }
+                    }),
+                    3 => dom.root_node.traverse_dom_mut(&mut |ele| {
+                        if ele.sync_id() == 1 {
+                            let Element::Sets(sets) = ele else {
+                                panic!("This is supposed to be a set");
+                            };
+                            sets.set_current_set(1);
                         }
                     }),
                     _ => {}

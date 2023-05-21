@@ -62,7 +62,7 @@ impl ActionableElement for RepeatableSpritesButton {
     fn triggered_event(&self) -> Event {
         Event {
             id: self.event_id(),
-            event: Events::BooleanEvent(true),
+            event: Events::BooleanEvent(self.current_mouse_state == UIMouseStates::Click),
         }
     }
 
@@ -151,14 +151,15 @@ impl Element for RepeatableSpritesButton {
             events.append(&mut event.0);
         }
 
+        self.rerender = rerender;
         (events, rerender)
     }
 
-    fn render(&mut self, window: &mut RenderTexture) {
+    fn render(&mut self, render_texture: &mut RenderTexture) {
         match self.current_mouse_state {
-            UIMouseStates::Nothing => self.repeatable_sprites.render(window),
-            UIMouseStates::Hover => self.hover_repeatable_sprites.render(window),
-            UIMouseStates::Click => self.click_repeatable_sprites.render(window),
+            UIMouseStates::Nothing => self.repeatable_sprites.render(render_texture),
+            UIMouseStates::Hover => self.hover_repeatable_sprites.render(render_texture),
+            UIMouseStates::Click => self.click_repeatable_sprites.render(render_texture),
         }
         self.rerender = false;
     }
