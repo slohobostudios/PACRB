@@ -124,7 +124,7 @@ impl HueColorPicker {
                 self.global_bounds.height,
             );
 
-            Quad::mut_quad_positions_to_rect(quad, rect.as_other());
+            Quad::set_position_from_rect(quad, rect.as_other());
         }
     }
 }

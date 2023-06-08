@@ -2,7 +2,7 @@ use std::ops::{Add, Index, IndexMut};
 
 use sfml::{
     graphics::{Color, FloatRect, IntRect, RcSprite, Rect, Sprite, Vertex},
-    system::Vector2,
+    system::{Vector2, Vector2f},
 };
 use tracing::error;
 
@@ -37,7 +37,7 @@ fn rect_corner_positions<T: Add + Add<Output = T> + Copy>(
 /// |  \ |
 /// |   \|
 /// 4----3
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Copy)]
 pub struct Quad(pub [Vertex; 4]);
 
 const VERTEX_DEFAULT_COLOR: Color = Color::WHITE;
@@ -65,11 +65,19 @@ impl Quad {
         ])
     }
 
+    pub fn set_texture_rect_coordinates_from_sprite(&mut self, sprite: RcSprite) {
+        let tx = rect_corner_positions::<f32>(sprite.texture_rect().as_other());
+        self[0].tex_coords = tx.0;
+        self[1].tex_coords = tx.1;
+        self[2].tex_coords = tx.2;
+        self[3].tex_coords = tx.3;
+    }
+
     pub fn into_rect(&self) -> FloatRect {
         FloatRect::from_vecs(self[0].position, self[2].position - self[0].position)
     }
 
-    pub fn mut_quad_positions_to_rect(&mut self, rect: FloatRect) {
+    pub fn set_position_from_rect(&mut self, rect: FloatRect) {
         let pos = rect_corner_positions(rect);
         self[0].position = pos.0;
         self[1].position = pos.1;
@@ -81,6 +89,52 @@ impl Quad {
         for vertex in &mut self.0 {
             vertex.color = color;
         }
+    }
+
+    /// set_position uses the first coordinate to set the position, then it
+    /// moves the other coordinates relative to how much the first one moved.
+    ///
+    /// # Usage:
+    /// ```
+    /// # use utils::quads::Quad;
+    /// # use sfml::graphics::FloatRect;
+    /// # use sfml::system::Vector2f;
+    /// let mut quad = Quad::from(FloatRect::new(10., 5., 20., 30.));
+    /// quad.set_position(Vector2f::new(1., 1.));
+    /// assert_eq!(quad[0].position, Vector2f::new(1., 1.));
+    /// assert_eq!(quad[1].position, Vector2f::new(21., 1.));
+    /// assert_eq!(quad[2].position, Vector2f::new(21., 31.));
+    /// assert_eq!(quad[3].position, Vector2f::new(1., 31.));
+    /// ```
+    pub fn set_position(&mut self, position: Vector2f) {
+        let position_diff = position - self[0].position;
+        for vertex in self.0.iter_mut() {
+            vertex.position += position_diff;
+        }
+    }
+
+    /// set_quad_size_as_rect sets the size of the quad as if it were a
+    /// rect to the given size.
+    ///
+    /// Will break non-rectangular quads
+    ///
+    /// # Usage:
+    /// ```
+    /// # use utils::quads::Quad;
+    /// # use sfml::graphics::FloatRect;
+    /// # use sfml::system::Vector2f;
+    /// let mut quad = Quad::from(FloatRect::new(10., 10., 20., 30.));
+    /// quad.set_quad_size_as_rect(Vector2f::new(10.,10.));
+    /// assert_eq!(quad[0].position, Vector2f::new(10., 10.));
+    /// assert_eq!(quad[1].position, Vector2f::new(20., 10.));
+    /// assert_eq!(quad[2].position, Vector2f::new(20., 20.));
+    /// assert_eq!(quad[3].position, Vector2f::new(10., 20.));  
+    /// ```
+    pub fn set_quad_size_as_rect(&mut self, size: Vector2f) {
+        let position = self[0].position;
+        self[1].position.x = position.x + size.x;
+        self[2].position = position + size;
+        self[3].position.y = position.y + size.y;
     }
 }
 
@@ -105,7 +159,7 @@ impl From<RcSprite> for Quad {
         Quad([
             Vertex::new(pos.0, VERTEX_DEFAULT_COLOR, tx.0),
             Vertex::new(pos.1, VERTEX_DEFAULT_COLOR, tx.1),
-            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.2),
+            Vertex::new(pos.2, VERTEX_DEFAULT_COLOR, tx.2),
             Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.3),
         ])
     }
@@ -119,7 +173,7 @@ impl<'a> From<Sprite<'a>> for Quad {
         Quad([
             Vertex::new(pos.0, VERTEX_DEFAULT_COLOR, tx.0),
             Vertex::new(pos.1, VERTEX_DEFAULT_COLOR, tx.1),
-            Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.2),
+            Vertex::new(pos.2, VERTEX_DEFAULT_COLOR, tx.2),
             Vertex::new(pos.3, VERTEX_DEFAULT_COLOR, tx.3),
         ])
     }

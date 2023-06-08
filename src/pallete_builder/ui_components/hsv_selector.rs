@@ -58,7 +58,7 @@ impl HSVSelector {
 
     fn color_current_color_rect(&mut self) {
         let rect = Quad::into_rect(&self.current_color_rect);
-        self.current_color_rect.mut_quad_positions_to_rect(
+        self.current_color_rect.set_position_from_rect(
             UIPosition::from_str("r:22,b:192")
                 .unwrap()
                 .center_with_size(

@@ -154,7 +154,7 @@ impl ElementTrait for QuadColorPicker {
         self.global_bounds.height = i32_from_u32(self.size.y);
         self.hover_element.update_size();
 
-        Quad::mut_quad_positions_to_rect(&mut self.quad, self.global_bounds.as_other());
+        Quad::set_position_from_rect(&mut self.quad, self.global_bounds.as_other());
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
@@ -162,7 +162,7 @@ impl ElementTrait for QuadColorPicker {
             .position
             .center_with_size(relative_rect, self.global_bounds.size());
         self.hover_element.update_position(self.global_bounds);
-        Quad::mut_quad_positions_to_rect(&mut self.quad, self.global_bounds.as_other());
+        Quad::set_position_from_rect(&mut self.quad, self.global_bounds.as_other());
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
