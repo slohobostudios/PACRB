@@ -112,30 +112,6 @@ impl Quad {
             vertex.position += position_diff;
         }
     }
-
-    /// set_quad_size_as_rect sets the size of the quad as if it were a
-    /// rect to the given size.
-    ///
-    /// Will break non-rectangular quads
-    ///
-    /// # Usage:
-    /// ```
-    /// # use utils::quads::Quad;
-    /// # use sfml::graphics::FloatRect;
-    /// # use sfml::system::Vector2f;
-    /// let mut quad = Quad::from(FloatRect::new(10., 10., 20., 30.));
-    /// quad.set_quad_size_as_rect(Vector2f::new(10.,10.));
-    /// assert_eq!(quad[0].position, Vector2f::new(10., 10.));
-    /// assert_eq!(quad[1].position, Vector2f::new(20., 10.));
-    /// assert_eq!(quad[2].position, Vector2f::new(20., 20.));
-    /// assert_eq!(quad[3].position, Vector2f::new(10., 20.));  
-    /// ```
-    pub fn set_quad_size_as_rect(&mut self, size: Vector2f) {
-        let position = self[0].position;
-        self[1].position.x = position.x + size.x;
-        self[2].position = position + size;
-        self[3].position.y = position.y + size.y;
-    }
 }
 
 impl Index<usize> for Quad {

@@ -1,6 +1,7 @@
 pub mod background;
 pub mod button;
 pub mod grouping;
+pub mod listbox;
 pub mod misc;
 pub mod missing_texture;
 pub mod root_node;
@@ -15,6 +16,7 @@ pub enum Element {
     Button(Box<dyn button::traits::Button>),
     Slider(Box<dyn slider::traits::Slider>),
     TextBox(Box<dyn textbox::traits::TextBox>),
+    ListBox(Box<dyn listbox::traits::ListBox>),
     TilingSprite(Box<dyn tiling_sprites::traits::TilingSpriteElement>),
     Background(Box<dyn background::traits::BackgroundElement>),
     Div(div::Div),
@@ -36,6 +38,7 @@ impl Element {
             Button(_) => "Button",
             Slider(_) => "Slider",
             TextBox(_) => "TextBox",
+            ListBox(_) => "ListBox",
             TilingSprite(_) => "TilingSprite",
             Background(_) => "Background",
             Div(_) => "Div",
@@ -56,6 +59,7 @@ impl Element {
             Button(ele) => Some(ele.as_element()),
             Slider(ele) => Some(ele.as_element()),
             TextBox(ele) => Some(ele.as_element()),
+            ListBox(ele) => Some(ele.as_element()),
             TilingSprite(ele) => Some(ele.as_element()),
             Background(ele) => Some(ele.as_element()),
             Div(ele) => Some(ele),
@@ -76,6 +80,7 @@ impl Element {
             Button(ele) => Some(ele.as_mut_element()),
             Slider(ele) => Some(ele.as_mut_element()),
             TextBox(ele) => Some(ele.as_mut_element()),
+            ListBox(ele) => Some(ele.as_mut_element()),
             TilingSprite(ele) => Some(ele.as_mut_element()),
             Background(ele) => Some(ele.as_mut_element()),
             Div(ele) => Some(ele),
