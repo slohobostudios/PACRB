@@ -138,12 +138,17 @@ impl ActionableElement for BooleanImageButton {
     fn is_hover(&self) -> bool {
         self.current_button().is_hover()
     }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
 }
 
 impl Button for BooleanImageButton {
     fn current_mouse_state(&self) -> UIMouseStates {
         self.current_button().current_mouse_state()
     }
+
     fn box_clone(&self) -> Box<dyn Button> {
         Box::new(self.clone())
     }
@@ -229,9 +234,5 @@ impl Element for BooleanImageButton {
         self.position = ui_position;
         self.update_size();
         self.update_position(relative_rect);
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 }

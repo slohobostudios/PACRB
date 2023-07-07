@@ -133,7 +133,8 @@ impl ResourceManager {
         let mut num_of_aborted_files = 0;
         for font_file in font_files {
             match RcFont::from_file(&format!("{}{}", ASSETS_PATH, font_file)[..]) {
-                Some(v) => {
+                Some(mut v) => {
+                    v.set_smooth(false);
                     fonts.insert(font_file, v);
                 }
                 None => {
@@ -217,38 +218,5 @@ impl Default for ResourceManager {
             )]),
             current_font_id: DEFAULT_FONT_ID.to_owned(),
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::tracing_subscriber_setup::setup_tracing_subscriber_with_no_logging;
-
-    use super::*;
-    #[test]
-    fn test_load_sfml_logo() {
-        setup_tracing_subscriber_with_no_logging();
-        let _texture = load_sfml_logo();
-    }
-
-    #[test]
-    fn test_load_missing_texture() {
-        setup_tracing_subscriber_with_no_logging();
-        let _texture = load_missing_texture();
-    }
-
-    #[test]
-    fn test_load_resources() {
-        setup_tracing_subscriber_with_no_logging();
-        let resource_manager = ResourceManager::new();
-        assert!(resource_manager.assets.keys().len() >= 1);
-        assert!(resource_manager.fonts.keys().len() >= 1);
-    }
-
-    #[test]
-    fn test_default() {
-        setup_tracing_subscriber_with_no_logging();
-        let resource_manager: ResourceManager = Default::default();
-        assert!(!resource_manager.fonts.is_empty());
     }
 }

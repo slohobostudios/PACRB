@@ -202,13 +202,5 @@ impl traits::Element for Element {
         }
     }
 
-    fn event_id(&self) -> EventId {
-        if let Some(ele) = self.get_ele_with_element_trait() {
-            ele.event_id()
-        } else {
-            0
-        }
-    }
-
     cast_element!();
 }

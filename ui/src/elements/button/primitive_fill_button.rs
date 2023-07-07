@@ -105,6 +105,10 @@ impl ActionableElement for PrimitiveFillButton {
     fn is_hover(&self) -> bool {
         self.current_mouse_state.is_hover()
     }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
     cast_actionable_element!();
 }
 
@@ -189,9 +193,5 @@ impl ElementTrait for PrimitiveFillButton {
 
     fn sync_id(&self) -> crate::syncs::SyncId {
         0
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 }

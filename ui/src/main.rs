@@ -101,6 +101,16 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="20" color="#f7e5e4" xml
                     increment='10000000'
                     scale='2'
                     size='x:100'/>
+                <ListBox 
+                    type="UpDownScrollListbox"
+                    asset="scroll_up_down_listbox.png"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    position='t:0'
+                    number_of_buttons='5'
+                    padding="t:5,b:5,l:10,r:10"
+                    options="option 1,option 2,option 3,option 4,option 5,option 6,option 7,option 8,option 9,option 10"/>
             </Div>
         </Sets>
     </Background>

@@ -186,10 +186,6 @@ impl ElementTrait for QuadColorPicker {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::QuadColorPicker(sync_struct) = sync else {
             return;
@@ -242,6 +238,10 @@ impl ActionableElement for QuadColorPicker {
             self.event_id,
             Events::Vector2fEvent(self.current_selection_relative_coords),
         )
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

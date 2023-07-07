@@ -2,7 +2,7 @@ use crate::elements::Element;
 
 use super::{
     background_loader::background_loader, button_loader::button_loader, div_loader::div_loader,
-    grid_loader::grid_loader, image_loader::image_loader,
+    grid_loader::grid_loader, image_loader::image_loader, listbox_loader::listbox_loader,
     missing_texture_loader::missing_texture_loader, primitive_loader::primitive_loader,
     sets_loader::sets_loader, slider_loader::slider_loader, text_loader::text_loader,
     textbox_loader::textbox_loader,
@@ -77,6 +77,12 @@ pub fn element_loader(
             match textbox_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
                 Ok(v) => Element::TextBox(v),
                 Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
+            }
+        }
+        "ListBox" => {
+            match listbox_loader(resource_manager, ele, default_scale, default_font_size, default_color ) {
+                Ok(v) => Element::ListBox(v),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele)
             }
         }
         "Div" => Element::Div(div_loader(

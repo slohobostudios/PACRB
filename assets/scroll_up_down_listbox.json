@@ -1,0 +1,53 @@
+{ "frames": [
+   {
+    "filename": "scroll_up_down_listbox 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 7, "h": 15 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 7, "h": 15 },
+    "sourceSize": { "w": 7, "h": 15 },
+    "duration": 100
+   },
+   {
+    "filename": "scroll_up_down_listbox 1.aseprite",
+    "frame": { "x": 7, "y": 0, "w": 7, "h": 15 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 7, "h": 15 },
+    "sourceSize": { "w": 7, "h": 15 },
+    "duration": 100
+   },
+   {
+    "filename": "scroll_up_down_listbox 2.aseprite",
+    "frame": { "x": 14, "y": 0, "w": 7, "h": 15 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 7, "h": 15 },
+    "sourceSize": { "w": 7, "h": 15 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3-rc4-x64",
+  "image": "scroll_up_down_listbox.png",
+  "format": "RGBA8888",
+  "size": { "w": 21, "h": 15 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "slices": [
+   { "name": "up", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 7, "h": 5 } }, { "frame": 1, "bounds": {"x": 0, "y": 0, "w": 7, "h": 5 } }, { "frame": 2, "bounds": {"x": 0, "y": 0, "w": 7, "h": 5 } }] },
+   { "name": "down", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 10, "w": 7, "h": 5 } }, { "frame": 1, "bounds": {"x": 0, "y": 10, "w": 7, "h": 5 } }, { "frame": 2, "bounds": {"x": 0, "y": 10, "w": 7, "h": 5 } }] },
+   { "name": "top_left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 1, "y": 5, "w": 2, "h": 2 } }, { "frame": 1, "bounds": {"x": 1, "y": 5, "w": 2, "h": 2 } }, { "frame": 2, "bounds": {"x": 1, "y": 5, "w": 2, "h": 2 } }] },
+   { "name": "top", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 3, "y": 5, "w": 1, "h": 2 } }, { "frame": 1, "bounds": {"x": 3, "y": 5, "w": 1, "h": 2 } }, { "frame": 2, "bounds": {"x": 3, "y": 5, "w": 1, "h": 2 } }] },
+   { "name": "middle", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 3, "y": 7, "w": 1, "h": 1 } }, { "frame": 1, "bounds": {"x": 3, "y": 7, "w": 1, "h": 1 } }, { "frame": 2, "bounds": {"x": 3, "y": 7, "w": 1, "h": 1 } }] },
+   { "name": "top_right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 4, "y": 5, "w": 2, "h": 2 } }, { "frame": 1, "bounds": {"x": 4, "y": 5, "w": 2, "h": 2 } }, { "frame": 2, "bounds": {"x": 4, "y": 5, "w": 2, "h": 2 } }] },
+   { "name": "left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 1, "y": 7, "w": 2, "h": 1 } }, { "frame": 1, "bounds": {"x": 1, "y": 7, "w": 2, "h": 1 } }, { "frame": 2, "bounds": {"x": 1, "y": 7, "w": 2, "h": 1 } }] },
+   { "name": "right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 4, "y": 7, "w": 2, "h": 1 } }, { "frame": 1, "bounds": {"x": 4, "y": 7, "w": 2, "h": 1 } }, { "frame": 2, "bounds": {"x": 4, "y": 7, "w": 2, "h": 1 } }] },
+   { "name": "bottom_left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 1, "y": 8, "w": 2, "h": 2 } }, { "frame": 1, "bounds": {"x": 1, "y": 8, "w": 2, "h": 2 } }, { "frame": 2, "bounds": {"x": 1, "y": 8, "w": 2, "h": 2 } }] },
+   { "name": "bottom", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 3, "y": 8, "w": 1, "h": 2 } }, { "frame": 1, "bounds": {"x": 3, "y": 8, "w": 1, "h": 2 } }, { "frame": 2, "bounds": {"x": 3, "y": 8, "w": 1, "h": 2 } }] },
+   { "name": "bottom_right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 4, "y": 8, "w": 2, "h": 2 } }, { "frame": 1, "bounds": {"x": 4, "y": 8, "w": 2, "h": 2 } }, { "frame": 2, "bounds": {"x": 4, "y": 8, "w": 2, "h": 2 } }] }
+  ]
+ }
+}

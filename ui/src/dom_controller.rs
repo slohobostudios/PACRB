@@ -9,6 +9,7 @@ use sfml::{
     window::Event as SFMLEvent,
     SfBox,
 };
+use tracing::error;
 use utils::{resource_manager::ResourceManager, vector_to_rect_with_zeroed_origin};
 
 #[derive(Default, Debug)]
@@ -97,6 +98,8 @@ impl DomControllerInterface for DomController {
                 self.root_node.render(render_texture);
                 render_texture.display();
                 self.needs_rerender = false;
+            } else {
+                error!("Failed to create render texture!");
             }
         }
 

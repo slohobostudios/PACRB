@@ -10,7 +10,7 @@ use crate::{
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
-    system::Vector2i,
+    system::{Vector2i, Vector2u},
     window::Event as SFMLEvent,
 };
 use utils::resource_manager::ResourceManager;
@@ -53,6 +53,12 @@ impl RepeatableSpritesButton {
             &mut self.hover_repeatable_sprites,
             &mut self.click_repeatable_sprites,
         ]
+    }
+
+    pub fn set_desired_size(&mut self, desired_size: Vector2u) {
+        for sprites in self.compact_repeat_sprites_mut() {
+            sprites.set_desired_size(desired_size);
+        }
     }
 }
 

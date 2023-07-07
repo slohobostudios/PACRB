@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+num-traits = { workspace = true }
 rand = { workspace = true }
 sfml = { workspace = true }
 serde = { workspace = true }

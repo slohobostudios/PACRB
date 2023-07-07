@@ -13,6 +13,7 @@ mod div_loader;
 mod element_loader;
 mod grid_loader;
 mod image_loader;
+mod listbox_loader;
 mod missing_texture_loader;
 mod primitive_loader;
 mod sets_loader;

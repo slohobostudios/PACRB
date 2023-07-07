@@ -181,10 +181,6 @@ impl ElementTrait for HueColorPicker {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::Numerical(degree) = sync else {
             warn!(ui_syncs_not_synced_str!(), Syncs::Numerical(Default::default()), sync);
@@ -220,6 +216,10 @@ impl ActionableElement for HueColorPicker {
             self.event_id,
             Events::NumericalEvent(f32::from(self.curr_hue)),
         )
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

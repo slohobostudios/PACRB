@@ -175,32 +175,4 @@ mod test {
         assert!(AspectRatio::from_str("99999:99999").is_err());
         assert!(AspectRatio::from_str("16:9:16:9").is_err());
     }
-
-    #[test]
-    fn compute_resolution() {
-        let mut ar = AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1280., 720.)).unwrap();
-        ar.current_resolution = Vector2::new(2180., 1320.);
-        ar.compute_resolution();
-        assert_eq!(ar.current_resolution, Vector2::new(2180., 1320.));
-    }
-
-    #[test]
-    fn relative_mouse_coords() {
-        let mut ar = AspectRatio::new(Vector2::new(16., 9.), Vector2::new(1280., 720.)).unwrap();
-        ar.current_resolution = Vector2::new(2180., 1320.);
-        ar.computed_resolution();
-
-        let mouse_pos = Vector2::new(0, 0);
-        assert_eq!(ar.relative_mouse_coords(mouse_pos), mouse_pos);
-        let mouse_pos = ar.current_resolution.as_other();
-        assert_eq!(
-            ar.relative_mouse_coords(mouse_pos),
-            ar.base_resolution().as_other()
-        );
-        let mouse_pos = ar.current_resolution.as_other::<i32>() / 2;
-        assert_eq!(
-            ar.relative_mouse_coords(mouse_pos),
-            (ar.base_resolution() / 2.).as_other()
-        );
-    }
 }

@@ -86,7 +86,7 @@ pub trait Slider: ActionableElement + Debug {
         }
         self.set_hover(ui_settings.cursor_position);
         match event {
-            SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
+            SFMLEvent::MouseButtonPressed { button, .. }
                 if ui_settings.binds.is_bind_pressed_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
@@ -94,19 +94,15 @@ pub trait Slider: ActionableElement + Debug {
             {
                 bind_pressed(self, ui_settings)
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) =>
             {
                 bind_pressed(self, ui_settings)
             }
-            SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
+            SFMLEvent::MouseButtonReleased { button, .. }
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
@@ -114,15 +110,11 @@ pub trait Slider: ActionableElement + Debug {
             {
                 bind_released(self, ui_settings)
             }
-            SFMLEvent::KeyReleased {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
+            SFMLEvent::KeyReleased { code, .. }
+                if ui_settings.binds.is_bind_released_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) =>
             {
                 bind_released(self, ui_settings)
             }

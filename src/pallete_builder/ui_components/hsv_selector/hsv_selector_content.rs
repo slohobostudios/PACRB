@@ -50,7 +50,7 @@ fn event1(event: &Event, dom_controller: &mut DomController, hsv: &mut Hsv, hex_
     };
 
     dom_controller.root_node.traverse_dom_mut(&mut |ele| {
-        if let 1 = ele.event_id() {
+        if let 1 = ele.sync_id() {
             if let Element::Slider(ele) = ele {
                 let slider_size = ele.max_slider_value() - ele.min_slider_value();
                 hsv.s = ((sat_val.x / slider_size.x) * 255f32) as u8;

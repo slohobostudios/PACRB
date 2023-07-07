@@ -354,24 +354,12 @@ impl PalleteBuilder {
     fn undo_redo_event_handler(&mut self, event: &Event) {
         match *event {
             // Undo
-            Event::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::Z && ctrl => {
+            Event::KeyPressed { code, ctrl, .. } if code == Key::Z && ctrl => {
                 self.undo_redo.undo(&mut self.color_grid);
             }
 
             // Redo
-            Event::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::R && ctrl => {
+            Event::KeyPressed { code, ctrl, .. } if code == Key::R && ctrl => {
                 self.undo_redo.redo(&mut self.color_grid);
             }
             _ => {}

@@ -333,10 +333,6 @@ impl Element for FixedSizeOneLineTextbox {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::String(string) = sync else {
             warn!(ui_syncs_not_synced_str!(), Syncs::String(Default::default()), sync);
@@ -410,6 +406,10 @@ impl ActionableElement for FixedSizeOneLineTextbox {
 
     fn is_hover(&self) -> bool {
         self.hover
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

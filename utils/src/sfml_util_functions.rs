@@ -351,14 +351,13 @@ pub fn vertex_array_from_string(string: &str) -> Vec<Vertex> {
             warn!(
                 "invalid tuple does not extract into x and y: {:?}, {:?}",
                 t1, t2
-            );            
+            );
             continue;
         };
 
-        vertices.push(Vertex::with_pos(Vector2::new(x,y)));
+        vertices.push(Vertex::with_pos(Vector2::new(x, y)));
     }
     vertices.shrink_to_fit();
 
     vertices
 }
-
