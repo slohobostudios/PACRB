@@ -368,6 +368,7 @@ impl PalleteBuilder {
 
     fn general_mouse_button_event_handler(&mut self, event: &Event) {
         match *event {
+            // Eye dropper
             Event::MouseButtonPressed { button, x, y }
                 if (Key::LControl.is_pressed() || Key::RControl.is_pressed())
                     && button == Button::Left =>

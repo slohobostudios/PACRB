@@ -58,16 +58,7 @@ impl ColorRamper {
         let color_grid = &mut args.color_grid;
         let num_of_shades_per_direction = args.config_selector.current_config().num_of_shades / 2;
         let starting_idx = color_grid.coord_to_idx(coord)?;
-        let starting_color = if color_grid[starting_idx.x][starting_idx.y]
-            .borrow()
-            .draw_full_cell()
-        {
-            color_grid[starting_idx.x][starting_idx.y]
-                .borrow()
-                .full_cell_current_color()
-        } else {
-            args.hsv_selector.curr_color()
-        };
+        let starting_color = args.hsv_selector.curr_color();
         self.min_ramp
             .push(color_grid[starting_idx.x][starting_idx.y].clone());
         self.clear_ramp(args.undo_redo);
