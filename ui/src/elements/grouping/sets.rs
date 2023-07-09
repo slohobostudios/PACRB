@@ -52,6 +52,10 @@ impl Sets {
         s
     }
 
+    pub fn mut_div(&mut self) -> &mut Div {
+        &mut self.div
+    }
+
     pub fn set_current_set(&mut self, new_set: usize) {
         if self.sets.len() <= new_set {
             error!(

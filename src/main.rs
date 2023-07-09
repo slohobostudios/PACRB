@@ -31,7 +31,7 @@ fn main() {
     let mut fps_counter = FPSCounter::new(&resource_manager, 60);
     let mut pallete_builder = PalleteBuilder::new(&resource_manager, &ui_settings);
     while window.is_open() {
-        while let Some(event) = window.poll_event() {
+        for event in ui_settings.normalize_events(&mut window) {
             ui_settings.event_handler(event);
             match event {
                 Event::Closed => window.close(),

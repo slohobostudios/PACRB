@@ -119,6 +119,11 @@ impl Element {
                     ele.traverse_dom_mut(&mut *sync_element)
                 }
             }
+            Sets(ele) => {
+                for ele in ele.mut_div().mut_children() {
+                    ele.traverse_dom_mut(&mut *sync_element)
+                }
+            }
             _ => {}
         }
     }

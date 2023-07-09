@@ -1,10 +1,16 @@
+use std::str::FromStr;
+
 use sfml::graphics::RenderWindow;
-use tracing::warn;
+use tracing::{error, warn};
 use ui::{
     dom_controller::{DomController, DomControllerInterface},
-    elements::traits::Element,
-    events::Event,
-    ui_settings::UISettings,
+    elements::{traits::Element as ElementTrait, Element},
+    events::{Event, Events},
+    syncs::Syncs,
+    ui_settings::{
+        aspect_ratio::{AspectRatio, DefaultAspectRatios},
+        UISettings,
+    },
     utils::consts::DUMMY_MOUSE_MOVED_EVENT,
 };
 
@@ -32,6 +38,9 @@ fn perform_event(
         0 => {}
         1 => event1(settings_menu, num_of_events),
         2 => event2(window, ui_settings, settings_menu),
+        3 => event3(settings_menu),
+        4 => event4(settings_menu),
+        100 => event100(event, ui_settings),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }
@@ -58,16 +67,69 @@ fn event2(
         .event_handler(window, ui_settings, DUMMY_MOUSE_MOVED_EVENT);
 }
 
-pub fn sync_events(dom_controller: &mut DomController) {
+fn event3(settings_menu: &mut SettingsMenu) {
+    set_the_current_set(&mut settings_menu.settings_menu_dom, 0);
+}
+
+fn event4(settings_menu: &mut SettingsMenu) {
+    set_the_current_set(&mut settings_menu.settings_menu_dom, 1);
+}
+
+fn event100(event: &Event, ui_settings: &mut UISettings) {
+    let Events::StringEvent(event) = event.event.clone() else {
+        error!("Event is not a StringEvent {:#?}", event);
+        return;
+    };
+
+    let Ok(default_aspect_ratio) = DefaultAspectRatios::from_str(&event) else {
+        error!("Aspect ratio {:#?} does not exist", event);
+        return;
+    };
+
+    let mut aspect_ratio = AspectRatio::from(default_aspect_ratio);
+    aspect_ratio.current_resolution = ui_settings.aspect_ratio.current_resolution;
+    aspect_ratio.compute_resolution();
+    ui_settings.aspect_ratio = aspect_ratio;
+}
+
+pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings) {
+    // Borrow checker is a bitch
+    set_the_current_set(dom_controller, 0);
+
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
+            1 => { /* set_the_current_set(dom_controller, 0); */ }
+            100 => {
+                let Ok(aspect_ratio) = DefaultAspectRatios::try_from(ui_settings.aspect_ratio) else {
+                    error!("Failed to convert aspect_ratio");
+                    return;
+                };
+
+                let Element::ListBox(list_box) = ele else {
+                    error!("Failed to convert element into listbox: {:#?}", ele);
+                    return;
+                };
+                list_box.sync(Syncs::String(aspect_ratio.to_string()));
+            }
             sync_id => {
                 warn!(
                     "Synchronization with sync_id {} has not yet been implemented!",
                     sync_id
                 );
             }
-        })
+        } )
+}
+
+fn set_the_current_set(dom_controller: &mut DomController, set_num: usize) {
+    dom_controller.root_node.traverse_dom_mut(&mut |ele| {
+        if ele.sync_id() == 1 {
+            let Element::Sets(set) = ele else {
+                error!("Element is not a set!");
+                return;
+            };
+            set.set_current_set(set_num);
+        }
+    });
 }

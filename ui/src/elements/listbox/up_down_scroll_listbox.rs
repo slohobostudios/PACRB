@@ -7,6 +7,7 @@ use crate::{
         traits::{cast_actionable_element, ActionableElement},
     },
     events::Events,
+    syncs::Syncs,
     utils::mouse_ui_states::UIMouseStates,
 };
 use sfml::{
@@ -416,6 +417,32 @@ impl ElementTrait for UpDownScrollListBox {
         self.scroll_down_button.render(render_texture);
 
         self.rerender = false;
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        match sync {
+            Syncs::Numerical(idx) => {
+                let idx = idx as usize;
+
+                if idx < self.options.len() {
+                    self.current_option_idx = idx;
+                    self.set_button_strings_based_on_current_option_idx();
+                }
+            }
+            Syncs::String(string) => {
+                let selected_index = self
+                    .options
+                    .iter()
+                    .position(|option| option == &string)
+                    .unwrap_or(self.current_option_idx);
+
+                self.current_option_idx = selected_index;
+                self.set_button_strings_based_on_current_option_idx();
+            }
+            _ => {
+                error!("Sync: {:#?} is not valid for up down list box", sync)
+            }
+        }
     }
 
     fn sync_id(&self) -> SyncId {

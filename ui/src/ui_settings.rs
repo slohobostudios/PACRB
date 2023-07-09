@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sfml::{
+    graphics::RenderWindow,
     system::{Vector2, Vector2i},
     window::Event,
 };
@@ -90,6 +91,21 @@ impl UISettings {
             }
             _ => (),
         }
+    }
+
+    /// This normalizes all events into one vector.
+    /// This allows us to send "fake" events whenever we need to.
+    /// The decision to send said fake events will occur in this logic.
+    pub fn normalize_events(&mut self, window: &mut RenderWindow) -> Vec<Event> {
+        let mut events = vec![];
+
+        self.aspect_ratio.send_fake_resize_event(&mut events);
+
+        while let Some(event) = window.poll_event() {
+            events.push(event);
+        }
+
+        events
     }
 }
 

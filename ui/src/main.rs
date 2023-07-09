@@ -141,7 +141,7 @@ fn main() {
     let mut fps_counter = FPSCounter::new(&resource_manager, 240);
 
     while window.is_open() {
-        while let Some(event) = window.poll_event() {
+        for event in ui_settings.normalize_events(&mut window) {
             #[allow(clippy::single_match)]
             match event {
                 Event::Closed => window.close(),

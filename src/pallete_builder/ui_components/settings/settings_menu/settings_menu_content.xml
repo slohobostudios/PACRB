@@ -23,6 +23,68 @@
         hover_frame_id="1"
         click_frame_id="2"
         event_id="2"/>
+
+      <Grid
+        position="l:-4"
+        size="x:100,y:400"
+        pagination_size="x:1,y:4"
+        grid_layout="x:1,y:4">
+        <Button
+          type="PrimitiveFillButton"
+          color="#242336"
+          hover_color="#51507a"
+          click_color="#8482c1"
+          event_id='3'>
+          <Text>
+            General
+          </Text>
+        </Button>
+        <Button
+          type="PrimitiveFillButton"
+          color="#242336"
+          hover_color="#51507a"
+          click_color="#8482c1"
+          event_id='4'>
+          <Text>
+            Save / Load
+          </Text>
+        </Button>
+      </Grid>
+      <Primitive
+          type="TriangleFan"
+          position="l:96"
+          vertices="(x:0,y:0),(x:4,y:0),(x:4,y:400),(x:0,y:400)"
+          color="#f7e5e4"/>
+
+      <Sets position="l:56,r:43" size="x:680,y:400" sync_id='1'>
+        <Div>
+          <Grid
+            size="x:680,y:400"
+            pagination_size="x:4,y:3"
+            grid_layout="x:4,y:3">
+            <Div>
+              <Text position="l:0,t:0">
+                Aspect Ratio:
+              </Text>
+              <ListBox
+                scale='4'
+                type="UpDownScrollListbox"
+                asset="scroll_up_down_listbox.png"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                position='b:0,r:5'
+                number_of_buttons='3'
+                event_id='100'
+                sync_id='100'
+                padding="t:5,b:5,l:10,r:10"
+                options="32x9,21x9,17x9,16x10,16x9,4x3,1x1"/>
+            </Div>
+          </Grid>
+        </Div>
+        <Div>
+        </Div>
+      </Sets>
     </Div>
   </Background>
 </RootNode>

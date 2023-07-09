@@ -22,7 +22,7 @@ impl SettingsMenu {
             ui_settings,
             include_str!("settings_menu/settings_menu_content.xml"),
         );
-        sync_events(&mut settings_menu_dom);
+        sync_events(&mut settings_menu_dom, ui_settings);
         Self {
             settings_menu_dom,
             display: false,
