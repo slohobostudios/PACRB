@@ -162,10 +162,9 @@ macro_rules! const_ratio {
     };
 }
 
-pub const NUMBER_OF_DEFAULT_ASPECT_RATIOS: usize = 7;
+pub const NUMBER_OF_DEFAULT_ASPECT_RATIOS: usize = 6;
 pub(super) const DEFAULT_ASPECT_RATIOS: [AspectRatio; NUMBER_OF_DEFAULT_ASPECT_RATIOS] = [
-    const_ratio!((32., 9.), (1024., 288.)),
-    const_ratio!((21., 9.), (1008., 432.)),
+    const_ratio!((21., 9.), (1470., 630.)),
     const_ratio!((17., 9.), (1020., 540.)),
     const_ratio!((16., 10.), (1024., 640.)),
     const_ratio!((16., 9.), (1024., 576.)),
@@ -174,7 +173,6 @@ pub(super) const DEFAULT_ASPECT_RATIOS: [AspectRatio; NUMBER_OF_DEFAULT_ASPECT_R
 ];
 
 pub enum DefaultAspectRatios {
-    _32x9,
     _21x9,
     _17x9,
     _16x10,
@@ -187,7 +185,6 @@ impl ToString for DefaultAspectRatios {
     fn to_string(&self) -> String {
         use DefaultAspectRatios::*;
         match self {
-            _32x9 => "32x9".to_string(),
             _21x9 => "21x9".to_string(),
             _17x9 => "17x9".to_string(),
             _16x10 => "16x10".to_string(),
@@ -204,7 +201,6 @@ impl FromStr for DefaultAspectRatios {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use DefaultAspectRatios::*;
         match s {
-            "32x9" => Ok(_32x9),
             "21x9" => Ok(_21x9),
             "17x9" => Ok(_17x9),
             "16x10" => Ok(_16x10),
@@ -223,13 +219,12 @@ impl From<DefaultAspectRatios> for AspectRatio {
     fn from(default_aspect_ratio: DefaultAspectRatios) -> Self {
         use DefaultAspectRatios::*;
         match default_aspect_ratio {
-            _32x9 => DEFAULT_ASPECT_RATIOS[0],
-            _21x9 => DEFAULT_ASPECT_RATIOS[1],
-            _17x9 => DEFAULT_ASPECT_RATIOS[2],
-            _16x10 => DEFAULT_ASPECT_RATIOS[3],
-            _16x9 => DEFAULT_ASPECT_RATIOS[4],
-            _4x3 => DEFAULT_ASPECT_RATIOS[5],
-            _1x1 => DEFAULT_ASPECT_RATIOS[6],
+            _21x9 => DEFAULT_ASPECT_RATIOS[0],
+            _17x9 => DEFAULT_ASPECT_RATIOS[1],
+            _16x10 => DEFAULT_ASPECT_RATIOS[2],
+            _16x9 => DEFAULT_ASPECT_RATIOS[3],
+            _4x3 => DEFAULT_ASPECT_RATIOS[4],
+            _1x1 => DEFAULT_ASPECT_RATIOS[5],
         }
     }
 }
@@ -242,18 +237,16 @@ impl TryFrom<AspectRatio> for DefaultAspectRatios {
         let aspect_ratio = aspect_ratio.aspect_ratio();
 
         if aspect_ratio == DEFAULT_ASPECT_RATIOS[0].aspect_ratio {
-            Ok(_32x9)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[1].aspect_ratio {
             Ok(_21x9)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[2].aspect_ratio {
+        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[1].aspect_ratio {
             Ok(_17x9)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[3].aspect_ratio {
+        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[2].aspect_ratio {
             Ok(_16x10)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[4].aspect_ratio {
+        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[3].aspect_ratio {
             Ok(_16x9)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[5].aspect_ratio {
+        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[4].aspect_ratio {
             Ok(_4x3)
-        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[6].aspect_ratio {
+        } else if aspect_ratio == DEFAULT_ASPECT_RATIOS[5].aspect_ratio {
             Ok(_1x1)
         } else {
             Err(SimpleError::new(format!(

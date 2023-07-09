@@ -78,7 +78,7 @@
                 event_id='100'
                 sync_id='100'
                 padding="t:5,b:5,l:10,r:10"
-                options="32x9,21x9,17x9,16x10,16x9,4x3,1x1"/>
+                options="21x9,17x9,16x10,16x9,4x3,1x1"/>
             </Div>
           </Grid>
         </Div>
