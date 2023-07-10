@@ -4,7 +4,7 @@ use sfml::graphics::RenderWindow;
 use tracing::{error, warn};
 use ui::{
     dom_controller::{DomController, DomControllerInterface},
-    elements::{button::boolean_image_button, traits::Element as ElementTrait, Element},
+    elements::{traits::Element as ElementTrait, Element},
     events::{Event, Events},
     syncs::Syncs,
     ui_settings::{
@@ -38,11 +38,11 @@ fn perform_event(
         0 => {}
         1 => event1(settings_menu, num_of_events),
         2 => event2(window, ui_settings, settings_menu),
-        3 => event3(settings_menu),
-        4 => event4(settings_menu),
+        3 => event3(settings_menu, ui_settings),
+        4 => event4(settings_menu, ui_settings),
         100 => event100(event, ui_settings),
         101 => event101(ui_settings),
-        102 => event102(ui_settings, window),
+        102 => event102(event, ui_settings, window),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }
@@ -69,12 +69,14 @@ fn event2(
         .event_handler(window, ui_settings, DUMMY_MOUSE_MOVED_EVENT);
 }
 
-fn event3(settings_menu: &mut SettingsMenu) {
+fn event3(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 0);
+    sync_events(&mut settings_menu.settings_menu_dom, ui_settings);
 }
 
-fn event4(settings_menu: &mut SettingsMenu) {
+fn event4(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 1);
+    sync_events(&mut settings_menu.settings_menu_dom, ui_settings);
 }
 
 fn event100(event: &Event, ui_settings: &mut UISettings) {
@@ -98,23 +100,25 @@ fn event101(ui_settings: &UISettings) {
     ui_settings.save_settings()
 }
 
-fn event102(ui_settings: &mut UISettings, window: &mut RenderWindow) {
-    if ui_settings.is_vsync_enabled() {
-        ui_settings.disable_vsync(window)
-    } else {
+fn event102(event: &Event, ui_settings: &mut UISettings, window: &mut RenderWindow) {
+    let Events::BooleanEvent(enable_vsync) = event.event else {
+        error!("event is not a boolean event! {:#?}", event);
+        return;
+    };
+
+    if enable_vsync {
         ui_settings.enable_vsync(window)
+    } else {
+        ui_settings.disable_vsync(window)
     }
 }
 
 pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings) {
-    // Borrow checker is a bitch
-    set_the_current_set(dom_controller, 0);
-
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
-            0 => {}
-            1 => { /* set_the_current_set(dom_controller, 0); */ }
+            0 => {},
+            1 => {},
             100 => {
                 let Ok(aspect_ratio) = DefaultAspectRatios::try_from(ui_settings.aspect_ratio) else {
                     error!("Failed to convert aspect_ratio");
@@ -140,7 +144,7 @@ pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings)
                     sync_id
                 );
             }
-        } )
+        })
 }
 
 fn set_the_current_set(dom_controller: &mut DomController, set_num: usize) {
