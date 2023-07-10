@@ -62,7 +62,7 @@
             size="x:680,y:400"
             pagination_size="x:4,y:3"
             grid_layout="x:4,y:3">
-            <Div>
+            <Div layout='1'>
               <Text position="l:0,t:0">
                 Aspect Ratio:
               </Text>
@@ -79,6 +79,61 @@
                 sync_id='100'
                 padding="t:5,b:5,l:10,r:10"
                 options="21x9,17x9,16x10,16x9,4x3,1x1"/>
+            </Div>
+            <Div layout='2'>
+            </Div>
+            <Div layout='3'>
+            </Div>
+            <Div layout='4'>
+            </Div>
+            <Div layout='5'>
+              <Text position="l:0">
+                V-SYNC:
+              </Text>
+              <Text position="l:0,b:3,t:7">
+                May reduce CPU load if enabled
+              </Text>
+              <Button
+                type="BooleanImageButton"
+                asset="check_box_button.png"
+                truth_frame_id='0'
+                truth_hover_frame_id='1'
+                truth_click_frame_id='2'
+                false_frame_id='3'
+                false_hover_frame_id='4'
+                false_click_frame_id='5'
+                event_id='102'
+                sync_id='102'
+                />
+            </Div>
+            <Div layout='6'>
+            </Div>
+            <Div layout='7'>
+            </Div>
+            <Div layout='8'>
+            </Div>
+            <Div layout='9'>
+            </Div>
+            <Div layout='10'>
+            </Div>
+            <Div layout='11'>
+            </Div>
+            <Div layout='12'>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="b:0"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='101'
+                >
+                <Div padding="t:5,b:3,l:10,r:10">
+                  <Text>
+                    Save Settings
+                  </Text>
+                </Div>
+              </Button>
             </Div>
           </Grid>
         </Div>

@@ -4,7 +4,7 @@ use sfml::graphics::RenderWindow;
 use tracing::{error, warn};
 use ui::{
     dom_controller::{DomController, DomControllerInterface},
-    elements::{traits::Element as ElementTrait, Element},
+    elements::{button::boolean_image_button, traits::Element as ElementTrait, Element},
     events::{Event, Events},
     syncs::Syncs,
     ui_settings::{
@@ -41,6 +41,8 @@ fn perform_event(
         3 => event3(settings_menu),
         4 => event4(settings_menu),
         100 => event100(event, ui_settings),
+        101 => event101(ui_settings),
+        102 => event102(ui_settings, window),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }
@@ -92,6 +94,18 @@ fn event100(event: &Event, ui_settings: &mut UISettings) {
     ui_settings.aspect_ratio = aspect_ratio;
 }
 
+fn event101(ui_settings: &UISettings) {
+    ui_settings.save_settings()
+}
+
+fn event102(ui_settings: &mut UISettings, window: &mut RenderWindow) {
+    if ui_settings.is_vsync_enabled() {
+        ui_settings.disable_vsync(window)
+    } else {
+        ui_settings.enable_vsync(window)
+    }
+}
+
 pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings) {
     // Borrow checker is a bitch
     set_the_current_set(dom_controller, 0);
@@ -112,6 +126,13 @@ pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings)
                     return;
                 };
                 list_box.sync(Syncs::String(aspect_ratio.to_string()));
+            }
+            102 => {
+                let Element::Button(boolean_image_button) = ele else {
+                    error!("Failed to convert element into boolean image button: {:#?}", ele);
+                    return;
+                };
+                boolean_image_button.sync(Syncs::Boolean(ui_settings.is_vsync_enabled()));
             }
             sync_id => {
                 warn!(

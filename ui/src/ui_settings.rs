@@ -25,7 +25,7 @@ pub struct UISettings {
     pub cursor_position: Vector2i,
     pub aspect_ratio: AspectRatio,
     pub show_fps: bool,
-    pub vsync: bool,
+    vsync: bool,
     pub has_new_settings: bool,
     pub binds: Bindings,
 }
@@ -106,6 +106,24 @@ impl UISettings {
         }
 
         events
+    }
+
+    pub fn synchronize_ui_settings_and_sfml(&self, window: &mut RenderWindow) {
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn enable_vsync(&mut self, window: &mut RenderWindow) {
+        self.vsync = true;
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn disable_vsync(&mut self, window: &mut RenderWindow) {
+        self.vsync = false;
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn is_vsync_enabled(&self) -> bool {
+        self.vsync
     }
 }
 
