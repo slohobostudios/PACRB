@@ -323,6 +323,27 @@ impl PalleteBuilder {
         }
     }
 
+    fn ensure_color_grid_is_still_in_view(&mut self) {
+        let center = self.view.center();
+        let max = Vector2::new(
+            self.color_grid[0].len() as f32 * CELL_SIZE.x as f32,
+            self.color_grid[0].len() as f32 * CELL_SIZE.y as f32,
+        );
+        if center.x < 0. {
+            self.view.set_center(Vector2::new(0., center.y));
+        }
+        if center.x > max.x {
+            self.view.set_center(Vector2::new(max.x, center.y));
+        }
+        let center = self.view.center();
+        if center.y < 0. {
+            self.view.set_center(Vector2::new(center.x, 0.));
+        }
+        if center.y > max.y {
+            self.view.set_center(Vector2::new(center.x, max.y));
+        }
+    }
+
     fn drag_screen_event_handler(&mut self, event: &Event) {
         match *event {
             // Begin dragging the screen around
@@ -346,6 +367,8 @@ impl PalleteBuilder {
                 self.previous_mouse_position = Vector2::new(x, y) - mouse_diff;
                 let center = self.view.center();
                 self.view.set_center(center - mouse_diff.as_other());
+
+                self.ensure_color_grid_is_still_in_view();
             }
 
             // Finished dragging the screen around
