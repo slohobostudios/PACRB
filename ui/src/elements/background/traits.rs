@@ -46,16 +46,16 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
             }
             SFMLEvent::MouseButtonPressed { button, .. }
-                if ui_settings.binds.is_bind_released_and_binded(
+                if ui_settings.binds.is_bind_pressed_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
@@ -64,16 +64,16 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(code),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
             }
             SFMLEvent::KeyPressed { code, .. }
-                if ui_settings.binds.is_bind_released_and_binded(
+                if ui_settings.binds.is_bind_pressed_and_binded(
                     PossibleInputs::from(code),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);

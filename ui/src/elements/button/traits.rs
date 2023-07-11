@@ -24,7 +24,7 @@ pub trait Button: ActionableElement + Debug {
                     ) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
-                (Default::default(), true)
+                (vec![EMPTY_EVENT], true)
             }
             SFMLEvent::MouseButtonReleased { button, .. }
                 if self.is_hover()
