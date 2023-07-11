@@ -80,7 +80,7 @@ impl ResourceManager {
         let paths: Vec<String> = ResourceManager::get_all_file_names_in_assets();
         let mut json_files: Vec<String> = Vec::new();
         for path in paths {
-            if path.contains(".json") {
+            if path.contains(".json") && !path.contains("fonts.json") {
                 json_files.push(path);
             }
         }
