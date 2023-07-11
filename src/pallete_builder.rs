@@ -271,6 +271,12 @@ impl PalleteBuilder {
             {
                 self.view.zoom(0.9);
             }
+            Event::KeyPressed { code, .. } if code == &Key::Space => self.view.set_center(
+                Vector2f::new(
+                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
+                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                ) / 2f32,
+            ),
             _ => {}
         }
     }
