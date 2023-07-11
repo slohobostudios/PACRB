@@ -40,6 +40,7 @@ fn perform_event(
         2 => event2(window, ui_settings, settings_menu),
         3 => event3(settings_menu, ui_settings),
         4 => event4(settings_menu, ui_settings),
+        5 => event5(settings_menu, ui_settings),
         100 => event100(event, ui_settings),
         101 => event101(ui_settings),
         102 => event102(event, ui_settings, window),
@@ -76,6 +77,11 @@ fn event3(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
 
 fn event4(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 1);
+    sync_events(&mut settings_menu.settings_menu_dom, ui_settings);
+}
+
+fn event5(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
+    set_the_current_set(&mut settings_menu.settings_menu_dom, 2);
     sync_events(&mut settings_menu.settings_menu_dom, ui_settings);
 }
 

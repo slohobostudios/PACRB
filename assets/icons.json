@@ -16,18 +16,118 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
+   },
+   {
+    "filename": "icons 2.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 3.aseprite",
+    "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 4.aseprite",
+    "frame": { "x": 64, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 5.aseprite",
+    "frame": { "x": 80, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 6.aseprite",
+    "frame": { "x": 96, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 7.aseprite",
+    "frame": { "x": 112, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 8.aseprite",
+    "frame": { "x": 128, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 9.aseprite",
+    "frame": { "x": 144, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 10.aseprite",
+    "frame": { "x": 160, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
+   },
+   {
+    "filename": "icons 11.aseprite",
+    "frame": { "x": 176, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
    }
  ],
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.3-rc2-x64",
+  "version": "1.3-rc4-x64",
   "image": "icons.png",
   "format": "RGBA8888",
-  "size": { "w": 32, "h": 16 },
+  "size": { "w": 192, "h": 16 },
   "scale": "1",
   "frameTags": [
    { "name": "gear", "from": 0, "to": 0, "direction": "forward", "color": "#000000ff" },
-   { "name": "click", "from": 1, "to": 1, "direction": "forward", "color": "#000000ff" }
+   { "name": "click", "from": 1, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "eye_dropper", "from": 2, "to": 2, "direction": "forward", "color": "#000000ff" },
+   { "name": "mouse", "from": 3, "to": 3, "direction": "forward", "color": "#000000ff" },
+   { "name": "cross_arrow", "from": 4, "to": 4, "direction": "forward", "color": "#000000ff" },
+   { "name": "magnify_lens", "from": 5, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "pencil", "from": 6, "to": 6, "direction": "forward", "color": "#000000ff" },
+   { "name": "save", "from": 7, "to": 7, "direction": "forward", "color": "#000000ff" },
+   { "name": "reset", "from": 8, "to": 8, "direction": "forward", "color": "#000000ff" },
+   { "name": "curve_forward_arrow", "from": 9, "to": 9, "direction": "forward", "color": "#000000ff" },
+   { "name": "curve_reverse_arrow", "from": 10, "to": 10, "direction": "forward", "color": "#000000ff" },
+   { "name": "erase", "from": 11, "to": 11, "direction": "forward", "color": "#000000ff" }
   ],
   "slices": [
   ]

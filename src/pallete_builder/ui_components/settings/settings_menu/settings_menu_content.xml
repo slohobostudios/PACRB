@@ -49,6 +49,16 @@
             Save / Load
           </Text>
         </Button>
+        <Button
+          type="PrimitiveFillButton"
+          color="#242336"
+          hover_color="#51507a"
+          click_color="#8482c1"
+          event_id='5'>
+          <Text>
+            Controls
+          </Text>
+        </Button>
       </Grid>
       <Primitive
           type="TriangleFan"
@@ -57,7 +67,7 @@
           color="#f7e5e4"/>
 
       <Sets position="l:56,r:43" size="x:680,y:400" sync_id='1'>
-        <Div>
+        <Div set="General">
           <Grid
             size="x:680,y:400"
             pagination_size="x:4,y:3"
@@ -143,7 +153,73 @@
             </Div>
           </Grid>
         </Div>
-        <Div>
+        <Div set="Save / Load">
+        </Div>
+        <Div set="Controls">
+          <Div position="t:-20">
+            <Text position="t:0,l:0">
+              LMB: Left Mouse Button / RMB: Right Mouse Button / MMB: Middle Mouse Button
+            </Text>
+          </Div>
+          <Grid
+            size="x:680,y:400"
+            pagination_size="x:4,y:6"
+            grid_layout="x:4,y:6">
+            <Div info="draw">
+              <Image type="Icon" position="l:0" name="pencil"/>
+              <Text position="l:35">
+                : LMB
+              </Text>
+            </Div>
+            <Div info="eyedropper">
+              <Image type="Icon" position="l:0" name="eye_dropper"/>
+              <Text position="l:35">
+                : CTRL + LMB
+              </Text>
+            </Div>
+            <Div info="zoom">
+              <Image type="Icon" position="l:0" name="magnify_lens"/>
+              <Text position="l:35">
+                : Scroll
+              </Text>
+            </Div>
+            <Div info="save">
+              <Image type="Icon" position="l:0" name="save"/>
+              <Text position="l:35">
+                : CTRL + S
+              </Text>
+            </Div>
+            <Div info="move">
+              <Image type="Icon" position="l:0" name="cross_arrow"/>
+              <Text position="l:35">
+                : RMB or MMB
+              </Text>
+            </Div>
+            <Div info="reset_grid">
+              <Image type="Icon" position="l:0" name="reset"/>
+              <Text position="l:35">
+                : Space
+              </Text>
+            </Div>
+            <Div info="undo">
+              <Image type="Icon" position="l:0" name="curve_reverse_arrow"/>
+              <Text position="l:35">
+                : CTRL + Z
+              </Text>
+            </Div>             
+            <Div info="redo">
+              <Image type="Icon" position="l:0" name="curve_forward_arrow"/>
+              <Text position="l:35">
+                : CTRL + R
+              </Text>
+            </Div>
+            <Div info="erase">
+              <Image type="Icon" position="l:0" name="erase"/>
+              <Text position="l:35">
+                : E
+              </Text>
+            </Div>
+          </Grid>
         </Div>
       </Sets>
     </Div>
