@@ -148,7 +148,9 @@ impl PalleteBuilder {
 
         self.view_event_handler(&event);
         let event = self.correct_mouse_pos_event(event, window);
-        self.general_mouse_button_event_handler(&event);
+        if self.general_mouse_button_event_handler(&event) {
+            return;
+        }
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
@@ -366,7 +368,7 @@ impl PalleteBuilder {
         }
     }
 
-    fn general_mouse_button_event_handler(&mut self, event: &Event) {
+    fn general_mouse_button_event_handler(&mut self, event: &Event) -> bool {
         match *event {
             // Eye dropper
             Event::MouseButtonPressed { button, x, y }
@@ -381,8 +383,10 @@ impl PalleteBuilder {
                         self.hsv_selector.set_hsv_color(hsv)
                     }
                 }
+
+                true
             }
-            _ => {}
+            _ => false,
         }
     }
 }
