@@ -9,6 +9,10 @@ use super::utils::{
     get_ui_position,
 };
 
+// Documentation imports
+#[allow(unused_imports)]
+use sfml::system::Vector2;
+
 /// # Usage
 ///
 /// ## Required:
