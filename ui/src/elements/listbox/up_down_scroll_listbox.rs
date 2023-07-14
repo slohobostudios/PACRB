@@ -147,6 +147,7 @@ impl UpDownScrollListBox {
                     true,
                     font_size,
                     font_color,
+                    0,
                 ))],
                 padding,
                 None,

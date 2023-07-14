@@ -66,7 +66,11 @@
           vertices="(x:0,y:0),(x:4,y:0),(x:4,y:400),(x:0,y:400)"
           color="#f7e5e4"/>
 
+
+
       <Sets position="l:56,r:43" size="x:680,y:400" sync_id='1'>
+
+        
         <Div set="General">
           <Grid
             size="x:680,y:400"
@@ -153,8 +157,214 @@
             </Div>
           </Grid>
         </Div>
+
+        
         <Div set="Save / Load">
+          <Grid
+            size="x:680,y:400"
+            pagination_size="x:2,y:1"
+            grid_layout="x:2,y:1">
+            <Div info="Save">
+              <Text position="t:0">
+                Save
+              </Text>
+            </Div>
+            <Div info="Load">
+              <Text position="t:0">
+                Load
+              </Text>
+              <Grid
+                size="x:320,y:250"
+                pagination_size="x:1,y:5"
+                grid_layout="x:1,y:5">
+                <Div>
+                  <Text sync_id='1000' position='l:0'>
+                    ________________________
+                  </Text>
+                  <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:35"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1100'>
+                    <Div padding="t:5,b:5,l:10,r:10">
+                      <Text>
+                        Load
+                      </Text>
+                    </Div>
+                  </Button>
+                  <Button 
+                    type="ImageButton"
+                    asset="x_button.png"
+                    position="r:0"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1200'/>
+                </Div>
+                <Div>
+                  <Text sync_id='1001' position='l:0'>
+                    ________________________
+                  </Text>
+                  <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:35"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1101'>
+                    <Div padding="t:5,b:5,l:10,r:10">
+                      <Text>
+                        Load
+                      </Text>
+                    </Div>
+                  </Button>
+                  <Button 
+                    type="ImageButton"
+                    asset="x_button.png"
+                    position="r:0"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1201'/>
+                </Div>
+                <Div>
+                  <Text sync_id='1002' position='l:0'>
+                    ________________________
+                  </Text>
+                  <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:35"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1102'>
+                    <Div padding="t:5,b:5,l:10,r:10">
+                      <Text>
+                        Load
+                      </Text>
+                    </Div>
+                  </Button>
+                  <Button 
+                    type="ImageButton"
+                    asset="x_button.png"
+                    position="r:0"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1202'/>
+                </Div>
+                <Div>
+                  <Text sync_id='1003' position='l:0'>
+                    ________________________
+                  </Text>
+                  <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:35"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1103'>
+                    <Div padding="t:5,b:5,l:10,r:10">
+                      <Text>
+                        Load
+                      </Text>
+                    </Div>
+                  </Button>
+                  <Button 
+                    type="ImageButton"
+                    asset="x_button.png"
+                    position="r:0"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1203'/>
+                </Div>
+                <Div>
+                  <Text sync_id='1004' position='l:0'>
+                    ________________________
+                  </Text>
+                  <Button
+                    type="TilingButton"
+                    asset="3x3_tilable_button_on_background.png"
+                    position="r:35"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1104'>
+                    <Div padding="t:5,b:5,l:10,r:10">
+                      <Text>
+                        Load
+                      </Text>
+                    </Div>
+                  </Button>
+                  <Button 
+                    type="ImageButton"
+                    asset="x_button.png"
+                    position="r:0"
+                    frame_id='0'
+                    hover_frame_id='1'
+                    click_frame_id='2'
+                    event_id='1204'/>
+                </Div>
+              </Grid>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="l:10,b:40"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='1099'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Prev
+                  </Text>
+                </Div>
+              </Button>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="r:10,b:40"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='1098'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Next
+                  </Text>
+                </Div>
+              </Button>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="b:0"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='1097'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Refresh
+                  </Text>
+                </Div>
+              </Button>
+             </Div>
+          </Grid>
+          <Primitive
+              type="TriangleFan"
+              position="l:336"
+              vertices="(x:0,y:0),(x:4,y:0),(x:4,y:400),(x:0,y:400)"
+              color="#f7e5e4"/>
         </Div>
+
+        
         <Div set="Controls">
           <Div position="t:-20">
             <Text position="t:0,l:0">
@@ -221,6 +431,8 @@
             </Div>
           </Grid>
         </Div>
+
+        
       </Sets>
     </Div>
   </Background>

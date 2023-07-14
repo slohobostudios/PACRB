@@ -14,6 +14,8 @@ use ui::{
     utils::consts::DUMMY_MOUSE_MOVED_EVENT,
 };
 
+use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_extension;
+
 use super::SettingsMenu;
 
 pub fn perform_events(
@@ -44,6 +46,19 @@ fn perform_event(
         100 => event100(event, ui_settings),
         101 => event101(ui_settings),
         102 => event102(event, ui_settings, window),
+        1097 => event1097(settings_menu),
+        1098 => event1098(settings_menu),
+        1099 => event1099(settings_menu),
+        1100 => event1100(settings_menu),
+        1101 => event1101(settings_menu),
+        1102 => event1102(settings_menu),
+        1103 => event1103(settings_menu),
+        1104 => event1104(settings_menu),
+        1200 => event1200(settings_menu),
+        1201 => event1201(settings_menu),
+        1202 => event1202(settings_menu),
+        1203 => event1203(settings_menu),
+        1204 => event1204(settings_menu),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }
@@ -78,6 +93,7 @@ fn event3(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
 fn event4(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 1);
     sync_events(&mut settings_menu.settings_menu_dom, ui_settings);
+    reload_list_of_files(settings_menu);
 }
 
 fn event5(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
@@ -119,12 +135,83 @@ fn event102(event: &Event, ui_settings: &mut UISettings, window: &mut RenderWind
     }
 }
 
+fn event1097(settings_menu: &mut SettingsMenu) {
+    settings_menu.current_list_of_files_idx = 0;
+    settings_menu.current_list_of_files_idx = 0;
+    settings_menu.list_of_files = list_of_files_with_pacrb_extension();
+    reload_list_of_files(settings_menu);
+}
+
+fn event1098(settings_menu: &mut SettingsMenu) {
+    if settings_menu.current_list_of_files_idx >= settings_menu.list_of_files.len() {
+        return;
+    }
+    settings_menu.current_list_of_files_idx += 5;
+    reload_list_of_files(settings_menu);
+}
+
+fn event1099(settings_menu: &mut SettingsMenu) {
+    settings_menu.current_list_of_files_idx =
+        settings_menu.current_list_of_files_idx.saturating_sub(5);
+    settings_menu.list_of_files = list_of_files_with_pacrb_extension();
+    reload_list_of_files(settings_menu);
+}
+
+fn setup_load_event(settings_menu: &mut SettingsMenu, index: usize) -> Option<()> {
+    let file_name = settings_menu
+        .list_of_files
+        .get(settings_menu.current_list_of_files_idx + index)?;
+
+    settings_menu.file_to_load = Some(file_name.to_owned());
+
+    Some(())
+}
+
+fn event1100(settings_menu: &mut SettingsMenu) {
+    setup_load_event(settings_menu, 0);
+}
+
+fn event1101(settings_menu: &mut SettingsMenu) {
+    setup_load_event(settings_menu, 1);
+}
+
+fn event1102(settings_menu: &mut SettingsMenu) {
+    setup_load_event(settings_menu, 2);
+}
+
+fn event1103(settings_menu: &mut SettingsMenu) {
+    setup_load_event(settings_menu, 3);
+}
+
+fn event1104(settings_menu: &mut SettingsMenu) {
+    setup_load_event(settings_menu, 4);
+}
+
+fn event1200(settings_menu: &mut SettingsMenu) {
+    setup_deletion_confirmation_prompt(settings_menu, settings_menu.current_list_of_files_idx);
+}
+
+fn event1201(settings_menu: &mut SettingsMenu) {
+    setup_deletion_confirmation_prompt(settings_menu, settings_menu.current_list_of_files_idx + 1);
+}
+
+fn event1202(settings_menu: &mut SettingsMenu) {
+    setup_deletion_confirmation_prompt(settings_menu, settings_menu.current_list_of_files_idx + 2);
+}
+
+fn event1203(settings_menu: &mut SettingsMenu) {
+    setup_deletion_confirmation_prompt(settings_menu, settings_menu.current_list_of_files_idx + 3);
+}
+
+fn event1204(settings_menu: &mut SettingsMenu) {
+    setup_deletion_confirmation_prompt(settings_menu, settings_menu.current_list_of_files_idx + 4);
+}
+
 pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
-            0 => {},
-            1 => {},
+            0 | 1 | 1000 | 1001 | 1002 | 1003 | 1004 => {}
             100 => {
                 let Ok(aspect_ratio) = DefaultAspectRatios::try_from(ui_settings.aspect_ratio) else {
                     error!("Failed to convert aspect_ratio");
@@ -142,6 +229,7 @@ pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings)
                     error!("Failed to convert element into boolean image button: {:#?}", ele);
                     return;
                 };
+
                 boolean_image_button.sync(Syncs::Boolean(ui_settings.is_vsync_enabled()));
             }
             sync_id => {
@@ -151,6 +239,17 @@ pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings)
                 );
             }
         })
+}
+
+fn setup_deletion_confirmation_prompt(settings_menu: &mut SettingsMenu, index: usize) {
+    let Some(file_name) = settings_menu.list_of_files.get(index) else {
+        return;
+    };
+
+    settings_menu
+        .confirm_file_deletion
+        .set_file_to_delete(file_name);
+    settings_menu.confirm_file_deletion.set_display(true);
 }
 
 fn set_the_current_set(dom_controller: &mut DomController, set_num: usize) {
@@ -163,4 +262,25 @@ fn set_the_current_set(dom_controller: &mut DomController, set_num: usize) {
             set.set_current_set(set_num);
         }
     });
+}
+
+pub fn reload_list_of_files(settings_menu: &mut SettingsMenu) {
+    let dom_controller = &mut settings_menu.settings_menu_dom;
+    let list_of_files = &settings_menu.list_of_files;
+    let mut idx = settings_menu.current_list_of_files_idx;
+    dom_controller
+        .root_node
+        .traverse_dom_mut(&mut |ele| match ele.sync_id() {
+            1000 | 1001 | 1002 | 1003 | 1004 => {
+                let file_name = list_of_files.get(idx);
+                idx += 1;
+
+                if let Some(file_name) = file_name {
+                    ele.sync(Syncs::String(file_name.clone()));
+                } else {
+                    ele.sync(Syncs::String("________________________".to_string()));
+                }
+            }
+            _ => {}
+        })
 }

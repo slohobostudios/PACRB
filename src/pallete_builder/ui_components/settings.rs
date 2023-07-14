@@ -37,6 +37,14 @@ impl Settings {
     pub fn is_displayed(&self) -> bool {
         self.settings_menu.display
     }
+
+    pub fn file_to_load(&self) -> Option<&str> {
+        self.settings_menu.file_to_load()
+    }
+
+    pub fn clear_file_to_load(&mut self) {
+        self.settings_menu.clear_file_to_load()
+    }
 }
 
 impl DomControllerInterface for Settings {

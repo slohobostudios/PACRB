@@ -27,5 +27,6 @@ pub fn text_loader(
         get_generic_attribute::<bool>(ele, "disable_padding").unwrap_or(true),
         get_font_size(ele).unwrap_or(default_font_size),
         get_color_attribute(ele).unwrap_or(default_color),
+        get_sync_id_or_default(ele),
     )
 }

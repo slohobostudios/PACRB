@@ -1,0 +1,55 @@
+<RootNode scale="4" font_size="20" color="#f7e5e4" xmlns="https://www.loc.gov/marc/marcxml.html">
+  <Button
+    type="TilingButton"
+    asset="3x3_transparent_tilable.png"
+    frame_id="0"
+    hover_frame_id="0"
+    click_frame_id="0"
+    event_id="1"
+    position="t:0,l:0"
+    size="x:65536,y:65536">
+    <Div/>
+  </Button>
+  <Background
+    type="Repeatable3x3Background"
+    asset="dark_blue_background.png"
+    frame_id="0">
+    <Div padding="t:20,b:20,l:20,r:20">
+      <Div size="x:600,y:200">
+        <Text position="t:20" sync_id='1'>
+          Are you sure?
+        </Text>
+        <Button
+          type="TilingButton"
+          asset="3x3_tilable_button_on_background.png"
+          position="b:0,l:0"
+          frame_id='0'
+          hover_frame_id='1'
+          click_frame_id='2'
+          event_id='2'
+          >
+          <Div padding="t:5,b:5,l:10,r:10">
+            <Text>
+              Yes
+            </Text>
+          </Div>
+        </Button>
+        <Button
+          type="TilingButton"
+          asset="3x3_tilable_button_on_background.png"
+          position="b:0,r:0"
+          frame_id='0'
+          hover_frame_id='1'
+          click_frame_id='2'
+          event_id='3'
+          >
+          <Div padding="t:5,b:5,l:10,r:10">
+            <Text>
+              No
+            </Text>
+          </Div>
+        </Button>
+      </Div>
+    </Div>
+  </Background>
+</RootNode>

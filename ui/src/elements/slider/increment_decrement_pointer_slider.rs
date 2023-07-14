@@ -230,6 +230,7 @@ impl IncrementDecrementPointerSlider {
                 false,
                 font_size,
                 color,
+                0,
             ),
             min_max_slider_values,
             current_slider_value: (min_max_slider_values.0 + min_max_slider_values.1) / 2f32,

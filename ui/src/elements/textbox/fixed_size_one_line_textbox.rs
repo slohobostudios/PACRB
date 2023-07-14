@@ -100,6 +100,7 @@ impl FixedSizeOneLineTextbox {
                 true,
                 font_size,
                 text_color,
+                0,
             ),
             sync_id,
             event_id,

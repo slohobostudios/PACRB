@@ -7,13 +7,16 @@ use sfml::{
     },
     SfBox,
 };
+use tracing::error;
 use ui::{dom_controller::DomControllerInterface, ui_settings::UISettings};
 use utils::resource_manager::ResourceManager;
 
 use crate::generate_ramp_mode_event_handler_arguments;
 
 use self::{
-    color_grid::{color_cell::CELL_SIZE, undo_redo::UndoRedoCell, ColorGrid},
+    color_grid::{
+        color_cell::CELL_SIZE, load_save::load_color_grid, undo_redo::UndoRedoCell, ColorGrid,
+    },
     normal_mode::{NormalMode, NormalModeEventHandlerArguments},
     ramp_mode::{RampMode, RampModeEventHandlerArguments},
     ui_components::{
@@ -69,7 +72,7 @@ impl PalleteBuilder {
                 Vector2f::new(
                     (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
                     (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
-                ) / 2f32,
+                ),
                 ui_settings.aspect_ratio.current_resolution,
             ),
             color_grid,
@@ -189,6 +192,8 @@ impl PalleteBuilder {
         }
 
         self.color_grid.update();
+
+        self.check_settings_and_load_file_if_necessary();
     }
 
     pub fn render(&mut self, window: &mut RenderWindow) {
@@ -271,12 +276,12 @@ impl PalleteBuilder {
             {
                 self.view.zoom(0.9);
             }
-            Event::KeyPressed { code, .. } if code == &Key::Space => self.view.set_center(
-                Vector2f::new(
+            Event::KeyPressed { code, .. } if code == &Key::Space => {
+                self.view.set_center(Vector2f::new(
                     (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
                     (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
-                ) / 2f32,
-            ),
+                ))
+            }
             _ => {}
         }
     }
@@ -433,4 +438,23 @@ macro_rules! generate_ramp_mode_event_handler_arguments {
             &$self.config_selector,
         )
     };
+}
+
+// General utility
+impl PalleteBuilder {
+    fn check_settings_and_load_file_if_necessary(&mut self) {
+        let mut file_loaded = false;
+        if let Some(file_to_load) = self.settings.file_to_load() {
+            file_loaded = true;
+            if let Err(err) =
+                load_color_grid(&mut self.color_grid, file_to_load, &mut self.undo_redo)
+            {
+                error!("{:#?}", err);
+            }
+        }
+
+        if file_loaded {
+            self.settings.clear_file_to_load();
+        }
+    }
 }
