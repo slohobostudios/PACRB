@@ -6,7 +6,7 @@ PACRB has a color ramper that will allow you to create palletes seamlessly.
 
 ## Download
 
-https://github.com/slohobostudios/PACRB/releases/tag/0.1.0
+https://github.com/slohobostudios/PACRB/releases/tag/0.1.1
 
 # NOTES
 
