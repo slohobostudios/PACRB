@@ -1,0 +1,33 @@
+{ "frames": [
+   {
+    "filename": "3x3_transparent_tilable.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 1, "h": 1 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
+    "sourceSize": { "w": 1, "h": 1 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3-rc2-x64",
+  "image": "3x3_transparent_tilable.png",
+  "format": "RGBA8888",
+  "size": { "w": 1, "h": 1 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "slices": [
+   { "name": "top_left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "top", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "top_right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "bottom_right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "right", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "middle", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "bottom", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "bottom_left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] },
+   { "name": "left", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 1, "h": 1 } }] }
+  ]
+ }
+}

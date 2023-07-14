@@ -157,6 +157,10 @@ impl ActionableElement for ImageButton {
         self.rerender = true;
         self.set_hover(mouse_pos);
     }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
 }
 
 impl Button for ImageButton {
@@ -202,14 +206,6 @@ impl Element for ImageButton {
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Button::event_handler(self, ui_settings, event)
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 
     fn sync_id(&self) -> u16 {

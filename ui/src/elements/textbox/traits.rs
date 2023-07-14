@@ -43,15 +43,11 @@ pub trait TextBox: ActionableElement + Debug {
         self.set_hover(ui_settings.cursor_position);
         match event {
             // Escape
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::Escape) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Escape,
+                ) =>
             {
                 self.deselect();
                 (vec![self.triggered_event()], true)
@@ -60,49 +56,27 @@ pub trait TextBox: ActionableElement + Debug {
             // This will be hardcoded per system. No binds for this
 
             // Cut
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::X && ctrl => {
+            SFMLEvent::KeyPressed { code, ctrl, .. } if code == Key::X && ctrl => {
                 self.cut();
                 (vec![self.triggered_event()], true)
             }
 
             // Copy
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::C && ctrl => {
+            SFMLEvent::KeyPressed { code, ctrl, .. } if code == Key::C && ctrl => {
                 self.copy();
                 (vec![], true)
             }
 
             // Paste
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::V && ctrl => {
+            SFMLEvent::KeyPressed { code, ctrl, .. } if code == Key::V && ctrl => {
                 self.paste();
                 (vec![self.triggered_event()], true)
             }
 
             // Select Everythinhg
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::A && ctrl && self.is_selected() => {
+            SFMLEvent::KeyPressed { code, ctrl, .. }
+                if code == Key::A && ctrl && self.is_selected() =>
+            {
                 self.select_everything();
                 (vec![], true)
             }
@@ -135,43 +109,31 @@ pub trait TextBox: ActionableElement + Debug {
                 self.bind_released(ui_settings.cursor_position);
                 (vec![], self.is_dragging())
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::UILeft) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::UILeft,
+                ) =>
             {
                 self.move_cursor_left();
                 self.make_select_box_dissappear();
                 (vec![], true)
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::UIRight) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::UIRight,
+                ) =>
             {
                 self.move_cursor_right();
                 self.make_select_box_dissappear();
                 (vec![], true)
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_pressed_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) =>
             {
                 let original_selected_state = self.is_selected();
                 self.bind_pressed(ui_settings.cursor_position);
@@ -181,15 +143,11 @@ pub trait TextBox: ActionableElement + Debug {
                     (vec![], false)
                 }
             }
-            SFMLEvent::KeyReleased {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select) =>
+            SFMLEvent::KeyReleased { code, .. }
+                if ui_settings.binds.is_bind_released_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) =>
             {
                 self.bind_released(ui_settings.cursor_position);
                 (vec![], self.is_dragging())

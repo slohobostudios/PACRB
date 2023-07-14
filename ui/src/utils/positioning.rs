@@ -117,6 +117,70 @@ impl UIPosition {
 
         IntRect::new(left, top, right - left, bottom - top)
     }
+
+    /// Function returns a UIPosition that will place the provided ojbect_bounds above the
+    /// bounds_underneath relative to the relative_rect
+    ///```
+    /// # use ui::utils::positioning::UIPosition;
+    /// # use sfml::graphics::IntRect;
+    /// assert_eq!(UIPosition::position_above_bounds_in_relative_rect(
+    ///         IntRect::new(0, 0, 50, 50),
+    ///         IntRect::new(100, 100, 50, 50),
+    ///         IntRect::new(10, 10, 250, 250)),
+    ///     UIPosition {
+    ///         top: Some(40),
+    ///         bottom: None,
+    ///         left: Some(90),
+    ///         right: None   
+    ///     }
+    /// );
+    ///```
+    pub fn position_above_bounds_in_relative_rect(
+        object_bounds: IntRect,
+        bounds_underneath: IntRect,
+        relative_rect: IntRect,
+    ) -> UIPosition {
+        let left = bounds_underneath.left;
+        let top = bounds_underneath.top - object_bounds.height;
+
+        UIPosition {
+            top: Some(top - relative_rect.top),
+            bottom: None,
+            left: Some(left - relative_rect.left),
+            right: None,
+        }
+    }
+
+    /// Function returns a UIPosition that will place the provided ojbect_bounds below the
+    /// bounds_above relative to the relative_rect
+    ///```
+    /// # use ui::utils::positioning::UIPosition;
+    /// # use sfml::graphics::IntRect;
+    /// assert_eq!(UIPosition::position_below_bounds_in_relative_rect(
+    ///         IntRect::new(100, 100, 50, 50),
+    ///         IntRect::new(10, 10, 250, 250)),
+    ///     UIPosition {
+    ///         top: Some(140),
+    ///         bottom: None,
+    ///         left: Some(90),
+    ///         right: None   
+    ///     }
+    /// );
+    ///```
+    pub fn position_below_bounds_in_relative_rect(
+        bounds_above: IntRect,
+        relative_rect: IntRect,
+    ) -> UIPosition {
+        let left = bounds_above.left;
+        let top = bounds_above.top + bounds_above.height;
+
+        UIPosition {
+            top: Some(top - relative_rect.top),
+            bottom: None,
+            left: Some(left - relative_rect.left),
+            right: None,
+        }
+    }
 }
 
 // Some default constants that can be inlined
@@ -229,6 +293,7 @@ impl FromStr for UIPosition {
         }
     }
 }
+
 #[cfg(test)]
 mod test {
     use super::*;

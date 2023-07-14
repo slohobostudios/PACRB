@@ -18,13 +18,12 @@ pub struct RootNode {
 
 impl RootNode {
     pub fn new(
-        resource_manager: &ResourceManager,
+        _resource_manager: &ResourceManager,
         children: Vec<Element>,
         relative_rect: IntRect,
     ) -> Self {
         let mut w = Self {
             div: Div::new(
-                resource_manager,
                 Default::default(),
                 children,
                 Default::default(),
@@ -70,10 +69,6 @@ impl ElementTrait for RootNode {
 
     fn render(&mut self, render_texture: &mut RenderTexture) {
         self.div.render(render_texture)
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, _: UIPosition, relative_rect: IntRect) {

@@ -1,9 +1,14 @@
-use super::traits::{cast_element, Element};
-use crate::{events::Event, utils::positioning::UIPosition};
+use super::super::traits::{cast_element, Element};
+use crate::{
+    events::Event,
+    syncs::{SyncId, Syncs},
+    utils::positioning::UIPosition,
+};
 use sfml::{
     graphics::{Color, IntRect, RcText, RenderTarget, RenderTexture, Transformable},
     system::Vector2,
 };
+use tracing::error;
 use utils::resource_manager::ResourceManager;
 
 #[derive(Debug, Clone)]
@@ -14,6 +19,8 @@ pub struct Text {
     pub color: Color,
     disable_padding: bool,
     rerender: bool,
+    current_relative_rect: IntRect,
+    sync_id: SyncId,
 }
 
 impl Default for Text {
@@ -25,6 +32,8 @@ impl Default for Text {
             color: Color::WHITE,
             disable_padding: true,
             rerender: true,
+            sync_id: 0,
+            current_relative_rect: Default::default(),
         }
     }
 }
@@ -37,6 +46,7 @@ impl Text {
         disable_padding: bool,
         font_size: u32,
         color: Color,
+        sync_id: SyncId,
     ) -> Self {
         let mut t = Self {
             position,
@@ -45,6 +55,8 @@ impl Text {
             color,
             disable_padding,
             rerender: true,
+            sync_id,
+            current_relative_rect: Default::default(),
         };
         t.text.set_fill_color(color);
         t.update_size();
@@ -76,6 +88,7 @@ impl Element for Text {
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
+        self.current_relative_rect = relative_rect;
         if self.disable_padding {
             self.text.set_origin(Vector2::new(
                 self.text.local_bounds().left,
@@ -91,17 +104,13 @@ impl Element for Text {
         self.rerender = true;
     }
 
-    fn render(&mut self, window: &mut RenderTexture) {
-        window.draw(&self.text);
+    fn render(&mut self, render_texture: &mut RenderTexture) {
+        render_texture.draw(&self.text);
         self.rerender = false;
     }
 
     fn global_bounds(&self) -> IntRect {
         self.global_bounds
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
@@ -112,5 +121,20 @@ impl Element for Text {
 
     fn update(&mut self, _resource_manager: &ResourceManager) -> (Vec<Event>, bool) {
         (Default::default(), self.rerender)
+    }
+
+    fn sync(&mut self, sync: Syncs) {
+        let Syncs::String(new_text) = sync else {
+            error!("Sync is not String! {:#?}", sync);
+            return;
+        };
+
+        self.set_text(&new_text);
+        self.update_size();
+        self.update_position(self.current_relative_rect);
+    }
+
+    fn sync_id(&self) -> SyncId {
+        self.sync_id
     }
 }

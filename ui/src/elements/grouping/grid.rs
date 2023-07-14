@@ -1,4 +1,4 @@
-use super::{
+use super::super::{
     traits::{cast_element, Element as ElementTrait},
     Element,
 };
@@ -36,7 +36,7 @@ impl Grid {
         for vec_elements in &mut elements {
             if vec_elements.len() < pagination_size.y.into() {
                 vec_elements.append(&mut vec![
-                    Element::Empty(());
+                    Element::Empty;
                     usize::from(pagination_size.y) - vec_elements.len()
                 ]);
                 vec_elements.shrink_to_fit();
@@ -44,7 +44,7 @@ impl Grid {
         }
 
         if elements.len() < pagination_size.x.into() {
-            let mut vec_of_empty_elements = vec![Element::Empty(()); pagination_size.y.into()];
+            let mut vec_of_empty_elements = vec![Element::Empty; pagination_size.y.into()];
             vec_of_empty_elements.shrink_to_fit();
             elements.append(&mut vec![
                 vec_of_empty_elements;
@@ -184,7 +184,7 @@ impl ElementTrait for Grid {
         let mut events = Vec::new();
         for ele in self.expose_paginated_elements_mut() {
             let mut event = ele.update(resource_manager);
-            rerender = event.1;
+            rerender |= event.1;
             events.append(&mut event.0);
         }
 
@@ -232,10 +232,6 @@ impl ElementTrait for Grid {
         for ele in self.expose_paginated_elements_mut() {
             ele.render(window);
         }
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {

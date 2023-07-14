@@ -1,45 +1,54 @@
 pub mod background;
 pub mod button;
-pub mod div;
-pub mod grid;
+pub mod grouping;
+pub mod listbox;
+pub mod misc;
 pub mod missing_texture;
 pub mod root_node;
 pub mod slider;
-pub mod text;
 pub mod textbox;
 pub mod tiling_sprites;
 pub mod traits;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum Element {
     MissingTexture(missing_texture::MissingTexture),
     Button(Box<dyn button::traits::Button>),
     Slider(Box<dyn slider::traits::Slider>),
     TextBox(Box<dyn textbox::traits::TextBox>),
+    ListBox(Box<dyn listbox::traits::ListBox>),
     TilingSprite(Box<dyn tiling_sprites::traits::TilingSpriteElement>),
     Background(Box<dyn background::traits::BackgroundElement>),
     Div(div::Div),
     Grid(grid::Grid),
+    Sets(sets::Sets),
     Text(text::Text),
+    Primitive(primitive::Primitive),
+    Image(image::Image),
     RootNode(root_node::RootNode),
-    Empty(()),
+    #[default]
+    Empty,
 }
 
 impl Element {
-    pub fn repr(&self) -> &'static str {
+    pub const fn repr(&self) -> &'static str {
         use Element::*;
         match self {
             MissingTexture(_) => "MissingTexture",
             Button(_) => "Button",
             Slider(_) => "Slider",
             TextBox(_) => "TextBox",
+            ListBox(_) => "ListBox",
             TilingSprite(_) => "TilingSprite",
             Background(_) => "Background",
             Div(_) => "Div",
             Grid(_) => "Grid",
+            Sets(_) => "Sets",
             Text(_) => "Text",
+            Primitive(_) => "Primitive",
+            Image(_) => "Image",
             RootNode(_) => "RootNode",
-            Empty(_) => "Empty",
+            Empty => "Empty",
         }
     }
 
@@ -50,13 +59,17 @@ impl Element {
             Button(ele) => Some(ele.as_element()),
             Slider(ele) => Some(ele.as_element()),
             TextBox(ele) => Some(ele.as_element()),
+            ListBox(ele) => Some(ele.as_element()),
             TilingSprite(ele) => Some(ele.as_element()),
             Background(ele) => Some(ele.as_element()),
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
+            Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Primitive(ele) => Some(ele),
+            Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
-            Empty(_) => None,
+            Empty => None,
         }
     }
 
@@ -67,13 +80,17 @@ impl Element {
             Button(ele) => Some(ele.as_mut_element()),
             Slider(ele) => Some(ele.as_mut_element()),
             TextBox(ele) => Some(ele.as_mut_element()),
+            ListBox(ele) => Some(ele.as_mut_element()),
             TilingSprite(ele) => Some(ele.as_mut_element()),
             Background(ele) => Some(ele.as_mut_element()),
             Div(ele) => Some(ele),
             Grid(ele) => Some(ele),
+            Sets(ele) => Some(ele),
             Text(ele) => Some(ele),
+            Primitive(ele) => Some(ele),
+            Image(ele) => Some(ele),
             RootNode(ele) => Some(ele),
-            Empty(_) => None,
+            Empty => None,
         }
     }
 
@@ -102,14 +119,13 @@ impl Element {
                     ele.traverse_dom_mut(&mut *sync_element)
                 }
             }
+            Sets(ele) => {
+                for ele in ele.mut_div().mut_children() {
+                    ele.traverse_dom_mut(&mut *sync_element)
+                }
+            }
             _ => {}
         }
-    }
-}
-
-impl Default for Element {
-    fn default() -> Self {
-        Self::Empty(())
     }
 }
 
@@ -120,7 +136,11 @@ use sfml::{
 };
 use utils::resource_manager::ResourceManager;
 
-use self::traits::cast_element;
+use self::{
+    grouping::{div, grid, sets},
+    misc::{image, primitive, text},
+    traits::cast_element,
+};
 
 impl traits::Element for Element {
     fn global_bounds(&self) -> IntRect {
@@ -185,18 +205,6 @@ impl traits::Element for Element {
         if let Some(ele) = self.get_mut_ele_with_element_trait() {
             ele.sync(sync)
         }
-    }
-
-    fn event_id(&self) -> EventId {
-        if let Some(ele) = self.get_ele_with_element_trait() {
-            ele.event_id()
-        } else {
-            0
-        }
-    }
-
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
     }
 
     cast_element!();

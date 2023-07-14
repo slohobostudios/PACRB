@@ -18,7 +18,7 @@ use sfml::{
     system::{Vector2, Vector2f, Vector2i},
     window::Event as SFMLEvent,
 };
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tracing::warn;
 use utils::resource_manager::ResourceManager;
 
@@ -55,9 +55,8 @@ enum IncrementDecrementClickState {
 }
 
 impl IncrementDecrementClickState {
-    fn update_needed(&self) -> bool {
-        const TIME_BETWEEN_UPDATES: Duration = Duration::from_millis(34);
-        const TIME_BETWEEN_BIND_PRESSED: Duration = Duration::from_millis(400);
+    fn is_update_needed(&self) -> bool {
+        use crate::utils::animation_constants::*;
         use IncrementDecrementClickState::*;
         match self {
             Increment((bind_pressed_instant, last_update_instant))
@@ -231,6 +230,7 @@ impl IncrementDecrementPointerSlider {
                 false,
                 font_size,
                 color,
+                0,
             ),
             min_max_slider_values,
             current_slider_value: (min_max_slider_values.0 + min_max_slider_values.1) / 2f32,
@@ -362,7 +362,7 @@ impl Element for IncrementDecrementPointerSlider {
             events.append(&mut event.0);
         }
 
-        if self.increment_decrement_click_state.update_needed() {
+        if self.increment_decrement_click_state.is_update_needed() {
             let (new_slider_value, new_slider_value_was_computed) =
                 match self.increment_decrement_click_state {
                     IncrementDecrementClickState::Increment(_) => {
@@ -383,7 +383,8 @@ impl Element for IncrementDecrementPointerSlider {
             }
         }
 
-        (events, rerender)
+        self.rerender |= rerender;
+        (events, self.rerender)
     }
 
     fn render(&mut self, window: &mut RenderTexture) {
@@ -399,10 +400,6 @@ impl Element for IncrementDecrementPointerSlider {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::Numerical(new_slider_value) = sync else {
             warn!(ui_syncs_not_synced_str!(), Syncs::Numerical(Default::default()), sync);
@@ -411,10 +408,6 @@ impl Element for IncrementDecrementPointerSlider {
 
         self.set_current_slider_value(Vector2::new(new_slider_value, new_slider_value));
         self.rerender = true;
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
     }
 
     cast_element!();
@@ -448,6 +441,7 @@ impl ActionableElement for IncrementDecrementPointerSlider {
             self.set_slider_position_by_cursor_coords(mouse_pos)
         }
     }
+
     fn bind_released(&mut self, _: Vector2i) {
         self.increment_decrement_click_state = IncrementDecrementClickState::None;
         if !self.is_dragging {
@@ -466,16 +460,22 @@ impl ActionableElement for IncrementDecrementPointerSlider {
         }
         self.is_dragging = false;
     }
+
     fn set_hover(&mut self, mouse_pos: Vector2i) {
         for ele in self.compact_button_mut() {
             ele.set_hover(mouse_pos);
         }
     }
+
     fn is_hover(&self) -> bool {
         self.increment_button.is_hover()
             || self.decrement_button.is_hover()
             || self.pointer.is_hover()
             || self.slider.is_hover()
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 
     cast_actionable_element!();
@@ -542,6 +542,7 @@ impl Slider for IncrementDecrementPointerSlider {
             },
             relative_rect,
         );
+        self.rerender = true;
     }
 
     fn box_clone(&self) -> Box<dyn Slider> {

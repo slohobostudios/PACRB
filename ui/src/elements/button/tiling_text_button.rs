@@ -13,12 +13,12 @@ use crate::{
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
-    system::{Vector2, Vector2i},
+    system::{Vector2, Vector2i, Vector2u},
     window::Event as SFMLEvent,
 };
 use utils::{
-    arithmetic_util_functions::{i32_from_u32, u32_from_i32},
-    resource_manager::ResourceManager,
+    arithmetic_util_functions::u32_from_i32, resource_manager::ResourceManager,
+    sfml_util_functions::vector2i_from_vector2u,
 };
 
 #[derive(Debug, Clone)]
@@ -40,8 +40,8 @@ impl TilingButton {
         position: UIPosition,
         background_asset_id: &str,
         background_frame_id: usize,
-        hover_background_frame_id: usize,
-        click_background_frame_id: usize,
+        background_hover_frame_id: usize,
+        background_click_frame_id: usize,
         inner_element: Element,
         desired_size: &Vector2<u32>,
         scale: f32,
@@ -66,7 +66,7 @@ impl TilingButton {
                 Box::new(Repeatable3x3Sprite::new(
                     resource_manager,
                     background_asset_id,
-                    hover_background_frame_id,
+                    background_hover_frame_id,
                     UIPosition::CENTER,
                     *desired_size,
                     scale,
@@ -74,7 +74,7 @@ impl TilingButton {
                 Box::new(Repeatable3x3Sprite::new(
                     resource_manager,
                     background_asset_id,
-                    click_background_frame_id,
+                    background_click_frame_id,
                     UIPosition::CENTER,
                     *desired_size,
                     scale,
@@ -88,6 +88,19 @@ impl TilingButton {
         mmb.update_size();
 
         mmb
+    }
+
+    pub fn inner_element_mut(&mut self) -> &mut Element {
+        &mut self.inner_element
+    }
+
+    pub fn inner_element(&self) -> &Element {
+        &self.inner_element
+    }
+
+    pub fn set_desired_size(&mut self, desired_size: Vector2u) {
+        self.backgrounds.set_desired_size(desired_size);
+        self.update_size();
     }
 }
 
@@ -130,6 +143,10 @@ impl ActionableElement for TilingButton {
 
         self.rerender |= previous_mouse_state != self.current_mouse_state;
     }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
 }
 
 impl Button for TilingButton {
@@ -157,15 +174,15 @@ impl TraitElement for TilingButton {
         fn update_bg_ie(self_: &mut TilingButton) {
             self_.backgrounds.update_size();
             self_.inner_element.update_size();
+            self_.global_bounds = self_.backgrounds.global_bounds();
 
             self_.backgrounds.update_position(self_.global_bounds);
             self_.inner_element.update_position(self_.global_bounds);
         }
         update_bg_ie(self);
 
-        if self.inner_element.global_bounds().width
-            > i32_from_u32(self.backgrounds.desired_size().x)
-        {
+        let desired_size = vector2i_from_vector2u(self.backgrounds.desired_size());
+        if self.inner_element.global_bounds().width > desired_size.x {
             self.backgrounds.set_desired_size(Vector2::new(
                 u32_from_i32(self.inner_element.global_bounds().width),
                 self.backgrounds.desired_size().y,
@@ -173,9 +190,7 @@ impl TraitElement for TilingButton {
             update_bg_ie(self);
         }
 
-        if self.inner_element.global_bounds().height
-            > i32_from_u32(self.backgrounds.desired_size().y)
-        {
+        if self.inner_element.global_bounds().height > desired_size.y {
             self.backgrounds.set_desired_size(Vector2::new(
                 self.backgrounds.desired_size().x,
                 u32_from_i32(self.inner_element.global_bounds().height),
@@ -183,6 +198,7 @@ impl TraitElement for TilingButton {
             update_bg_ie(self);
         }
     }
+
     fn update_position(&mut self, relative_rect: IntRect) {
         self.global_bounds = self.position.center_with_size(
             relative_rect,
@@ -199,14 +215,6 @@ impl TraitElement for TilingButton {
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         Button::event_handler(&mut self.backgrounds, ui_settings, event);
         Button::event_handler(self, ui_settings, event)
-    }
-
-    fn box_clone(&self) -> Box<dyn TraitElement> {
-        Box::new(self.clone())
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 
     fn sync_id(&self) -> u16 {

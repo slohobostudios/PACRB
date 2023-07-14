@@ -14,6 +14,7 @@ use sfml::{
 use tracing::warn;
 use utils::{center_of_rect, resource_manager::ResourceManager};
 
+/// Displays a button which has an on and an off state.
 #[derive(Clone, Debug, Default)]
 pub struct BooleanImageButton {
     event_id: u16,
@@ -137,12 +138,17 @@ impl ActionableElement for BooleanImageButton {
     fn is_hover(&self) -> bool {
         self.current_button().is_hover()
     }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
+    }
 }
 
 impl Button for BooleanImageButton {
     fn current_mouse_state(&self) -> UIMouseStates {
         self.current_button().current_mouse_state()
     }
+
     fn box_clone(&self) -> Box<dyn Button> {
         Box::new(self.clone())
     }
@@ -209,10 +215,6 @@ impl Element for BooleanImageButton {
         (events, rerender)
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
     fn sync_id(&self) -> u16 {
         self.sync_id
     }
@@ -232,9 +234,5 @@ impl Element for BooleanImageButton {
         self.position = ui_position;
         self.update_size();
         self.update_position(relative_rect);
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 }

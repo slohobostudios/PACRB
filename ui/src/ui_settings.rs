@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sfml::{
+    graphics::RenderWindow,
     system::{Vector2, Vector2i},
     window::Event,
 };
@@ -24,7 +25,7 @@ pub struct UISettings {
     pub cursor_position: Vector2i,
     pub aspect_ratio: AspectRatio,
     pub show_fps: bool,
-    pub vsync: bool,
+    vsync: bool,
     pub has_new_settings: bool,
     pub binds: Bindings,
 }
@@ -57,13 +58,10 @@ impl UISettings {
             let _guard = FILE_MUTEX.lock().unwrap_or_else(PoisonError::into_inner);
             if let Err(error) = clone.try_save_settings() {
                 error!(
-                    "Failed to save settings to QuestHearth.lock.json: {:#?}",
-                    error
-                );
-                false
-            } else {
-                true
-            };
+                    "Failed to save settings to {}: {:#?}",
+                    SETTINGS_LOCK_FILE_NAME, error
+                )
+            }
         });
     }
 
@@ -93,6 +91,39 @@ impl UISettings {
             }
             _ => (),
         }
+    }
+
+    /// This normalizes all events into one vector.
+    /// This allows us to send "fake" events whenever we need to.
+    /// The decision to send said fake events will occur in this logic.
+    pub fn normalize_events(&mut self, window: &mut RenderWindow) -> Vec<Event> {
+        let mut events = vec![];
+
+        self.aspect_ratio.send_fake_resize_event(&mut events);
+
+        while let Some(event) = window.poll_event() {
+            events.push(event);
+        }
+
+        events
+    }
+
+    pub fn synchronize_ui_settings_and_sfml(&self, window: &mut RenderWindow) {
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn enable_vsync(&mut self, window: &mut RenderWindow) {
+        self.vsync = true;
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn disable_vsync(&mut self, window: &mut RenderWindow) {
+        self.vsync = false;
+        window.set_vertical_sync_enabled(self.vsync);
+    }
+
+    pub fn is_vsync_enabled(&self) -> bool {
+        self.vsync
     }
 }
 

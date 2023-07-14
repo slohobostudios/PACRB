@@ -124,7 +124,7 @@ impl HueColorPicker {
                 self.global_bounds.height,
             );
 
-            Quad::mut_quad_positions_to_rect(quad, rect.as_other());
+            Quad::set_position_from_rect(quad, rect.as_other());
         }
     }
 }
@@ -170,7 +170,7 @@ impl ElementTrait for HueColorPicker {
     fn render(&mut self, window: &mut RenderTexture) {
         let rs = RenderStates::default();
         for quad in &self.quads {
-            window.draw_primitives(&quad.0, PrimitiveType::QUADS, &rs)
+            window.draw_primitives(&quad.0, PrimitiveType::TRIANGLE_FAN, &rs)
         }
 
         self.hover_element.render(window);
@@ -181,10 +181,6 @@ impl ElementTrait for HueColorPicker {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::Numerical(degree) = sync else {
             warn!(ui_syncs_not_synced_str!(), Syncs::Numerical(Default::default()), sync);
@@ -192,10 +188,6 @@ impl ElementTrait for HueColorPicker {
         };
         self.rerender = true;
         self.set_current_slider_value(Vector2f::new(degree, degree));
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
     }
 
     cast_element!();
@@ -224,6 +216,10 @@ impl ActionableElement for HueColorPicker {
             self.event_id,
             Events::NumericalEvent(f32::from(self.curr_hue)),
         )
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

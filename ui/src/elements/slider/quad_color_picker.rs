@@ -154,7 +154,7 @@ impl ElementTrait for QuadColorPicker {
         self.global_bounds.height = i32_from_u32(self.size.y);
         self.hover_element.update_size();
 
-        Quad::mut_quad_positions_to_rect(&mut self.quad, self.global_bounds.as_other());
+        Quad::set_position_from_rect(&mut self.quad, self.global_bounds.as_other());
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
@@ -162,7 +162,7 @@ impl ElementTrait for QuadColorPicker {
             .position
             .center_with_size(relative_rect, self.global_bounds.size());
         self.hover_element.update_position(self.global_bounds);
-        Quad::mut_quad_positions_to_rect(&mut self.quad, self.global_bounds.as_other());
+        Quad::set_position_from_rect(&mut self.quad, self.global_bounds.as_other());
     }
 
     fn set_ui_position(&mut self, ui_position: UIPosition, relative_rect: IntRect) {
@@ -177,17 +177,13 @@ impl ElementTrait for QuadColorPicker {
 
     fn render(&mut self, window: &mut RenderTexture) {
         let rs = RenderStates::default();
-        window.draw_primitives(&self.quad.0, PrimitiveType::QUADS, &rs);
+        window.draw_primitives(&self.quad.0, PrimitiveType::TRIANGLE_FAN, &rs);
         self.hover_element.render(window);
         self.rerender = false;
     }
 
     fn sync_id(&self) -> u16 {
         self.sync_id
-    }
-
-    fn event_id(&self) -> EventId {
-        self.event_id
     }
 
     fn sync(&mut self, sync: Syncs) {
@@ -210,10 +206,6 @@ impl ElementTrait for QuadColorPicker {
         if let Some(new_slider_value) = sync_struct.hover_element_position_percentage {
             self.set_slider_position_by_percent(new_slider_value)
         }
-    }
-
-    fn box_clone(&self) -> Box<dyn ElementTrait> {
-        Box::new(self.clone())
     }
 
     cast_element!();
@@ -246,6 +238,10 @@ impl ActionableElement for QuadColorPicker {
             self.event_id,
             Events::Vector2fEvent(self.current_selection_relative_coords),
         )
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

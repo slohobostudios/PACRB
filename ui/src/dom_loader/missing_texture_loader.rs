@@ -8,7 +8,7 @@ use utils::resource_manager::ResourceManager;
 /// # Usage
 ///
 /// ## Optional
-/// - position ([`UIPosition`])
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
 /// - size ([`Vector2`])
 pub fn missing_texture_loader(
     resource_manager: &ResourceManager,

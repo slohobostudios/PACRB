@@ -2,8 +2,10 @@ use crate::elements::Element;
 
 use super::{
     background_loader::background_loader, button_loader::button_loader, div_loader::div_loader,
-    grid_loader::grid_loader, missing_texture_loader::missing_texture_loader,
-    slider_loader::slider_loader, text_loader::text_loader, textbox_loader::textbox_loader,
+    grid_loader::grid_loader, image_loader::image_loader, listbox_loader::listbox_loader,
+    missing_texture_loader::missing_texture_loader, primitive_loader::primitive_loader,
+    sets_loader::sets_loader, slider_loader::slider_loader, text_loader::text_loader,
+    textbox_loader::textbox_loader,
 };
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
@@ -29,6 +31,22 @@ Element in question: {:#?}\n
 }
 
 /// This function abstracts which exact element to load
+/// It extrapolates this information from the element's name.
+/// Usable options are:
+/// [
+///     "Button",
+///     "Slider",
+///     "TextBox",
+///     "TilingSprite",
+///     "Background",
+///     "Div",
+///     "Grid",
+///     "Sets",
+///     "Text",
+///     "Primitive",
+///     "Image",
+///     "Empty"
+/// ]
 pub fn element_loader(
     resource_manager: &ResourceManager,
     ele: &MinidomElement,
@@ -61,16 +79,19 @@ pub fn element_loader(
                 Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
             }
         }
-        "Div" => match div_loader(
+        "ListBox" => {
+            match listbox_loader(resource_manager, ele, default_scale, default_font_size, default_color ) {
+                Ok(v) => Element::ListBox(v),
+                Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele)
+            }
+        }
+        "Div" => Element::Div(div_loader(
             resource_manager,
             ele,
             default_scale,
             default_font_size,
             default_color
-        ) {
-            Ok(v) => Element::Div(v),
-            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
-        }
+        )),
         "Grid" => match grid_loader(
             resource_manager,
             ele,
@@ -81,12 +102,27 @@ pub fn element_loader(
             Ok(v) => Element::Grid(v),
             Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         },
+        "Sets" => Element::Sets(sets_loader(
+            resource_manager,
+            ele,
+            default_scale,
+            default_font_size,
+            default_color
+        )),
         "Background" => match background_loader(resource_manager, ele, default_scale, default_font_size, default_color) {
             Ok(v) => Element::Background(v),
             Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
         },
         "Text" => Element::Text(text_loader(resource_manager, ele, default_font_size, default_color)),
-        "Empty" => Element::Empty(()),
+        "Primitive" => match primitive_loader(ele) {
+            Ok(v) => Element::Primitive(v),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele),
+        },
+        "Image" => match image_loader(resource_manager, ele, default_scale) {
+            Ok(v) => Element::Image(v),
+            Err(e) => print_error_and_return_missing_texture(resource_manager, e, ele)
+        },
+        "Empty" => Element::Empty,
         _ => print_error_and_return_missing_texture(resource_manager,
             Box::new(SimpleError::new(format!(
                 "ui::pages::loader::element_loader::element_loader: No dom element labeled {} exists",

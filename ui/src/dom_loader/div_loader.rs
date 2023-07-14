@@ -1,9 +1,8 @@
 use minidom::Element as MinidomElement;
 use sfml::graphics::Color;
-use std::error::Error;
 use utils::{resource_manager::ResourceManager, sfml_util_functions::vector2_from_str};
 
-use crate::{elements::div::Div, utils::positioning::UIPosition};
+use crate::{elements::grouping::div::Div, utils::positioning::UIPosition};
 
 use super::utils::{
     collect_children_as_vector, get_color_attribute, get_font_size, get_generic_attribute,
@@ -26,9 +25,8 @@ pub fn div_loader(
     default_scale: f32,
     default_font_size: u32,
     default_color: Color,
-) -> Result<Div, Box<dyn Error>> {
-    Ok(Div::new(
-        resource_manager,
+) -> Div {
+    Div::new(
         get_ui_position(minidom_element).unwrap_or_default(),
         collect_children_as_vector(
             resource_manager,
@@ -41,5 +39,5 @@ pub fn div_loader(
         minidom_element
             .attr("size")
             .and_then(|size| vector2_from_str(size).ok()),
-    ))
+    )
 }

@@ -38,49 +38,42 @@ pub trait BackgroundElement: Background + ElementTrait + Debug {
 
         self.set_hover(ui_settings.cursor_position);
         match event {
-            SFMLEvent::MouseMoved { x: _, y: _ } if self.is_hover() => rerender = true,
-            SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
+            SFMLEvent::MouseMoved { .. } if self.is_hover() => {
+                rerender |= false;
+                events.push(EMPTY_EVENT);
+            }
+            SFMLEvent::MouseButtonReleased { button, .. }
                 if ui_settings.binds.is_bind_released_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
             }
-            SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
-                if ui_settings.binds.is_bind_released_and_binded(
+            SFMLEvent::MouseButtonPressed { button, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
                     PossibleInputs::from(button),
                     PossibleBinds::Select,
-                ) && self.global_bounds().contains(ui_settings.cursor_position) =>
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
             }
-            SFMLEvent::KeyReleased {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
-                && self.global_bounds().contains(ui_settings.cursor_position) =>
+            SFMLEvent::KeyReleased { code, .. }
+                if ui_settings.binds.is_bind_released_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if ui_settings
-                .binds
-                .is_bind_released_and_binded(PossibleInputs::from(code), PossibleBinds::Select)
-                && self.global_bounds().contains(ui_settings.cursor_position) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if ui_settings.binds.is_bind_pressed_and_binded(
+                    PossibleInputs::from(code),
+                    PossibleBinds::Select,
+                ) && self.is_hover() =>
             {
                 rerender = true;
                 events.push(EMPTY_EVENT);

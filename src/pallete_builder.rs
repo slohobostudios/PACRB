@@ -7,18 +7,21 @@ use sfml::{
     },
     SfBox,
 };
+use tracing::error;
 use ui::{dom_controller::DomControllerInterface, ui_settings::UISettings};
 use utils::resource_manager::ResourceManager;
 
 use crate::generate_ramp_mode_event_handler_arguments;
 
 use self::{
-    color_grid::{color_cell::CELL_SIZE, undo_redo::UndoRedoCell, ColorGrid},
+    color_grid::{
+        color_cell::CELL_SIZE, load_save::load_color_grid, undo_redo::UndoRedoCell, ColorGrid,
+    },
     normal_mode::{NormalMode, NormalModeEventHandlerArguments},
     ramp_mode::{RampMode, RampModeEventHandlerArguments},
     ui_components::{
         config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
-        erase_mode::EraseMode, hsv_selector::HSVSelector,
+        erase_mode::EraseMode, hsv_selector::HSVSelector, settings::Settings,
     },
 };
 
@@ -42,6 +45,7 @@ pub struct PalleteBuilder {
     hsv_selector: HSVSelector,
     erase_mode: EraseMode,
     confirm_color_ramp: ConfirmColorRamp,
+    settings: Settings,
     color_grid: ColorGrid,
     view: SfBox<View>,
     is_dragging_erase: bool,
@@ -60,6 +64,7 @@ impl PalleteBuilder {
             config_selector: ConfigSelector::new(resource_manager, ui_settings),
             confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
             erase_mode: EraseMode::new(resource_manager, ui_settings),
+            settings: Settings::new(resource_manager, ui_settings),
             is_dragging_erase: false,
             is_dragging_screen: false,
             previous_mouse_position: Default::default(),
@@ -67,7 +72,7 @@ impl PalleteBuilder {
                 Vector2f::new(
                     (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
                     (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
-                ) / 2f32,
+                ),
                 ui_settings.aspect_ratio.current_resolution,
             ),
             color_grid,
@@ -76,12 +81,13 @@ impl PalleteBuilder {
         }
     }
 
-    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 4] {
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 5] {
         [
             &mut self.config_selector,
             &mut self.hsv_selector,
             &mut self.erase_mode,
             &mut self.confirm_color_ramp,
+            &mut self.settings,
         ]
     }
 
@@ -92,6 +98,15 @@ impl PalleteBuilder {
         event: Event,
     ) {
         let mut events = Vec::new();
+        if (!self
+            .settings
+            .event_handler(window, ui_settings, event)
+            .is_empty()
+            || self.settings.is_displayed())
+            && !matches!(event, Event::Resized { .. })
+        {
+            return;
+        }
         for dci in self.dom_controller_interfaces_iter_mut() {
             events.append(&mut dci.event_handler(window, ui_settings, event))
         }
@@ -136,7 +151,9 @@ impl PalleteBuilder {
 
         self.view_event_handler(&event);
         let event = self.correct_mouse_pos_event(event, window);
-        self.general_mouse_button_event_handler(&event);
+        if self.general_mouse_button_event_handler(&event) {
+            return;
+        }
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
@@ -175,6 +192,8 @@ impl PalleteBuilder {
         }
 
         self.color_grid.update();
+
+        self.check_settings_and_load_file_if_necessary();
     }
 
     pub fn render(&mut self, window: &mut RenderWindow) {
@@ -257,6 +276,12 @@ impl PalleteBuilder {
             {
                 self.view.zoom(0.9);
             }
+            Event::KeyPressed { code, .. } if code == &Key::Space => {
+                self.view.set_center(Vector2f::new(
+                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
+                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                ))
+            }
             _ => {}
         }
     }
@@ -303,6 +328,27 @@ impl PalleteBuilder {
         }
     }
 
+    fn ensure_color_grid_is_still_in_view(&mut self) {
+        let center = self.view.center();
+        let max = Vector2::new(
+            self.color_grid[0].len() as f32 * CELL_SIZE.x as f32,
+            self.color_grid[0].len() as f32 * CELL_SIZE.y as f32,
+        );
+        if center.x < 0. {
+            self.view.set_center(Vector2::new(0., center.y));
+        }
+        if center.x > max.x {
+            self.view.set_center(Vector2::new(max.x, center.y));
+        }
+        let center = self.view.center();
+        if center.y < 0. {
+            self.view.set_center(Vector2::new(center.x, 0.));
+        }
+        if center.y > max.y {
+            self.view.set_center(Vector2::new(center.x, max.y));
+        }
+    }
+
     fn drag_screen_event_handler(&mut self, event: &Event) {
         match *event {
             // Begin dragging the screen around
@@ -326,6 +372,8 @@ impl PalleteBuilder {
                 self.previous_mouse_position = Vector2::new(x, y) - mouse_diff;
                 let center = self.view.center();
                 self.view.set_center(center - mouse_diff.as_other());
+
+                self.ensure_color_grid_is_still_in_view();
             }
 
             // Finished dragging the screen around
@@ -342,32 +390,21 @@ impl PalleteBuilder {
     fn undo_redo_event_handler(&mut self, event: &Event) {
         match *event {
             // Undo
-            Event::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::Z && ctrl => {
+            Event::KeyPressed { code, ctrl, .. } if code == Key::Z && ctrl => {
                 self.undo_redo.undo(&mut self.color_grid);
             }
 
             // Redo
-            Event::KeyPressed {
-                code,
-                alt: _,
-                ctrl,
-                shift: _,
-                system: _,
-            } if code == Key::R && ctrl => {
+            Event::KeyPressed { code, ctrl, .. } if code == Key::R && ctrl => {
                 self.undo_redo.redo(&mut self.color_grid);
             }
             _ => {}
         }
     }
 
-    fn general_mouse_button_event_handler(&mut self, event: &Event) {
+    fn general_mouse_button_event_handler(&mut self, event: &Event) -> bool {
         match *event {
+            // Eye dropper
             Event::MouseButtonPressed { button, x, y }
                 if (Key::LControl.is_pressed() || Key::RControl.is_pressed())
                     && button == Button::Left =>
@@ -380,8 +417,10 @@ impl PalleteBuilder {
                         self.hsv_selector.set_hsv_color(hsv)
                     }
                 }
+
+                true
             }
-            _ => {}
+            _ => false,
         }
     }
 }
@@ -399,4 +438,23 @@ macro_rules! generate_ramp_mode_event_handler_arguments {
             &$self.config_selector,
         )
     };
+}
+
+// General utility
+impl PalleteBuilder {
+    fn check_settings_and_load_file_if_necessary(&mut self) {
+        let mut file_loaded = false;
+        if let Some(file_to_load) = self.settings.file_to_load() {
+            file_loaded = true;
+            if let Err(err) =
+                load_color_grid(&mut self.color_grid, file_to_load, &mut self.undo_redo)
+            {
+                error!("{:#?}", err);
+            }
+        }
+
+        if file_loaded {
+            self.settings.clear_file_to_load();
+        }
+    }
 }

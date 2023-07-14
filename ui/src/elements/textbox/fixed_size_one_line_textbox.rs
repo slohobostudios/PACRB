@@ -100,6 +100,7 @@ impl FixedSizeOneLineTextbox {
                 true,
                 font_size,
                 text_color,
+                0,
             ),
             sync_id,
             event_id,
@@ -224,7 +225,7 @@ impl FixedSizeOneLineTextbox {
             .expect("Set Some value just before. Shouldn't fail");
         select_rect.set_outline_color(self.text_color);
         select_rect.set_fill_color(Color::TRANSPARENT);
-        select_rect.set_outline_thickness(4.);
+        select_rect.set_outline_thickness(3.);
     }
 
     fn get_character_idx_of_rc_text_at_point_fully_clamped(
@@ -333,10 +334,6 @@ impl Element for FixedSizeOneLineTextbox {
         self.sync_id
     }
 
-    fn event_id(&self) -> EventId {
-        self.event_id
-    }
-
     fn sync(&mut self, sync: Syncs) {
         let Syncs::String(string) = sync else {
             warn!(ui_syncs_not_synced_str!(), Syncs::String(Default::default()), sync);
@@ -347,10 +344,6 @@ impl Element for FixedSizeOneLineTextbox {
         self.string = string;
         self.move_cursor(self.string.len());
         self.bind_pressed(Vector2::new(i32::MIN, i32::MIN));
-    }
-
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
     }
 
     cast_element!();
@@ -414,6 +407,10 @@ impl ActionableElement for FixedSizeOneLineTextbox {
 
     fn is_hover(&self) -> bool {
         self.hover
+    }
+
+    fn event_id(&self) -> EventId {
+        self.event_id
     }
 }
 

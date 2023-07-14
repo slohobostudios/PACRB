@@ -19,8 +19,8 @@ fn main() {
     const WINDOW_SIZE: (u32, u32) = (1280, 720);
     // Create a new window
     let mut window = RenderWindow::new(WINDOW_SIZE, "PACRB", Style::DEFAULT, &Default::default());
-    window.set_vertical_sync_enabled(true);
     let mut ui_settings = UISettings::from_file();
+    ui_settings.synchronize_ui_settings_and_sfml(&mut window);
     // This prevents ui elements from creating render textures that are of size 0x0
     ui_settings.event_handler(Event::Resized {
         width: WINDOW_SIZE.0,
@@ -31,7 +31,7 @@ fn main() {
     let mut fps_counter = FPSCounter::new(&resource_manager, 60);
     let mut pallete_builder = PalleteBuilder::new(&resource_manager, &ui_settings);
     while window.is_open() {
-        while let Some(event) = window.poll_event() {
+        for event in ui_settings.normalize_events(&mut window) {
             ui_settings.event_handler(event);
             match event {
                 Event::Closed => window.close(),

@@ -1,4 +1,6 @@
-use std::ops::Sub;
+use std::ops::{Add, Rem, Sub};
+
+use num_traits::identities::One;
 
 use tracing::error;
 
@@ -74,4 +76,48 @@ where
     };
 
     max - min <= standard_deviation
+}
+
+/// Does a wrapped subtraction around custom constraints
+///
+/// If val or subtracting_val is smaller than the lower constraint, return None
+/// If val or subtracting_val is greater than the upper constraint, return None
+///
+/// # Arguments
+/// val: value being subtracted
+/// subtracting_val: amount to subtract by
+/// upper_clamp: upper constraint
+/// lower_clamp: lower constraint
+///
+/// # Usage
+///```
+/// # use utils::arithmetic_util_functions::wrapping_sub_custom_clamps;
+/// assert_eq!(wrapping_sub_custom_clamps(3, 2, 0, 10), Some(1));
+/// assert_eq!(wrapping_sub_custom_clamps(2, 3, 0, 10), Some(10));
+/// assert_eq!(wrapping_sub_custom_clamps(2, 12, -3, 8), None);
+/// assert_eq!(wrapping_sub_custom_clamps(-4, 2, -8, 8), Some(-6));
+///```
+pub fn wrapping_sub_custom_clamps<
+    T: PartialOrd + Sub<Output = T> + Add<Output = T> + Copy + Rem<Output = T> + num_traits::One,
+>(
+    val: T,
+    subtracting_val: T,
+    lower_clamp: T,
+    upper_clamp: T,
+) -> Option<T> {
+    if val < lower_clamp
+        || val > upper_clamp
+        || subtracting_val < lower_clamp
+        || subtracting_val > upper_clamp
+    {
+        return None;
+    }
+
+    let upper_clamp = upper_clamp + One::one();
+    if val - lower_clamp >= subtracting_val {
+        return Some(val - subtracting_val);
+    }
+
+    let amount_to_sub_by = subtracting_val - val;
+    Some(upper_clamp - amount_to_sub_by)
 }

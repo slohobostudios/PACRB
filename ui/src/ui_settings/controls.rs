@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sfml::window::Event;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub mod possible_binds;
 pub mod possible_inputs;
@@ -10,13 +10,12 @@ use possible_inputs::*;
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
 pub struct BindInfo {
     pub is_pressed: bool,
-    pub just_released: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Bindings {
-    input_bindings: HashMap<PossibleInputs, HashMap<PossibleBinds, BindInfo>>,
-    binded_inputs: HashMap<PossibleBinds, PossibleInputs>,
+    input_bindings: HashMap<PossibleInputs, PossibleBinds>,
+    binded_inputs: HashMap<PossibleBinds, (HashSet<PossibleInputs>, BindInfo)>,
 }
 
 impl Bindings {
@@ -28,20 +27,8 @@ impl Bindings {
             Event::MouseButtonReleased { button, x: _, y: _ } => {
                 self.input_released(PossibleInputs::from(button))
             }
-            Event::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } => self.input_pressed(PossibleInputs::from(code)),
-            Event::KeyReleased {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } => self.input_released(PossibleInputs::from(code)),
+            Event::KeyPressed { code, .. } => self.input_pressed(PossibleInputs::from(code)),
+            Event::KeyReleased { code, .. } => self.input_released(PossibleInputs::from(code)),
             _ => {}
         }
     }
@@ -52,7 +39,7 @@ impl Bindings {
 
     pub fn is_bind_released(&self, bind: PossibleBinds) -> bool {
         if let Some(bind_info) = self.get_bind_info(bind) {
-            bind_info.just_released
+            !bind_info.is_pressed
         } else {
             false
         }
@@ -63,7 +50,7 @@ impl Bindings {
     }
 
     pub fn is_bind_and_input_binded(&self, input: PossibleInputs, bind: PossibleBinds) -> bool {
-        self.binded_inputs.get(&bind) == Some(&input)
+        self.input_bindings.get(&input) == Some(&bind)
     }
 
     pub fn is_bind_pressed(&self, bind: PossibleBinds) -> bool {
@@ -103,99 +90,91 @@ impl Bindings {
     }
 
     pub fn input_pressed(&mut self, input: PossibleInputs) {
-        for bind_info in self.get_mut_bind_infos_from_input(input) {
-            bind_info.is_pressed = true;
-        }
+        let Some(bind_info) = self.get_mut_bind_info_from_input(input) else {
+            return;
+        };
+
+        bind_info.is_pressed = true;
     }
 
     pub fn input_released(&mut self, input: PossibleInputs) {
-        for bind_info in self.get_mut_bind_infos_from_input(input) {
-            bind_info.just_released = true;
-            bind_info.is_pressed = false;
-        }
+        let Some(binded_input) = self.get_mut_bind_info_from_input(input) else {
+            return;
+        };
+
+        binded_input.is_pressed = false;
     }
 
-    pub fn reset_just_released(&mut self) {
-        for hmaps in &mut self.input_bindings.values_mut() {
-            for bind_info in hmaps.values_mut() {
-                bind_info.just_released = false;
-            }
-        }
-    }
+    fn get_mut_bind_info_from_input(&mut self, input: PossibleInputs) -> Option<&mut BindInfo> {
+        let Some(binded_input) = self.input_bindings.get(&input) else {
+          return None;
+        };
 
-    fn get_mut_bind_infos_from_input(
-        &mut self,
-        input: PossibleInputs,
-    ) -> impl Iterator<Item = &mut BindInfo> {
-        self.input_bindings
-            .get_mut(&input)
-            .into_iter()
-            .flat_map(|value| value.values_mut())
+        self.binded_inputs
+            .get_mut(binded_input)
+            .map(|tuple| &mut tuple.1)
     }
 
     fn get_bind_info(&self, bind: PossibleBinds) -> Option<BindInfo> {
-        if let Some(binds) = self.input_bindings.get(self.binded_inputs.get(&bind)?) {
-            binds.get(&bind).copied()
-        } else {
-            None
-        }
+        self.binded_inputs.get(&bind).map(|tuple| tuple.1)
     }
 
-    pub fn remove_bind(&mut self, bind: PossibleBinds) {
-        if let Some(input) = self.binded_inputs.get(&bind) {
-            if let Some(binds) = self.input_bindings.get_mut(input) {
-                binds.remove(&bind);
-            }
+    pub fn remove_bind(&mut self, input: PossibleInputs, bind: PossibleBinds) {
+        let Some(binded_input) = self.binded_inputs.get_mut(&bind) else {
+            // no binds binded.
+            return;
+        };
+        self.input_bindings.remove(&input);
+
+        binded_input.0.remove(&input);
+
+        if binded_input.0.is_empty() {
             self.binded_inputs.remove(&bind);
         }
     }
 
     fn add_bind(&mut self, input: PossibleInputs, bind: PossibleBinds) {
-        self.binded_inputs.insert(bind, input);
+        self.input_bindings.insert(input, bind);
 
-        if let Some(binds) = self.input_bindings.get_mut(&input) {
-            binds.insert(bind, Default::default());
+        if let Some(tuple) = self.binded_inputs.get_mut(&bind) {
+            tuple.0.insert(input);
         } else {
-            self.input_bindings
-                .insert(input, HashMap::from([(bind, Default::default())]));
-        };
+            self.binded_inputs
+                .insert(bind, (HashSet::from([input]), Default::default()));
+        }
     }
 
     pub fn set_bind(&mut self, input: PossibleInputs, bind: PossibleBinds) {
-        self.remove_bind(bind);
+        self.remove_bind(input, bind);
         self.add_bind(input, bind);
     }
 }
 
-macro_rules! bind {
-    ($input:expr, $bind:expr) => {
-        ($input, HashMap::from([($bind, Default::default())]))
-    };
-}
 impl Default for Bindings {
     fn default() -> Self {
-        Self {
-            input_bindings: HashMap::from([
-                // Self explanatory buttons
-                bind!(PossibleInputs::ButtonLeft, PossibleBinds::Select),
-                bind!(PossibleInputs::Escape, PossibleBinds::Escape),
-                // UI arrow movement
-                bind!(PossibleInputs::Up, PossibleBinds::UIUp),
-                bind!(PossibleInputs::Down, PossibleBinds::UIDown),
-                bind!(PossibleInputs::Left, PossibleBinds::UILeft),
-                bind!(PossibleInputs::Right, PossibleBinds::UIRight),
-            ]),
-            binded_inputs: HashMap::from([
-                // Self explanotry buttons
-                (PossibleBinds::Select, PossibleInputs::ButtonLeft),
-                (PossibleBinds::Escape, PossibleInputs::Escape),
-                // UI arrow movement
-                (PossibleBinds::UIUp, PossibleInputs::Up),
-                (PossibleBinds::UIDown, PossibleInputs::Down),
-                (PossibleBinds::UILeft, PossibleInputs::Left),
-                (PossibleBinds::UIRight, PossibleInputs::Right),
-            ]),
+        let mut bind = Self {
+            input_bindings: Default::default(),
+            binded_inputs: Default::default(),
+        };
+
+        for pair in [
+            // Self explanotry buttons
+            (PossibleBinds::Select, PossibleInputs::ButtonLeft),
+            (PossibleBinds::Escape, PossibleInputs::Escape),
+            // UI arrow movement
+            (PossibleBinds::UIUp, PossibleInputs::Up),
+            (PossibleBinds::UIDown, PossibleInputs::Down),
+            (PossibleBinds::UILeft, PossibleInputs::Left),
+            (PossibleBinds::UIRight, PossibleInputs::Right),
+            // Scroll wheel
+            (PossibleBinds::UIUp, PossibleInputs::VerticalWheel),
+            (PossibleBinds::UIDown, PossibleInputs::VerticalWheel),
+            (PossibleBinds::UILeft, PossibleInputs::HorizontalWheel),
+            (PossibleBinds::UIRight, PossibleInputs::HorizontalWheel),
+        ] {
+            bind.add_bind(pair.1, pair.0);
         }
+        bind
     }
 }
 
@@ -203,41 +182,11 @@ impl Default for Bindings {
 mod test {
     use super::*;
     #[test]
-    fn test_default_bindings_are_errorless() {
-        let binds: Bindings = Default::default();
-
-        for (bind, input) in &binds.binded_inputs {
-            let mut num_times_bind_occurs = 0u8;
-            for (input_inner, binds) in &binds.input_bindings {
-                if binds.contains_key(bind) {
-                    num_times_bind_occurs += 1;
-                    assert!(
-                        input == input_inner,
-                        "binded_inputs input: {:#?}, input_bindings input: {:#?} for bind {:#?}",
-                        input,
-                        input_inner,
-                        bind
-                    );
-                }
-            }
-
-            assert!(num_times_bind_occurs == 1, "for bind {:#?}", bind);
-        }
-    }
-
-    #[test]
     fn test_remove_bind() {
         let binds: &mut Bindings = &mut Default::default();
 
-        binds.remove_bind(PossibleBinds::Select);
-        for bind in binds
-            .input_bindings
-            .get(&PossibleInputs::ButtonLeft)
-            .unwrap()
-            .keys()
-        {
-            assert_ne!(&PossibleBinds::Select, bind);
-        }
+        binds.remove_bind(PossibleInputs::ButtonLeft, PossibleBinds::Select);
+        assert_eq!(binds.input_bindings.get(&PossibleInputs::ButtonLeft), None);
 
         assert!(!binds.binded_inputs.contains_key(&PossibleBinds::Select));
     }
@@ -248,16 +197,14 @@ mod test {
 
         binds.set_bind(PossibleInputs::A, PossibleBinds::Select);
 
-        assert!(binds
-            .input_bindings
-            .get(&PossibleInputs::A)
+        binds.input_bindings.get(&PossibleInputs::A).unwrap();
+        binds
+            .binded_inputs
+            .get(&PossibleBinds::Select)
             .unwrap()
-            .contains_key(&PossibleBinds::Select));
-
-        assert_eq!(
-            binds.binded_inputs.get(&PossibleBinds::Select),
-            Some(&PossibleInputs::A)
-        );
+            .0
+            .get(&PossibleInputs::A)
+            .unwrap();
     }
 
     #[test]
@@ -274,14 +221,5 @@ mod test {
 
         binds.input_pressed(PossibleInputs::ButtonLeft);
         assert!(binds.is_bind_pressed(PossibleBinds::Select));
-    }
-
-    #[test]
-    fn test_reset_just_released() {
-        let binds: &mut Bindings = &mut Default::default();
-
-        binds.input_released(PossibleInputs::ButtonLeft);
-        binds.reset_just_released();
-        assert!(!binds.is_bind_released(PossibleBinds::Select));
     }
 }

@@ -16,7 +16,7 @@ pub trait Button: ActionableElement + Debug {
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {
         self.set_hover(ui_settings.cursor_position);
         match event {
-            SFMLEvent::MouseButtonPressed { button, x: _, y: _ }
+            SFMLEvent::MouseButtonPressed { button, .. }
                 if self.is_hover()
                     && ui_settings.binds.is_bind_pressed_and_binded(
                         PossibleInputs::from(button),
@@ -24,9 +24,9 @@ pub trait Button: ActionableElement + Debug {
                     ) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
-                (Default::default(), true)
+                (vec![EMPTY_EVENT], true)
             }
-            SFMLEvent::MouseButtonReleased { button, x: _, y: _ }
+            SFMLEvent::MouseButtonReleased { button, .. }
                 if self.is_hover()
                     && ui_settings.binds.is_bind_released_and_binded(
                         PossibleInputs::from(button),
@@ -36,38 +36,28 @@ pub trait Button: ActionableElement + Debug {
                 self.bind_released(ui_settings.cursor_position);
                 (vec![self.triggered_event()], true)
             }
-            SFMLEvent::MouseMoved { x: _, y: _ }
+            SFMLEvent::MouseMoved { .. }
                 if self.is_hover() && ui_settings.binds.is_bind_pressed(PossibleBinds::Select) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
                 (Default::default(), true)
             }
-            SFMLEvent::KeyPressed {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if self.is_hover()
-                && ui_settings.binds.is_bind_pressed_and_binded(
-                    PossibleInputs::from(code),
-                    PossibleBinds::Select,
-                ) =>
+            SFMLEvent::KeyPressed { code, .. }
+                if self.is_hover()
+                    && ui_settings.binds.is_bind_pressed_and_binded(
+                        PossibleInputs::from(code),
+                        PossibleBinds::Select,
+                    ) =>
             {
                 self.bind_pressed(ui_settings.cursor_position);
                 (Default::default(), true)
             }
-            SFMLEvent::KeyReleased {
-                code,
-                alt: _,
-                ctrl: _,
-                shift: _,
-                system: _,
-            } if self.is_hover()
-                && ui_settings.binds.is_bind_released_and_binded(
-                    PossibleInputs::from(code),
-                    PossibleBinds::Select,
-                ) =>
+            SFMLEvent::KeyReleased { code, .. }
+                if self.is_hover()
+                    && ui_settings.binds.is_bind_released_and_binded(
+                        PossibleInputs::from(code),
+                        PossibleBinds::Select,
+                    ) =>
             {
                 self.bind_released(ui_settings.cursor_position);
                 (vec![self.triggered_event()], true)

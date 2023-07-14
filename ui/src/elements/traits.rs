@@ -50,11 +50,6 @@ pub trait Element {
         0
     }
 
-    /// Returns the id of the event that has occured. 0 for no matching event id
-    fn event_id(&self) -> EventId {
-        0
-    }
-
     /// Syncs the element via the Sync information
     /// By default does nothing
     ///
@@ -80,6 +75,9 @@ macro_rules! cast_element {
         }
         fn as_mut_element(&mut self) -> &mut dyn crate::elements::traits::Element {
             self
+        }
+        fn box_clone(&self) -> Box<dyn crate::elements::traits::Element> {
+            Box::new(self.clone())
         }
     };
 }
@@ -109,6 +107,11 @@ pub trait ActionableElement: Element {
 
     fn as_actionable_element(&self) -> &dyn ActionableElement;
     fn as_mut_actionable_element(&mut self) -> &mut dyn ActionableElement;
+
+    /// Returns the id of the event that has occured. 0 for no matching event id
+    fn event_id(&self) -> EventId {
+        0
+    }
 }
 
 /// Auto import as casting actionable element functions

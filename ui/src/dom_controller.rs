@@ -9,6 +9,7 @@ use sfml::{
     window::Event as SFMLEvent,
     SfBox,
 };
+use tracing::error;
 use utils::{resource_manager::ResourceManager, vector_to_rect_with_zeroed_origin};
 
 #[derive(Default, Debug)]
@@ -27,7 +28,7 @@ impl DomController {
     ) -> Self {
         let view_size =
             vector_to_rect_with_zeroed_origin!(f32, ui_settings.aspect_ratio.computed_resolution());
-        Self {
+        let mut dc = Self {
             root_node: Element::RootNode(dom_loader(
                 resource_manager,
                 view_size.as_other(),
@@ -36,7 +37,10 @@ impl DomController {
             view: View::from_rect(view_size),
             needs_rerender: true,
             render_texture: RenderTexture::new(view_size.width as u32, view_size.height as u32),
-        }
+        };
+        dc.reset_view(ui_settings);
+
+        dc
     }
 
     pub fn reset_view(&mut self, ui_settings: &UISettings) -> Vec<Event> {
@@ -94,6 +98,8 @@ impl DomControllerInterface for DomController {
                 self.root_node.render(render_texture);
                 render_texture.display();
                 self.needs_rerender = false;
+            } else {
+                error!("Failed to create render texture!");
             }
         }
 

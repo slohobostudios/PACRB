@@ -1,10 +1,12 @@
 use sfml::{graphics::IntRect, system::Vector2u, window::Event as SFMLEvent};
-use tracing::warn;
-use utils::{arithmetic_util_functions::i32_from_u32, resource_manager::ResourceManager};
+use utils::{
+    arithmetic_util_functions::i32_from_u32, resource_manager::ResourceManager,
+    sfml_util_functions::vector2u_from_vector2i,
+};
 
 use crate::{events::Event, ui_settings::UISettings, utils::positioning::UIPosition};
 
-use super::{
+use super::super::{
     traits::Element as ElementTrait,
     traits::{self, cast_element},
     Element,
@@ -17,26 +19,27 @@ pub struct Div {
     children: Vec<Element>,
     padding: Option<UIPosition>,
     size: Option<Vector2u>,
+    use_relative_rect_size: bool,
 }
 
 impl Div {
     pub fn new(
-        _resource_manager: &ResourceManager,
         position: UIPosition,
         children: Vec<Element>,
         mut padding: Option<UIPosition>,
         size: Option<Vector2u>,
     ) -> Self {
         if padding.is_some() && size.is_some() {
-            warn!("Div: padding and size are both defined! Prioritizing size and setting padding to default");
             padding = None;
         }
+        let use_relative_rect_size = padding.is_none() && size.is_none();
         Self {
             global_bounds: Default::default(),
             position,
             children,
             padding,
             size,
+            use_relative_rect_size,
         }
     }
 
@@ -55,6 +58,18 @@ impl Div {
 
     pub fn is_padding(&self) -> bool {
         self.size.is_none()
+    }
+
+    pub fn padding(&self) -> Option<UIPosition> {
+        self.padding
+    }
+
+    pub fn size(&self) -> Option<Vector2u> {
+        self.size
+    }
+
+    pub fn position(&self) -> UIPosition {
+        self.position
     }
 }
 
@@ -80,6 +95,10 @@ impl traits::Element for Div {
     }
 
     fn update_position(&mut self, relative_rect: IntRect) {
+        if self.use_relative_rect_size {
+            self.set_size(vector2u_from_vector2i(relative_rect.size()));
+        }
+
         self.global_bounds = self
             .position
             .center_with_size(relative_rect, self.global_bounds.size());
@@ -117,10 +136,6 @@ impl traits::Element for Div {
         for ele in self.mut_children() {
             ele.render(render_texture);
         }
-    }
-
-    fn box_clone(&self) -> Box<dyn traits::Element> {
-        Box::new(self.clone())
     }
 
     fn event_handler(&mut self, ui_settings: &UISettings, event: SFMLEvent) -> (Vec<Event>, bool) {

@@ -23,13 +23,13 @@ use super::utils::{
 /// - type [`FIXED_SIZE_ONE_LINE_TEXTBOX`]
 ///
 /// ## Optional
-/// - position ([`UIPosition`])
-/// - size ([`Vector2u`]`)
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
+/// - size ([`Vector2u`](sfml::system::Vector2u))
 /// - font_size ([`u32`])
 /// - color ([`Color`]) <- text color
 /// - background_color ([`Color`])
-/// - event_id ([`EventId`])
-/// - sync_id ([`EventId`])
+/// - event_id ([`EventId`](crate::events::EventId))
+/// - sync_id ([`EventId`](crate::events::EventId))
 /// - INNER TEXT CHILD ELEMENT ([`String`])
 fn fixed_size_one_line_textbox_loader(
     resource_manager: &ResourceManager,

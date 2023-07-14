@@ -10,7 +10,7 @@ use crate::{
 };
 use sfml::{
     graphics::{IntRect, RenderTexture},
-    system::Vector2i,
+    system::{Vector2i, Vector2u},
     window::Event as SFMLEvent,
 };
 use utils::resource_manager::ResourceManager;
@@ -54,6 +54,12 @@ impl RepeatableSpritesButton {
             &mut self.click_repeatable_sprites,
         ]
     }
+
+    pub fn set_desired_size(&mut self, desired_size: Vector2u) {
+        for sprites in self.compact_repeat_sprites_mut() {
+            sprites.set_desired_size(desired_size);
+        }
+    }
 }
 
 impl ActionableElement for RepeatableSpritesButton {
@@ -62,7 +68,7 @@ impl ActionableElement for RepeatableSpritesButton {
     fn triggered_event(&self) -> Event {
         Event {
             id: self.event_id(),
-            event: Events::BooleanEvent(true),
+            event: Events::BooleanEvent(self.current_mouse_state == UIMouseStates::Click),
         }
     }
 
@@ -151,18 +157,15 @@ impl Element for RepeatableSpritesButton {
             events.append(&mut event.0);
         }
 
+        self.rerender = rerender;
         (events, rerender)
     }
 
-    fn box_clone(&self) -> Box<dyn Element> {
-        Box::new(self.clone())
-    }
-
-    fn render(&mut self, window: &mut RenderTexture) {
+    fn render(&mut self, render_texture: &mut RenderTexture) {
         match self.current_mouse_state {
-            UIMouseStates::Nothing => self.repeatable_sprites.render(window),
-            UIMouseStates::Hover => self.hover_repeatable_sprites.render(window),
-            UIMouseStates::Click => self.click_repeatable_sprites.render(window),
+            UIMouseStates::Nothing => self.repeatable_sprites.render(render_texture),
+            UIMouseStates::Hover => self.hover_repeatable_sprites.render(render_texture),
+            UIMouseStates::Click => self.click_repeatable_sprites.render(render_texture),
         }
         self.rerender = false;
     }

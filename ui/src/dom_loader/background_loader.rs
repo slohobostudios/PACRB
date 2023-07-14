@@ -19,13 +19,13 @@ use utils::{resource_manager::ResourceManager, simple_error::SimpleError};
 ///
 /// ## Optional
 /// - scale ([`f32`])
-/// - size ([`Vector2`])
+/// - size ([`Vector2`](sfml::system::Vector2))
 /// - position ([`UIPosition`])
 /// - padding ([`UIPosition`])
 ///
 /// ## Notes
 /// padding can be used instead of size if you only have one child element
-fn fixed_size_repeatable_3x3_background(
+fn repeatable_3x3_background(
     resource_manager: &ResourceManager,
     minidom_element: &MinidomElement,
     default_scale: f32,
@@ -63,7 +63,7 @@ pub fn background_loader(
     default_color: Color,
 ) -> Result<Box<dyn BackgroundElement>, Box<dyn Error>> {
     match minidom_element.attr("type") {
-        Some(REPEATABLE_3X3_BACKGROUND) => Ok(Box::new(fixed_size_repeatable_3x3_background(
+        Some(REPEATABLE_3X3_BACKGROUND) => Ok(Box::new(repeatable_3x3_background(
             resource_manager,
             minidom_element,
             default_scale,

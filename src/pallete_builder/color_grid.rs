@@ -16,6 +16,7 @@ use utils::{
 use self::color_cell::{ColorCell, RcColorCell};
 
 pub mod color_cell;
+pub mod load_save;
 pub mod undo_redo;
 
 pub const GRID_SIZE: usize = 64;

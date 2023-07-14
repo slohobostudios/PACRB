@@ -1,4 +1,7 @@
-use sfml::{graphics::RenderWindow, window::Event as SFMLEvent};
+use sfml::{
+    graphics::RenderWindow,
+    window::{Event as SFMLEvent, Key},
+};
 use ui::{
     dom_controller::{DomController, DomControllerInterface},
     events::Event,
@@ -46,6 +49,19 @@ impl DomControllerInterface for EraseMode {
             .erase_mode_dom
             .event_handler(window, ui_settings, event);
         perform_events(&events, &mut self.erase_disabled);
+        match event {
+            SFMLEvent::KeyPressed {
+                code,
+                ctrl,
+                alt,
+                system,
+                ..
+            } if code == Key::E && !ctrl && !alt && !system => {
+                self.erase_disabled = !self.erase_disabled;
+                sync_events(&mut self.erase_mode_dom, self.erase_disabled);
+            }
+            _ => {}
+        };
         events
     }
 

@@ -50,7 +50,7 @@ fn event1(event: &Event, dom_controller: &mut DomController, hsv: &mut Hsv, hex_
     };
 
     dom_controller.root_node.traverse_dom_mut(&mut |ele| {
-        if let 1 = ele.event_id() {
+        if let 1 = ele.sync_id() {
             if let Element::Slider(ele) = ele {
                 let slider_size = ele.max_slider_value() - ele.min_slider_value();
                 hsv.s = ((sat_val.x / slider_size.x) * 255f32) as u8;
@@ -135,10 +135,7 @@ fn sync_events_specific_sync(
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
-            1 => {
-                if !one {
-                    return;
-                }
+            1 if one => {
                 let full_bright_hsv = Hsv::new(hsv.h, u8::MAX, u8::MAX);
                 ele.sync(Syncs::QuadColorPicker(QuadColorPickerSync {
                     top_right_color: Some(full_bright_hsv.into()),
@@ -150,16 +147,10 @@ fn sync_events_specific_sync(
                     ..Default::default()
                 }));
             }
-            2 => {
-                if !two {
-                    return;
-                }
+            2 if two => {
                 ele.sync(Syncs::Numerical(hsv.h.into()));
             }
-            3 => {
-                if !three {
-                    return;
-                }
+            3 if three => {
                 ele.sync(Syncs::String(hex_str.to_owned()));
             }
             4 => {

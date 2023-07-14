@@ -1,4 +1,4 @@
-use crate::elements::{grid::Grid, Element};
+use crate::elements::{grouping::grid::Grid, Element};
 
 use super::{element_loader::element_loader, utils::*};
 use minidom::Element as MinidomElement;
@@ -42,7 +42,7 @@ fn grid_elements_loader(
     for x in 0..grid_layout.x {
         grid.push(Vec::new());
         for _ in 0..grid_layout.y {
-            grid[x].push(Element::Empty(()));
+            grid[x].push(Element::Empty);
         }
         grid[x].shrink_to_fit();
     }
@@ -69,9 +69,9 @@ fn grid_elements_loader(
 /// # Usage
 ///
 /// ## Optional
-/// - size ([`Vector2`])
-/// - position ([`UIPosition`])
-/// - pagination_size ([`Vector2`])
+/// - size ([`Vector2`](sfml::system::Vector2))
+/// - position ([`UIPosition`](crate::utils::positioning::UIPosition))
+/// - pagination_size ([`Vector2`](sfml::system::Vector2))
 pub fn grid_loader(
     resource_manager: &ResourceManager,
     ele: &MinidomElement,
