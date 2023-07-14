@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use sfml::{
     graphics::{Color, RenderTarget, RenderWindow},
     system::Vector2f,
