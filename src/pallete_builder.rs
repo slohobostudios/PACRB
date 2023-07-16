@@ -288,9 +288,19 @@ impl PalleteBuilder {
 
     fn erase_event_handler(&mut self, event: &Event) {
         match event {
+            // Enable erase
+            &Event::KeyReleased {
+                code,
+                ctrl,
+                alt,
+                system,
+                ..
+            } if code == Key::E && !ctrl && !alt && !system => {
+                self.erase_mode.toggle_erase();
+            }
             // Erase color
             &Event::MouseButtonPressed { button, x, y }
-                if self.erase_mode.erase_mode_enabled() && button == Button::Left =>
+                if self.erase_mode.is_erase_mode_enabled() && button == Button::Left =>
             {
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
                     color_cell.borrow_mut().empty_the_cell(&mut self.undo_redo);
@@ -300,14 +310,14 @@ impl PalleteBuilder {
 
             // Make sure it is still dragging
             Event::MouseMoved { x: _, y: _ }
-                if self.erase_mode.erase_mode_enabled() && !Button::Left.is_pressed() =>
+                if self.erase_mode.is_erase_mode_enabled() && !Button::Left.is_pressed() =>
             {
                 self.is_dragging_erase = false;
             }
 
             // Dragging erase
             &Event::MouseMoved { x, y }
-                if self.erase_mode.erase_mode_enabled() && self.is_dragging_erase =>
+                if self.erase_mode.is_erase_mode_enabled() && self.is_dragging_erase =>
             {
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
                     color_cell.borrow_mut().empty_the_cell(&mut self.undo_redo);
@@ -316,7 +326,7 @@ impl PalleteBuilder {
 
             // Finish dragging erase
             &Event::MouseButtonReleased { button: _, x, y }
-                if self.erase_mode.erase_mode_enabled() && self.is_dragging_erase =>
+                if self.erase_mode.is_erase_mode_enabled() && self.is_dragging_erase =>
             {
                 self.is_dragging_erase = false;
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {

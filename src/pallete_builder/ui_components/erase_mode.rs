@@ -30,8 +30,15 @@ impl EraseMode {
 
         em
     }
-    pub fn erase_mode_enabled(&self) -> bool {
+    pub fn is_erase_mode_enabled(&self) -> bool {
         !self.erase_disabled
+    }
+
+    pub fn toggle_erase(&mut self) {
+        self.erase_disabled = !self.erase_disabled;
+        sync_events(&mut self.erase_mode_dom, self.erase_disabled);
+
+        self.is_erase_mode_enabled();
     }
 }
 

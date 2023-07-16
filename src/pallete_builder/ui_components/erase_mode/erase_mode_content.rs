@@ -28,13 +28,13 @@ fn event1(event: &Event, erase_enabled: &mut bool) {
     }
 }
 
-pub fn sync_events(dom_controller: &mut DomController, erase_enabled: bool) {
+pub fn sync_events(dom_controller: &mut DomController, erase_disabled: bool) {
     dom_controller
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 => {}
             1 => {
-                ele.sync(Syncs::Boolean(!erase_enabled));
+                ele.sync(Syncs::Boolean(!erase_disabled));
             }
             sync_id => {
                 warn!(

@@ -151,8 +151,15 @@ fn sync_events_specific_sync(
                 ele.sync(Syncs::Numerical(hsv.h.into()));
             }
             3 => {
-                if three {
-                    ele.sync(Syncs::String(hex_str.to_owned()));
+                let Element::TextBox(text_box) = ele else {
+                    error!("element is not a textbox!");
+                    return;
+                };
+                if three && !text_box.is_selected() {
+                    text_box.sync(Syncs::String(hex_str.to_owned()));
+                    for _ in 0..hex_str.len() {
+                        text_box.move_cursor_left();
+                    }
                 }
             }
             4 => {
