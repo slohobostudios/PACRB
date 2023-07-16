@@ -150,8 +150,10 @@ fn sync_events_specific_sync(
             2 if two => {
                 ele.sync(Syncs::Numerical(hsv.h.into()));
             }
-            3 if three => {
-                ele.sync(Syncs::String(hex_str.to_owned()));
+            3 => {
+                if three {
+                    ele.sync(Syncs::String(hex_str.to_owned()));
+                }
             }
             4 => {
                 ele.sync(Syncs::QuadColorPicker(QuadColorPickerSync {
