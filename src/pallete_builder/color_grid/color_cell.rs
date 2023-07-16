@@ -43,7 +43,9 @@ impl ColorCell {
     }
 
     pub fn update(&mut self) {
-        self.empty_cell.update();
+        if !self.draw_full_cell {
+            self.empty_cell.update();
+        }
     }
 
     pub fn render(&self, window: &mut RenderWindow) {

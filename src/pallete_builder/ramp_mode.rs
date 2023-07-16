@@ -150,8 +150,7 @@ impl RampMode {
     }
 
     pub fn update(&mut self, args: &mut RampModeEventHandlerArguments) {
-        if !self.ramp.ramp_being_shown() {
-        } else {
+        if self.ramp.ramp_being_shown() {
             self.ramp_update(args);
         }
     }
