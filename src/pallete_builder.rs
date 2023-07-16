@@ -191,6 +191,21 @@ impl PalleteBuilder {
             ))
         }
 
+        // Whenever configs change, we need to modify the ramp, if it is ramping
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            let fake_event = Event::GainedFocus;
+            if self.confirm_color_ramp.is_enabled() {
+                ramp_mode.regenerate_ramp_new_config(generate_ramp_mode_event_handler_arguments!(
+                    self, fake_event
+                ))
+            }
+
+            if self.confirm_color_ramp.cancel_ramp() {
+                self.confirm_color_ramp.set_enable(false);
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
+            }
+        }
+
         self.color_grid.update();
 
         self.check_settings_and_load_file_if_necessary();

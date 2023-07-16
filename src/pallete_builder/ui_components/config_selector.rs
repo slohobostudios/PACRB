@@ -71,7 +71,9 @@ impl DomControllerInterface for ConfigSelector {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.config_selector_dom.update(resource_manager)
+        let events = self.config_selector_dom.update(resource_manager);
+        config_selector_content::perform_events(&events, &mut self.current_config);
+        events
     }
 
     fn render(&mut self, window: &mut RenderWindow) {
