@@ -80,10 +80,22 @@ pub fn remove_pacrb_file(file_name: &str) {
 /// 2 (26,25):(250,250,250)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-// pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) {
-//     ensure_folder_exists!();
-//     todo!()
-// }
+pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
+    ensure_folder_exists()?;
+
+    let mut data = String::new();
+    for x in 0..color_grid.0.len() {
+        for y in 0..color_grid.0[x].len() {
+            if color_grid[x][y].borrow().draw_full_cell {
+                let color: Color = color_grid[x][y].borrow().full_cell_current_color().into();
+                let (r, g, b) = (color.r, color.g, color.b);
+                data.push_str(&format!("({x},{y}):({r},{g},{b})\n"));
+            }
+        }
+    }
+
+    Ok(fs::write(format!("{}/{}", FILE_DIR, file_name), data)?)
+}
 
 pub fn load_color_grid(
     color_grid: &mut ColorGrid,

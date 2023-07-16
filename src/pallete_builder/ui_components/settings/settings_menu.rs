@@ -10,7 +10,9 @@ use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_exte
 
 use self::{
     confirm_file_deletion::ConfirmFileDeletion,
-    settings_menu_content::{perform_events, reload_list_of_files, sync_events},
+    settings_menu_content::{
+        perform_events, reload_list_of_files, set_save_file_traverse_dom, sync_events,
+    },
 };
 
 mod confirm_file_deletion;
@@ -18,6 +20,8 @@ mod settings_menu_content;
 
 #[derive(Debug, Default)]
 pub struct SettingsMenu {
+    save_file: String,
+    trigger_save_event: bool,
     file_to_load: Option<String>,
     list_of_files: Vec<String>,
     current_list_of_files_idx: usize,
@@ -34,8 +38,10 @@ impl SettingsMenu {
             include_str!("settings_menu/settings_menu_content.xml"),
         );
         let list_of_files = list_of_files_with_pacrb_extension();
-        sync_events(&mut settings_menu_dom, ui_settings);
+        sync_events(&mut settings_menu_dom, ui_settings, Default::default());
         let mut sm = Self {
+            save_file: Default::default(),
+            trigger_save_event: false,
             file_to_load: None,
             settings_menu_dom,
             current_list_of_files_idx: 0,
@@ -48,12 +54,34 @@ impl SettingsMenu {
         sm
     }
 
+    pub fn trigger_save_event(&self) -> bool {
+        self.trigger_save_event
+    }
+
+    pub fn untrigger_save_event(&mut self) {
+        self.trigger_save_event = false;
+    }
+
+    pub fn set_save_file(&mut self, new_save_file: &str) {
+        self.save_file = new_save_file.to_string();
+        set_save_file_traverse_dom(self);
+    }
+
+    pub fn save_file(&self) -> &str {
+        &self.save_file
+    }
+
     pub fn file_to_load(&self) -> Option<&str> {
         self.file_to_load.as_deref()
     }
 
     pub fn clear_file_to_load(&mut self) {
         self.file_to_load = None;
+    }
+
+    pub fn open_save_menu(&mut self, ui_settings: &UISettings) {
+        self.display = true;
+        settings_menu_content::open_save_menu(self, ui_settings);
     }
 }
 

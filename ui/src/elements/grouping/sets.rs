@@ -55,6 +55,10 @@ impl Sets {
         s
     }
 
+    pub fn div(&self) -> &Div {
+        &self.div
+    }
+
     pub fn mut_div(&mut self) -> &mut Div {
         &mut self.div
     }

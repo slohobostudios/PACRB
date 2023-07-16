@@ -127,6 +127,40 @@ impl Element {
             _ => {}
         }
     }
+
+    pub fn traverse_dom<F: Fn(&Element)>(&self, sync_element: &F) {
+        sync_element(self);
+
+        use Element::*;
+        match self {
+            RootNode(ele) => {
+                for ele in ele.children() {
+                    ele.traverse_dom(sync_element)
+                }
+            }
+            Background(ele) => {
+                for ele in ele.children() {
+                    ele.traverse_dom(sync_element)
+                }
+            }
+            Grid(ele) => {
+                for ele in ele.children() {
+                    ele.traverse_dom(sync_element)
+                }
+            }
+            Div(ele) => {
+                for ele in ele.children() {
+                    ele.traverse_dom(sync_element)
+                }
+            }
+            Sets(ele) => {
+                for ele in ele.div().children() {
+                    ele.traverse_dom(sync_element)
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 use crate::{events::*, syncs::Syncs, ui_settings::UISettings, utils::positioning::UIPosition};

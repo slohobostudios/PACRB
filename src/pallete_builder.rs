@@ -15,13 +15,17 @@ use crate::generate_ramp_mode_event_handler_arguments;
 
 use self::{
     color_grid::{
-        color_cell::CELL_SIZE, load_save::load_color_grid, undo_redo::UndoRedoCell, ColorGrid,
+        color_cell::CELL_SIZE,
+        load_save::{load_color_grid, save_color_grid},
+        undo_redo::UndoRedoCell,
+        ColorGrid,
     },
     normal_mode::{NormalMode, NormalModeEventHandlerArguments},
     ramp_mode::{RampMode, RampModeEventHandlerArguments},
     ui_components::{
         config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
-        erase_mode::EraseMode, hsv_selector::HSVSelector, settings::Settings,
+        current_quick_save_file::CurrentQuickSaveFile, erase_mode::EraseMode,
+        hsv_selector::HSVSelector, settings::Settings,
     },
 };
 
@@ -44,6 +48,7 @@ pub struct PalleteBuilder {
     config_selector: ConfigSelector,
     hsv_selector: HSVSelector,
     erase_mode: EraseMode,
+    current_quick_save_file: CurrentQuickSaveFile,
     confirm_color_ramp: ConfirmColorRamp,
     settings: Settings,
     color_grid: ColorGrid,
@@ -63,6 +68,7 @@ impl PalleteBuilder {
             hsv_selector: HSVSelector::new(resource_manager, ui_settings),
             config_selector: ConfigSelector::new(resource_manager, ui_settings),
             confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
+            current_quick_save_file: CurrentQuickSaveFile::new(resource_manager, ui_settings),
             erase_mode: EraseMode::new(resource_manager, ui_settings),
             settings: Settings::new(resource_manager, ui_settings),
             is_dragging_erase: false,
@@ -81,13 +87,14 @@ impl PalleteBuilder {
         }
     }
 
-    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 5] {
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 6] {
         [
             &mut self.config_selector,
             &mut self.hsv_selector,
             &mut self.erase_mode,
             &mut self.confirm_color_ramp,
             &mut self.settings,
+            &mut self.current_quick_save_file,
         ]
     }
 
@@ -157,6 +164,7 @@ impl PalleteBuilder {
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
+        self.general_other_key_event_handler(&event, ui_settings);
 
         match &mut self.current_mode {
             Mode::NormalMode(normal_mode) => {
@@ -209,6 +217,8 @@ impl PalleteBuilder {
         self.color_grid.update();
 
         self.check_settings_and_load_file_if_necessary();
+        self.check_settings_and_save_file_if_necessary();
+        self.check_quick_save_file_name_and_update_if_necessary();
     }
 
     pub fn render(&mut self, window: &mut RenderWindow) {
@@ -448,6 +458,22 @@ impl PalleteBuilder {
             _ => false,
         }
     }
+
+    fn general_other_key_event_handler(&mut self, event: &Event, ui_settings: &UISettings) {
+        match *event {
+            // Quick Save
+            Event::KeyPressed { code, ctrl, .. } if code == Key::S && ctrl => {
+                if !self.settings.save_file().is_empty() {
+                    if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+                        error!(err);
+                    }
+                } else {
+                    self.settings.open_save_menu(ui_settings)
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 #[macro_export]
@@ -468,9 +494,9 @@ macro_rules! generate_ramp_mode_event_handler_arguments {
 // General utility
 impl PalleteBuilder {
     fn check_settings_and_load_file_if_necessary(&mut self) {
-        let mut file_loaded = false;
+        let mut exterior_file_to_load = None;
         if let Some(file_to_load) = self.settings.file_to_load() {
-            file_loaded = true;
+            exterior_file_to_load = Some(file_to_load.to_string());
             if let Err(err) =
                 load_color_grid(&mut self.color_grid, file_to_load, &mut self.undo_redo)
             {
@@ -478,8 +504,27 @@ impl PalleteBuilder {
             }
         }
 
-        if file_loaded {
+        if let Some(file_to_load) = exterior_file_to_load {
             self.settings.clear_file_to_load();
+            self.settings.set_save_file(&file_to_load)
+        }
+    }
+
+    fn check_settings_and_save_file_if_necessary(&mut self) {
+        if !self.settings.trigger_save_event() || self.settings.save_file().is_empty() {
+            return;
+        }
+
+        if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+            error!(err);
+        }
+        self.settings.untrigger_save_event();
+    }
+
+    fn check_quick_save_file_name_and_update_if_necessary(&mut self) {
+        if self.current_quick_save_file.current_quick_save_file() != self.settings.save_file() {
+            self.current_quick_save_file
+                .set_current_quick_save_file(self.settings.save_file());
         }
     }
 }

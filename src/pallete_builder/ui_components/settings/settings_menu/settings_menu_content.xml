@@ -164,14 +164,37 @@
             size="x:680,y:400"
             pagination_size="x:2,y:1"
             grid_layout="x:2,y:1">
+
             <Div info="Save">
               <Text position="t:0">
                 Save
               </Text>
-              <Text>
-                Not Implemented
+              <Text position="l:0,t:3,b:7">
+                Current file:
               </Text>
+              <TextBox
+                type="FixedSizeOneLineTextbox"
+                position="l:0,t:4,b:6"
+                color="#091d1e"
+                size="x:300"
+                event_id='2000'
+                sync_id='2000'/>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="l:0"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='2001'>
+                <Div padding="t:5,b:5,l:10,r:10">
+                  <Text>
+                    Save
+                  </Text>
+                </Div>
+              </Button>
             </Div>
+
             <Div info="Load">
               <Text position="t:0">
                 Load
