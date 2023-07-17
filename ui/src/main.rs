@@ -90,7 +90,7 @@ const XML_DOC: &str = r##"<RootNode scale="4" font_size="20" color="#f7e5e4" xml
                 <TextBox
                     type="FixedSizeOneLineTextbox"
                     color="#091d1e"
-                    size="x:80"/>
+                    size="x:200"/>
             </Div>
             <Div size="x:702,y:400">
                 <Slider 
