@@ -1,7 +1,6 @@
 use std::{
     error::Error,
-    ffi::OsString,
-    fs::{self, File},
+    fs::{self, DirEntry, File},
     io::{self, BufRead, BufReader},
     path::Path,
 };
@@ -40,28 +39,21 @@ pub fn list_of_files_with_pacrb_extension() -> Vec<String> {
         return vec![];
     };
 
-    files
-        .filter_map(|dir_entry| {
-            let Ok(dir_entry) = dir_entry else {
-                return None;
-            };
+    fn try_get_file_name(dir_entry: Result<DirEntry, io::Error>) -> Option<String> {
+        let dir_entry = dir_entry.ok()?;
+        let dir_entry = dir_entry.path();
+        if !dir_entry
+            .extension()
+            .is_some_and(|extension| extension == "pacrb")
+        {
+            return None;
+        }
+        let file_name = dir_entry.file_name()?;
+        let file_name = file_name.to_str()?;
+        Some(file_name.to_string())
+    }
 
-            let dir_entry = dir_entry.path();
-            if dir_entry.extension() != Some(&OsString::from("pacrb")) {
-                return None;
-            }
-
-            let Some(file_name) = dir_entry.file_name() else {
-                return None;
-            };
-
-            let Some(file_name) = file_name.to_str() else {
-                return None;
-            };
-
-            Some(file_name.to_owned())
-        })
-        .collect()
+    files.filter_map(try_get_file_name).collect()
 }
 
 pub fn remove_pacrb_file(file_name: &str) {

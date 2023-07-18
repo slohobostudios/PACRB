@@ -76,14 +76,17 @@ mod test {
     #[test]
     fn cell_pos() {
         let grid = UIGrid::new(50, 50, Vector2::new(10000, 10000));
-        assert_eq!(grid.cell_pos(25, 25).unwrap(), Vector2::new(5000, 5000));
+        assert_eq!(
+            grid.cell_pos(25, 25).expect("unit-test"),
+            Vector2::new(5000, 5000)
+        );
     }
 
     #[test]
     fn cell_bounds() {
         let grid = UIGrid::new(50, 50, Vector2::new(10000, 10000));
         assert_eq!(
-            grid.cell_bounds(25, 25).unwrap(),
+            grid.cell_bounds(25, 25).expect("unit-test"),
             Rect::new(5000, 5000, 200, 200)
         );
     }
@@ -92,7 +95,7 @@ mod test {
     fn global_cell_pos() {
         let grid = UIGrid::new(50, 50, Vector2::new(10000, 10000));
         assert_eq!(
-            grid.global_cell_position(25, 25).unwrap(),
+            grid.global_cell_position(25, 25).expect("unit-test"),
             (grid.global_bounds.position() + Vector2::new(5000, 5000))
         );
     }
@@ -101,7 +104,7 @@ mod test {
     fn global_cell_bounds() {
         let grid = UIGrid::new(50, 50, Vector2::new(10000, 10000));
         assert_eq!(
-            grid.global_cell_bounds(25, 25).unwrap(),
+            grid.global_cell_bounds(25, 25).expect("unit-test"),
             IntRect::from_vecs(
                 grid.global_bounds.position() + Vector2::new(5000, 5000),
                 grid.cell_size().into_other()

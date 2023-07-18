@@ -1,5 +1,10 @@
 use sfml::graphics::{RcFont, Texture};
-use std::{collections::HashMap, fs, process::exit};
+use std::{
+    collections::HashMap,
+    fs::{self, DirEntry},
+    io,
+    process::exit,
+};
 use tracing::{error, warn};
 
 use crate::simple_error::SimpleError;
@@ -60,19 +65,23 @@ impl ResourceManager {
     }
 
     fn get_all_file_names_in_assets() -> Vec<String> {
-        fs::read_dir(ASSETS_PATH)
-            .unwrap()
-            .map(|dir_entry| {
-                dir_entry
-                    .unwrap()
-                    .path()
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_owned()
-            })
-            .collect()
+        let files = match fs::read_dir(ASSETS_PATH) {
+            Ok(v) => v,
+            Err(err) => {
+                error!("{:#?}", err);
+                return Default::default();
+            }
+        };
+
+        fn try_get_file_name(dir_entry: Result<DirEntry, io::Error>) -> Option<String> {
+            let dir_entry = dir_entry.ok()?;
+            let dir_entry = dir_entry.path();
+            let file_name = dir_entry.file_name()?;
+            let file_name = file_name.to_str()?;
+            Some(file_name.to_string())
+        }
+
+        files.filter_map(try_get_file_name).collect()
     }
 
     fn load_assets() -> Assets {

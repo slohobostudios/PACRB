@@ -76,8 +76,14 @@ impl PalleteBuilder {
             previous_mouse_position: Default::default(),
             view: View::new(
                 Vector2f::new(
-                    (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
-                    (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                    (color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.x)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
+                    (color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.y)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
                 ),
                 ui_settings.aspect_ratio.current_resolution,
             ),
@@ -303,8 +309,14 @@ impl PalleteBuilder {
             }
             Event::KeyPressed { code, .. } if code == &Key::Space => {
                 self.view.set_center(Vector2f::new(
-                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
-                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                    (self.color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.x)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
+                    (self.color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.y)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
                 ))
             }
             _ => {}

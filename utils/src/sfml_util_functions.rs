@@ -65,28 +65,28 @@ mod test {
     fn parse_color_hex() {
         // rgb tests
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#FFFFFF").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#FFFFFF").expect("unit-test"),
             Color::rgb(255, 255, 255)
         );
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#000000").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#000000").expect("unit-test"),
             Color::rgb(0, 0, 0)
         );
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#3780B2").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#3780B2").expect("unit-test"),
             Color::rgb(55, 128, 178)
         );
         // rgba tests
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#FFFFFFFF").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#FFFFFFFF").expect("unit-test"),
             Color::rgba(255, 255, 255, 255)
         );
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#00000000").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#00000000").expect("unit-test"),
             Color::rgba(0, 0, 0, 0)
         );
         assert_eq!(
-            try_from_color_hash_string_to_sfml_color("#3780B2A1").unwrap(),
+            try_from_color_hash_string_to_sfml_color("#3780B2A1").expect("unit-test"),
             Color::rgba(55, 128, 178, 161)
         );
     }

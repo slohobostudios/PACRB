@@ -197,14 +197,17 @@ mod test {
 
         binds.set_bind(PossibleInputs::A, PossibleBinds::Select);
 
-        binds.input_bindings.get(&PossibleInputs::A).unwrap();
+        binds
+            .input_bindings
+            .get(&PossibleInputs::A)
+            .expect("unit-test");
         binds
             .binded_inputs
             .get(&PossibleBinds::Select)
-            .unwrap()
+            .expect("unit-test")
             .0
             .get(&PossibleInputs::A)
-            .unwrap();
+            .expect("unit-test");
     }
 
     #[test]

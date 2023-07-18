@@ -225,15 +225,20 @@ impl UpDownScrollListBox {
     }
 
     fn set_button_strings_based_on_current_option_idx(&mut self) {
-        // Borrow checker is a bitch
-        let mut option_idx = wrapping_sub_custom_clamps(
+        let mut option_idx = match wrapping_sub_custom_clamps(
             self.current_option_idx,
             self.buttons.len() / 2,
             0,
             self.options.len().saturating_sub(1),
-        )
-        .unwrap();
+        ) {
+            Some(v) => v,
+            None => {
+                error!("Unable to do wrapping subtraction with custom clamps!");
+                0
+            }
+        };
 
+        // Borrow checker is a bitch
         let options = self.options.clone();
 
         for idx in 0..self.buttons.len() {

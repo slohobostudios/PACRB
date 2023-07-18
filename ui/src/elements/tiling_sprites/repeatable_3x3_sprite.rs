@@ -11,7 +11,9 @@ use sfml::{
     system::{Vector2, Vector2u},
 };
 use utils::{
-    arithmetic_util_functions::i32_ceil_div, quads::Quad, resource_manager::ResourceManager,
+    arithmetic_util_functions::{i32_ceil_div, i32_from_u32},
+    quads::Quad,
+    resource_manager::ResourceManager,
     sfml_util_functions::bottom_right_rect_coords,
 };
 
@@ -232,11 +234,11 @@ impl Element for Repeatable3x3Sprite {
     fn update_size(&mut self) {
         self.num_tiles = Vector2::new(
             i32_ceil_div(
-                self.desired_size.x.try_into().unwrap(),
+                i32_from_u32(self.desired_size.x),
                 self.middle_sprite.global_bounds().width as i32,
             ) as u16,
             i32_ceil_div(
-                self.desired_size.y.try_into().unwrap(),
+                i32_from_u32(self.desired_size.y),
                 self.middle_sprite.global_bounds().height as i32,
             ) as u16,
         );
