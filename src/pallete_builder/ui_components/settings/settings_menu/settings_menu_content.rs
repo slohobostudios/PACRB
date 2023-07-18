@@ -16,7 +16,7 @@ use ui::{
 
 use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_extension;
 
-use super::SettingsMenu;
+use super::{SettingsMenu, TriggerFileSaveStates};
 
 pub fn perform_events(
     events: &Vec<Event>,
@@ -242,7 +242,7 @@ fn event2000(event: &Event, settings_menu: &mut SettingsMenu) {
 }
 
 fn event2001(settings_menu: &mut SettingsMenu) {
-    settings_menu.trigger_save_event = true;
+    settings_menu.trigger_save_event = TriggerFileSaveStates::Save;
 }
 
 pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings, save_file: &str) {
@@ -343,4 +343,8 @@ pub fn set_save_file_traverse_dom(settings_menu: &mut SettingsMenu) {
 
 pub fn set_save_file(ele: &mut Element, new_save_file: &str) {
     ele.sync(Syncs::String(new_save_file.to_string()))
+}
+
+pub fn refresh_event(settings_menu: &mut SettingsMenu) {
+    event1097(settings_menu)
 }

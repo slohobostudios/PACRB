@@ -11,17 +11,26 @@ use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_exte
 use self::{
     confirm_file_deletion::ConfirmFileDeletion,
     settings_menu_content::{
-        perform_events, reload_list_of_files, set_save_file_traverse_dom, sync_events,
+        perform_events, refresh_event, reload_list_of_files, set_save_file_traverse_dom,
+        sync_events,
     },
 };
 
 mod confirm_file_deletion;
 mod settings_menu_content;
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+enum TriggerFileSaveStates {
+    #[default]
+    Idle,
+    Save,
+    JustSaved,
+}
+
 #[derive(Debug, Default)]
 pub struct SettingsMenu {
     save_file: String,
-    trigger_save_event: bool,
+    trigger_save_event: TriggerFileSaveStates,
     file_to_load: Option<String>,
     list_of_files: Vec<String>,
     current_list_of_files_idx: usize,
@@ -41,7 +50,7 @@ impl SettingsMenu {
         sync_events(&mut settings_menu_dom, ui_settings, Default::default());
         let mut sm = Self {
             save_file: Default::default(),
-            trigger_save_event: false,
+            trigger_save_event: Default::default(),
             file_to_load: None,
             settings_menu_dom,
             current_list_of_files_idx: 0,
@@ -55,11 +64,11 @@ impl SettingsMenu {
     }
 
     pub fn trigger_save_event(&self) -> bool {
-        self.trigger_save_event
+        self.trigger_save_event == TriggerFileSaveStates::Save
     }
 
     pub fn untrigger_save_event(&mut self) {
-        self.trigger_save_event = false;
+        self.trigger_save_event = TriggerFileSaveStates::JustSaved;
     }
 
     pub fn set_save_file(&mut self, new_save_file: &str) {
@@ -132,6 +141,9 @@ impl DomControllerInterface for SettingsMenu {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
+        if self.trigger_save_event == TriggerFileSaveStates::JustSaved {
+            refresh_event(self);
+        }
         if !self.display {
             return Default::default();
         }
