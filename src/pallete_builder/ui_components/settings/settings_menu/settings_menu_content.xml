@@ -102,12 +102,6 @@
                 options="21x9,17x9,16x10,16x9,4x3,1x1"/>
             </Div>
             <Div layout='2'>
-              <Text position="l:0,t:0">
-                21x9 may not work with
-              </Text>
-              <Text position="l:0,t:20">
-                all GPUs
-              </Text>
             </Div>
             <Div layout='3'>
             </Div>
