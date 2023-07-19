@@ -474,10 +474,10 @@
                 hover_frame_id='1'
                 click_frame_id='2'
                 position='l:6,r:4'
-                number_of_buttons='3'
+                number_of_buttons='1'
                 event_id='200'
                 padding="t:5,b:5,l:10,r:10"
-                options="bmp,png,tga,jpg"/>
+                options="bmp,png,tga"/>
             </Div>
             <Div>
               <Text position="l:0,b:6,t:4">

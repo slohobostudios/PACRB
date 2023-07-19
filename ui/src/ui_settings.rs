@@ -131,7 +131,7 @@ impl Default for UISettings {
     fn default() -> Self {
         Self {
             cursor_position: Default::default(),
-            aspect_ratio: DEFAULT_UI_SETTING_OPTIONS.aspect_ratios[0],
+            aspect_ratio: DEFAULT_UI_SETTING_OPTIONS.aspect_ratios[3],
             show_fps: false,
             vsync: true,
             has_new_settings: true,
