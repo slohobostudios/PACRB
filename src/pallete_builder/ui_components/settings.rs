@@ -34,6 +34,18 @@ impl Settings {
         }
     }
 
+    pub fn trigger_export_event(&self) -> bool {
+        self.settings_menu.trigger_export_event()
+    }
+
+    pub fn untrigger_export_event(&mut self) {
+        self.settings_menu.untrigger_export_event()
+    }
+
+    pub fn export_file(&self) -> String {
+        self.settings_menu.export_file()
+    }
+
     pub fn trigger_save_event(&self) -> bool {
         self.settings_menu.trigger_save_event()
     }

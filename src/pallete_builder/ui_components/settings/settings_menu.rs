@@ -20,7 +20,7 @@ mod confirm_file_deletion;
 mod settings_menu_content;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-enum TriggerFileSaveStates {
+enum TriggerFileStates {
     #[default]
     Idle,
     Save,
@@ -29,8 +29,11 @@ enum TriggerFileSaveStates {
 
 #[derive(Debug, Default)]
 pub struct SettingsMenu {
+    export_file_name: String,
+    export_file_extension: String,
+    trigger_export_event: TriggerFileStates,
     save_file: String,
-    trigger_save_event: TriggerFileSaveStates,
+    trigger_save_event: TriggerFileStates,
     file_to_load: Option<String>,
     list_of_files: Vec<String>,
     current_list_of_files_idx: usize,
@@ -41,14 +44,16 @@ pub struct SettingsMenu {
 
 impl SettingsMenu {
     pub fn new(resource_manager: &ResourceManager, ui_settings: &UISettings) -> Self {
-        let mut settings_menu_dom = DomController::new(
+        let settings_menu_dom = DomController::new(
             resource_manager,
             ui_settings,
             include_str!("settings_menu/settings_menu_content.xml"),
         );
         let list_of_files = list_of_files_with_pacrb_extension();
-        sync_events(&mut settings_menu_dom, ui_settings, Default::default());
         let mut sm = Self {
+            export_file_name: Default::default(),
+            export_file_extension: Default::default(),
+            trigger_export_event: Default::default(),
             save_file: Default::default(),
             trigger_save_event: Default::default(),
             file_to_load: None,
@@ -58,17 +63,30 @@ impl SettingsMenu {
             list_of_files,
             confirm_file_deletion: ConfirmFileDeletion::new(resource_manager, ui_settings),
         };
+        sync_events(&mut sm, ui_settings);
         reload_list_of_files(&mut sm);
 
         sm
     }
 
+    pub fn trigger_export_event(&self) -> bool {
+        self.trigger_export_event == TriggerFileStates::Save
+    }
+
+    pub fn untrigger_export_event(&mut self) {
+        self.trigger_export_event = TriggerFileStates::JustSaved;
+    }
+
+    pub fn export_file(&self) -> String {
+        format!("{}.{}", self.export_file_name, self.export_file_extension)
+    }
+
     pub fn trigger_save_event(&self) -> bool {
-        self.trigger_save_event == TriggerFileSaveStates::Save
+        self.trigger_save_event == TriggerFileStates::Save
     }
 
     pub fn untrigger_save_event(&mut self) {
-        self.trigger_save_event = TriggerFileSaveStates::JustSaved;
+        self.trigger_save_event = TriggerFileStates::JustSaved;
     }
 
     pub fn set_save_file(&mut self, new_save_file: &str) {
@@ -141,8 +159,12 @@ impl DomControllerInterface for SettingsMenu {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        if self.trigger_save_event == TriggerFileSaveStates::JustSaved {
+        if self.trigger_save_event == TriggerFileStates::JustSaved {
             refresh_event(self);
+            self.trigger_save_event = TriggerFileStates::Idle;
+        }
+        if self.trigger_export_event == TriggerFileStates::JustSaved {
+            self.trigger_export_event = TriggerFileStates::Idle;
         }
         if !self.display {
             return Default::default();

@@ -16,7 +16,7 @@ use crate::generate_ramp_mode_event_handler_arguments;
 use self::{
     color_grid::{
         color_cell::CELL_SIZE,
-        load_save::{load_color_grid, save_color_grid},
+        load_save::{export_color_grid, load_color_grid, save_color_grid},
         undo_redo::UndoRedoCell,
         ColorGrid,
     },
@@ -225,6 +225,7 @@ impl PalleteBuilder {
         self.check_settings_and_load_file_if_necessary();
         self.check_settings_and_save_file_if_necessary();
         self.check_quick_save_file_name_and_update_if_necessary();
+        self.check_export_file_status_and_export_if_necessary();
     }
 
     pub fn render(&mut self, window: &mut RenderWindow) {
@@ -538,5 +539,16 @@ impl PalleteBuilder {
             self.current_quick_save_file
                 .set_current_quick_save_file(self.settings.save_file());
         }
+    }
+
+    fn check_export_file_status_and_export_if_necessary(&mut self) {
+        if !self.settings.trigger_export_event() || self.settings.export_file().is_empty() {
+            return;
+        }
+
+        if let Err(err) = export_color_grid(&self.color_grid, &self.settings.export_file()) {
+            error!(err);
+        }
+        self.settings.untrigger_export_event();
     }
 }

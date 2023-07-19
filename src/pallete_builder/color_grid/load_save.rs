@@ -5,14 +5,18 @@ use std::{
     path::Path,
 };
 
-use sfml::{graphics::Color, system::Vector2};
+use sfml::{
+    graphics::{Color, Image},
+    system::Vector2,
+};
 use tracing::error;
+use utils::simple_error::SimpleError;
 
 use crate::pallete_builder::color_grid::GRID_SIZE;
 
 use super::{undo_redo::UndoRedoCell, ColorGrid};
 
-const FILE_DIR: &str = "pacrb_files";
+const FILE_DIR: &str = "files";
 
 fn ensure_folder_exists() -> io::Result<()> {
     if Path::new(FILE_DIR).is_dir() {
@@ -181,4 +185,36 @@ pub fn load_color_grid(
     }
 
     Ok(())
+}
+
+pub fn export_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
+    let mut pixels: Vec<u8> = vec![];
+    for color_cell in color_grid.iter() {
+        let color_cell = color_cell.borrow();
+        if color_cell.draw_full_cell {
+            let color: Color = color_cell.full_cell_current_color().into();
+            pixels.extend([color.r, color.g, color.b, color.a]);
+        } else {
+            pixels.extend([0, 0, 0, 0]);
+        }
+    }
+    let image = unsafe {
+        Image::create_from_pixels(
+            GRID_SIZE
+                .try_into()
+                .expect("Fails if GRID_SIZE is greater than u32::MAX"),
+            GRID_SIZE
+                .try_into()
+                .expect("Fails if GRID_SIZE is greater than u32::MAX"),
+            &pixels,
+        )
+        .ok_or("Failed to create image from pixels!")?
+    };
+    if image.save_to_file(&format!("{}/{}", FILE_DIR, file_name)) {
+        Ok(())
+    } else {
+        Err(Box::new(SimpleError::new(
+            "Failed to save image to file!".to_string(),
+        )))
+    }
 }

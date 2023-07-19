@@ -16,7 +16,7 @@ use ui::{
 
 use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_extension;
 
-use super::{SettingsMenu, TriggerFileSaveStates};
+use super::{SettingsMenu, TriggerFileStates};
 
 pub fn perform_events(
     events: &Vec<Event>,
@@ -43,9 +43,14 @@ fn perform_event(
         3 => event3(settings_menu, ui_settings),
         4 => event4(settings_menu, ui_settings),
         5 => event5(settings_menu, ui_settings),
+        6 => event6(settings_menu, ui_settings),
         100 => event100(event, ui_settings),
         101 => event101(ui_settings),
         102 => event102(event, ui_settings, window),
+        // Export functions
+        200 => event200(event, settings_menu, ui_settings),
+        201 => event201(event, settings_menu, ui_settings),
+        202 => event202(settings_menu),
         // Refresh
         1097 => event1097(settings_menu),
         // Next
@@ -95,30 +100,23 @@ fn event2(
 
 fn event3(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 0);
-    sync_events(
-        &mut settings_menu.settings_menu_dom,
-        ui_settings,
-        &settings_menu.save_file,
-    );
+    sync_events(settings_menu, ui_settings);
 }
 
 fn event4(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 1);
-    sync_events(
-        &mut settings_menu.settings_menu_dom,
-        ui_settings,
-        &settings_menu.save_file,
-    );
+    sync_events(settings_menu, ui_settings);
     reload_list_of_files(settings_menu);
 }
 
 fn event5(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
     set_the_current_set(&mut settings_menu.settings_menu_dom, 2);
-    sync_events(
-        &mut settings_menu.settings_menu_dom,
-        ui_settings,
-        &settings_menu.save_file,
-    );
+    sync_events(settings_menu, ui_settings);
+}
+
+fn event6(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
+    set_the_current_set(&mut settings_menu.settings_menu_dom, 3);
+    sync_events(settings_menu, ui_settings);
 }
 
 fn event100(event: &Event, ui_settings: &mut UISettings) {
@@ -153,6 +151,30 @@ fn event102(event: &Event, ui_settings: &mut UISettings, window: &mut RenderWind
     } else {
         ui_settings.disable_vsync(window)
     }
+}
+
+fn event200(event: &Event, settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
+    let Events::StringEvent(extension) = &event.event else {
+        error!("event is not a string event! {:#?}", event);
+        return;
+    };
+
+    settings_menu.export_file_extension = extension.clone();
+    sync_events(settings_menu, ui_settings);
+}
+
+fn event201(event: &Event, settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
+    let Events::TextBoxEvent(event) = &event.event else {
+        error!("event is not a textbox event! {:#?}", event);
+        return;
+    };
+
+    settings_menu.export_file_name = event.string.clone();
+    sync_events(settings_menu, ui_settings);
+}
+
+fn event202(settings_menu: &mut SettingsMenu) {
+    settings_menu.trigger_export_event = TriggerFileStates::Save;
 }
 
 fn event1097(settings_menu: &mut SettingsMenu) {
@@ -242,11 +264,13 @@ fn event2000(event: &Event, settings_menu: &mut SettingsMenu) {
 }
 
 fn event2001(settings_menu: &mut SettingsMenu) {
-    settings_menu.trigger_save_event = TriggerFileSaveStates::Save;
+    settings_menu.trigger_save_event = TriggerFileStates::Save;
 }
 
-pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings, save_file: &str) {
-    dom_controller
+pub fn sync_events(settings_menu: &mut SettingsMenu, ui_settings: &UISettings) {
+    let export_file = &settings_menu.export_file();
+    let save_file = settings_menu.save_file().to_string();
+    settings_menu.settings_menu_dom
         .root_node
         .traverse_dom_mut(&mut |ele| match ele.sync_id() {
             0 | 1 | 1000 | 1001 | 1002 | 1003 | 1004 => {}
@@ -270,8 +294,11 @@ pub fn sync_events(dom_controller: &mut DomController, ui_settings: &UISettings,
 
                 boolean_image_button.sync(Syncs::Boolean(ui_settings.is_vsync_enabled()));
             }
+            200 => {
+                ele.sync(Syncs::String(export_file.clone()))
+            }
             2000 => {
-                set_save_file(ele, save_file);
+                set_save_file(ele, &save_file);
             }
             sync_id => {
                 warn!(
