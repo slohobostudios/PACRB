@@ -52,7 +52,7 @@ impl SettingsMenu {
         let list_of_files = list_of_files_with_pacrb_extension();
         let mut sm = Self {
             export_file_name: Default::default(),
-            export_file_extension: Default::default(),
+            export_file_extension: "png".to_string(),
             trigger_export_event: Default::default(),
             save_file: Default::default(),
             trigger_save_event: Default::default(),
