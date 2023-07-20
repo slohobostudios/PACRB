@@ -1,12 +1,14 @@
 #![windows_subsystem = "windows"]
 use sfml::{
-    graphics::{Color, RenderTarget, RenderWindow},
+    graphics::{Color, Image, RenderTarget, RenderWindow},
     system::Vector2f,
     window::{Event, Style},
 };
+use tracing::error;
 use ui::ui_settings::UISettings;
 use utils::{
-    fps_counter::FPSCounter, resource_manager::ResourceManager,
+    fps_counter::FPSCounter,
+    resource_manager::{ResourceManager, ASSETS_PATH},
     tracing_subscriber_setup::setup_tracing_subscriber,
 };
 
@@ -14,12 +16,25 @@ use crate::pallete_builder::PalleteBuilder;
 
 mod pallete_builder;
 
+fn set_window_logo(window: &mut RenderWindow) {
+    fn try_set_window_logo(window: &mut RenderWindow) -> Option<()> {
+        let image = Image::from_file(&format!("{}/{}", ASSETS_PATH, "pacrb_logo.png"))?;
+        unsafe { window.set_icon(image.size().x, image.size().y, image.pixel_data()) };
+        Some(())
+    }
+
+    if try_set_window_logo(window).is_none() {
+        error!("Failed to load window logo!");
+    }
+}
+
 fn main() {
     setup_tracing_subscriber();
 
     const WINDOW_SIZE: (u32, u32) = (1280, 720);
     // Create a new window
     let mut window = RenderWindow::new(WINDOW_SIZE, "PACRB", Style::DEFAULT, &Default::default());
+    set_window_logo(&mut window);
     let mut ui_settings = UISettings::from_file();
     ui_settings.synchronize_ui_settings_and_sfml(&mut window);
     // This prevents ui elements from creating render textures that are of size 0x0
