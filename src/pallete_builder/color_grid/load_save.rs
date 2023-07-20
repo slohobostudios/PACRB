@@ -188,7 +188,7 @@ pub fn load_color_grid(
 }
 
 pub fn export_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
-    let mut pixels: Vec<u8> = vec![];
+    let mut pixels: Vec<u8> = Vec::with_capacity(GRID_SIZE * GRID_SIZE * 4);
     for color_cell in color_grid.iter() {
         let color_cell = color_cell.borrow();
         if color_cell.draw_full_cell {
