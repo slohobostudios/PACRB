@@ -86,11 +86,61 @@ impl UndoRedoCell {
         if !previous_color_cell.draw_full_cell && !new_color_cell.draw_full_cell {
             return;
         }
+        // get rid of redos
         self.cell_changes.truncate(self.current_idx + 1);
 
         self.cell_changes
             .push((previous_color_cell, new_color_cell));
         self.current_idx = self.cell_changes.len() - 1;
+
+        self.simplify_last_four_repititions();
+    }
+
+    /// This function looks at the last four changes made.
+    /// If the last change, 3rd to last change are the same,
+    /// and 2nd to last and fourth to last are the same,
+    /// truncate the last two indeces
+    fn simplify_last_four_repititions(&mut self) {
+        if self.cell_changes.len() <= 4 {
+            return;
+        }
+        let idx1 = self.current_idx;
+        let idx2 = self.current_idx - 1;
+        let idx4 = self.current_idx - 3;
+        let last_four_colors = self.cell_changes[idx4..=idx1].to_vec();
+
+        fn color_cells_have_same_color_and_empty_state(
+            color_cell: &ColorCell,
+            other_color_cell: &ColorCell,
+        ) -> bool {
+            match (
+                color_cell.draw_full_cell,
+                other_color_cell.draw_full_cell,
+                color_cell.full_cell_current_color(),
+                other_color_cell.full_cell_current_color(),
+            ) {
+                (false, false, ..) => true,
+                (true, true, a, b) if a == b => true,
+                _ => false,
+            }
+        }
+
+        if color_cells_have_same_color_and_empty_state(
+            &last_four_colors[3].0,
+            &last_four_colors[1].0,
+        ) && color_cells_have_same_color_and_empty_state(
+            &last_four_colors[3].1,
+            &last_four_colors[1].1,
+        ) && color_cells_have_same_color_and_empty_state(
+            &last_four_colors[2].0,
+            &last_four_colors[0].0,
+        ) && color_cells_have_same_color_and_empty_state(
+            &last_four_colors[2].1,
+            &last_four_colors[0].1,
+        ) {
+            self.cell_changes.truncate(idx2);
+            self.current_idx = self.cell_changes.len() - 1;
+        }
     }
 }
 
