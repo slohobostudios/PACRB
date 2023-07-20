@@ -132,7 +132,8 @@ impl ActionableElement for BooleanImageButton {
     }
 
     fn set_hover(&mut self, mouse_pos: Vector2i) {
-        self.current_button_mut().set_hover(mouse_pos);
+        self.truth_button.set_hover(mouse_pos);
+        self.false_button.set_hover(mouse_pos);
     }
 
     fn is_hover(&self) -> bool {

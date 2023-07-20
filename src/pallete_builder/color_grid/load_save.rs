@@ -1,19 +1,22 @@
 use std::{
     error::Error,
-    ffi::OsString,
-    fs::{self, File},
+    fs::{self, DirEntry, File},
     io::{self, BufRead, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
-use sfml::{graphics::Color, system::Vector2};
+use sfml::{
+    graphics::{Color, Image},
+    system::Vector2,
+};
 use tracing::error;
+use utils::simple_error::SimpleError;
 
 use crate::pallete_builder::color_grid::GRID_SIZE;
 
 use super::{undo_redo::UndoRedoCell, ColorGrid};
 
-const FILE_DIR: &str = "pacrb_files";
+const FILE_DIR: &str = "files";
 
 fn ensure_folder_exists() -> io::Result<()> {
     if Path::new(FILE_DIR).is_dir() {
@@ -40,28 +43,21 @@ pub fn list_of_files_with_pacrb_extension() -> Vec<String> {
         return vec![];
     };
 
-    files
-        .filter_map(|dir_entry| {
-            let Ok(dir_entry) = dir_entry else {
-                return None;
-            };
+    fn try_get_file_name(dir_entry: Result<DirEntry, io::Error>) -> Option<String> {
+        let dir_entry = dir_entry.ok()?;
+        let dir_entry = dir_entry.path();
+        if !dir_entry
+            .extension()
+            .is_some_and(|extension| extension == "pacrb")
+        {
+            return None;
+        }
+        let file_name = dir_entry.file_name()?;
+        let file_name = file_name.to_str()?;
+        Some(file_name.to_string())
+    }
 
-            let dir_entry = dir_entry.path();
-            if dir_entry.extension() != Some(&OsString::from("pacrb")) {
-                return None;
-            }
-
-            let Some(file_name) = dir_entry.file_name() else {
-                return None;
-            };
-
-            let Some(file_name) = file_name.to_str() else {
-                return None;
-            };
-
-            Some(file_name.to_owned())
-        })
-        .collect()
+    files.filter_map(try_get_file_name).collect()
 }
 
 pub fn remove_pacrb_file(file_name: &str) {
@@ -80,10 +76,22 @@ pub fn remove_pacrb_file(file_name: &str) {
 /// 2 (26,25):(250,250,250)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-// pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) {
-//     ensure_folder_exists!();
-//     todo!()
-// }
+pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
+    ensure_folder_exists()?;
+
+    let mut data = String::new();
+    for x in 0..color_grid.0.len() {
+        for y in 0..color_grid.0[x].len() {
+            if color_grid[x][y].borrow().draw_full_cell {
+                let color: Color = color_grid[x][y].borrow().full_cell_current_color().into();
+                let (r, g, b) = (color.r, color.g, color.b);
+                data.push_str(&format!("({x},{y}):({r},{g},{b})\n"));
+            }
+        }
+    }
+
+    Ok(fs::write(format!("{}/{}", FILE_DIR, file_name), data)?)
+}
 
 pub fn load_color_grid(
     color_grid: &mut ColorGrid,
@@ -177,4 +185,42 @@ pub fn load_color_grid(
     }
 
     Ok(())
+}
+
+pub fn export_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
+    let mut pixels: Vec<u8> = Vec::with_capacity(GRID_SIZE * GRID_SIZE * 4);
+    for color_cell in color_grid.iter() {
+        let color_cell = color_cell.borrow();
+        if color_cell.draw_full_cell {
+            let color: Color = color_cell.full_cell_current_color().into();
+            pixels.extend([color.r, color.g, color.b, color.a]);
+        } else {
+            pixels.extend([0, 0, 0, 0]);
+        }
+    }
+    let image = unsafe {
+        Image::create_from_pixels(
+            GRID_SIZE
+                .try_into()
+                .expect("Fails if GRID_SIZE is greater than u32::MAX"),
+            GRID_SIZE
+                .try_into()
+                .expect("Fails if GRID_SIZE is greater than u32::MAX"),
+            &pixels,
+        )
+        .ok_or("Failed to create image from pixels!")?
+    };
+    if image.save_to_file(&format!("{}/{}", FILE_DIR, file_name)) {
+        Ok(())
+    } else {
+        Err(Box::new(SimpleError::new(
+            "Failed to save image to file!".to_string(),
+        )))
+    }
+}
+
+pub fn full_file_path() -> Result<PathBuf, Box<dyn Error>> {
+    let mut dir = std::env::current_dir()?;
+    dir.push(FILE_DIR);
+    Ok(dir)
 }

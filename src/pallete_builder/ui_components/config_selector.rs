@@ -54,6 +54,11 @@ impl ConfigSelector {
     pub fn current_config(&self) -> Config {
         self.current_config
     }
+
+    pub fn toggle_auto_ramping(&mut self) {
+        self.current_config.auto_ramping = !self.current_config.auto_ramping;
+        config_selector_content::sync_events(&mut self.config_selector_dom, &self.current_config);
+    }
 }
 
 impl DomControllerInterface for ConfigSelector {
@@ -71,7 +76,9 @@ impl DomControllerInterface for ConfigSelector {
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
-        self.config_selector_dom.update(resource_manager)
+        let events = self.config_selector_dom.update(resource_manager);
+        config_selector_content::perform_events(&events, &mut self.current_config);
+        events
     }
 
     fn render(&mut self, window: &mut RenderWindow) {

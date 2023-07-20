@@ -86,11 +86,36 @@ impl UndoRedoCell {
         if !previous_color_cell.draw_full_cell && !new_color_cell.draw_full_cell {
             return;
         }
+        // get rid of redos
         self.cell_changes.truncate(self.current_idx + 1);
 
         self.cell_changes
             .push((previous_color_cell, new_color_cell));
         self.current_idx = self.cell_changes.len() - 1;
+
+        self.simplify_last_four_repititions();
+    }
+
+    /// This function looks at the last four changes made.
+    /// If the last change, 3rd to last change are the same,
+    /// and 2nd to last and fourth to last are the same,
+    /// truncate the last two indeces
+    fn simplify_last_four_repititions(&mut self) {
+        if self.cell_changes.len() <= 4 {
+            return;
+        }
+        let start = self.current_idx - 3;
+        let end = self.current_idx;
+        let last_four_colors = self.cell_changes[start..=end].to_vec();
+
+        if last_four_colors[0].0.coords == last_four_colors[2].0.coords
+            && last_four_colors[0].1.coords == last_four_colors[2].1.coords
+            && last_four_colors[1].0.coords == last_four_colors[3].0.coords
+            && last_four_colors[1].1.coords == last_four_colors[3].1.coords
+        {
+            self.cell_changes.truncate(self.current_idx - 2);
+            self.current_idx = self.cell_changes.len() - 1;
+        }
     }
 }
 

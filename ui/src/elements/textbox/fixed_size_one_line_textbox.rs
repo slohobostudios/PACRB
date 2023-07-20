@@ -505,16 +505,19 @@ impl TextBox for FixedSizeOneLineTextbox {
                     (self.select_start_idx, self.select_end_idx)
                 {
                     let start = select_start_idx.min(select_end_idx);
-                    let end = select_start_idx.max(select_end_idx);
+                    let mut end = select_start_idx.max(select_end_idx);
+                    // This is a small bugfix to prevent weird clipping when overwriting
+                    // the last character in the textbox
+                    if start + 1 == end && self.cursor_idx == end {
+                        end -= 1;
+                    }
                     // Some logic depends on the select box being nonexistent,
                     // so we don't lock up in a loop somwhere
                     self.make_select_box_dissappear();
-                    self.move_cursor(end);
+                    self.move_cursor(end + 1);
                     for _ in start..=end {
                         self.trigger_backspace_event()
                     }
-                    self.move_cursor_right();
-                    self.move_cursor_right();
                 }
                 // delete character
                 else if self.cursor_idx != 0 {
@@ -523,12 +526,13 @@ impl TextBox for FixedSizeOneLineTextbox {
                     } else {
                         self.string.remove(self.cursor_idx.saturating_sub(1));
                     }
+                    self.move_cursor_left();
                 }
                 // If the cursor idx is 0, go ahead and do delete
                 else if !self.string.is_empty() {
                     self.string.remove(0);
+                    self.move_cursor_left();
                 }
-                self.move_cursor_left();
             }
             // Delete
             else if unicode == 0x7f as char {
@@ -552,7 +556,7 @@ impl TextBox for FixedSizeOneLineTextbox {
                 if self.select_start_idx.is_some() && self.select_end_idx.is_some() {
                     self.trigger_backspace_event();
                 }
-                if self.cursor_idx >= self.string.len().saturating_sub(1) {
+                if self.cursor_idx >= self.string.len() {
                     self.string.push(unicode);
                 } else {
                     self.string.insert(self.cursor_idx, unicode);

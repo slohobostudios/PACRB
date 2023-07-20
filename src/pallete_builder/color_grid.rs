@@ -5,15 +5,11 @@ use std::{
     rc::Rc,
 };
 
+use self::color_cell::{ColorCell, RcColorCell};
 use sfml::{
     graphics::RenderWindow,
     system::{Vector2, Vector2i},
 };
-use utils::{
-    arithmetic_util_functions::u32_from_usize, sfml_util_functions::vector2i_from_vector2u,
-};
-
-use self::color_cell::{ColorCell, RcColorCell};
 
 pub mod color_cell;
 pub mod load_save;
@@ -28,12 +24,7 @@ impl ColorGrid {
             (0..GRID_SIZE)
                 .map(|i| {
                     array::from_fn(|j| {
-                        Rc::new(RefCell::new(ColorCell::new(vector2i_from_vector2u(
-                            Vector2::new(
-                                color_cell::CELL_SIZE.x * u32_from_usize(i),
-                                color_cell::CELL_SIZE.x * u32_from_usize(j),
-                            ),
-                        ))))
+                        Rc::new(RefCell::new(ColorCell::new(Vector2::new(i, j).as_other())))
                     })
                 })
                 .collect(),

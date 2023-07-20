@@ -15,13 +15,17 @@ use crate::generate_ramp_mode_event_handler_arguments;
 
 use self::{
     color_grid::{
-        color_cell::CELL_SIZE, load_save::load_color_grid, undo_redo::UndoRedoCell, ColorGrid,
+        color_cell::CELL_SIZE,
+        load_save::{export_color_grid, load_color_grid, save_color_grid},
+        undo_redo::UndoRedoCell,
+        ColorGrid,
     },
     normal_mode::{NormalMode, NormalModeEventHandlerArguments},
     ramp_mode::{RampMode, RampModeEventHandlerArguments},
     ui_components::{
         config_selector::ConfigSelector, confirm_color_ramp::ConfirmColorRamp,
-        erase_mode::EraseMode, hsv_selector::HSVSelector, settings::Settings,
+        current_quick_save_file::CurrentQuickSaveFile, erase_mode::EraseMode,
+        hsv_selector::HSVSelector, settings::Settings,
     },
 };
 
@@ -44,6 +48,7 @@ pub struct PalleteBuilder {
     config_selector: ConfigSelector,
     hsv_selector: HSVSelector,
     erase_mode: EraseMode,
+    current_quick_save_file: CurrentQuickSaveFile,
     confirm_color_ramp: ConfirmColorRamp,
     settings: Settings,
     color_grid: ColorGrid,
@@ -63,6 +68,7 @@ impl PalleteBuilder {
             hsv_selector: HSVSelector::new(resource_manager, ui_settings),
             config_selector: ConfigSelector::new(resource_manager, ui_settings),
             confirm_color_ramp: ConfirmColorRamp::new(resource_manager, ui_settings),
+            current_quick_save_file: CurrentQuickSaveFile::new(resource_manager, ui_settings),
             erase_mode: EraseMode::new(resource_manager, ui_settings),
             settings: Settings::new(resource_manager, ui_settings),
             is_dragging_erase: false,
@@ -70,8 +76,14 @@ impl PalleteBuilder {
             previous_mouse_position: Default::default(),
             view: View::new(
                 Vector2f::new(
-                    (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
-                    (color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                    (color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.x)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
+                    (color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.y)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
                 ),
                 ui_settings.aspect_ratio.current_resolution,
             ),
@@ -81,13 +93,14 @@ impl PalleteBuilder {
         }
     }
 
-    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 5] {
+    pub fn dom_controller_interfaces_iter_mut(&mut self) -> [&mut dyn DomControllerInterface; 6] {
         [
             &mut self.config_selector,
             &mut self.hsv_selector,
             &mut self.erase_mode,
             &mut self.confirm_color_ramp,
             &mut self.settings,
+            &mut self.current_quick_save_file,
         ]
     }
 
@@ -157,6 +170,7 @@ impl PalleteBuilder {
         self.erase_event_handler(&event);
         self.drag_screen_event_handler(&event);
         self.undo_redo_event_handler(&event);
+        self.general_other_key_event_handler(&event, ui_settings);
 
         match &mut self.current_mode {
             Mode::NormalMode(normal_mode) => {
@@ -191,9 +205,27 @@ impl PalleteBuilder {
             ))
         }
 
+        // Whenever configs change, we need to modify the ramp, if it is ramping
+        if let Mode::RampMode(ramp_mode) = &mut self.current_mode {
+            let fake_event = Event::GainedFocus;
+            if self.confirm_color_ramp.is_enabled() {
+                ramp_mode.regenerate_ramp_new_config(generate_ramp_mode_event_handler_arguments!(
+                    self, fake_event
+                ))
+            }
+
+            if self.confirm_color_ramp.cancel_ramp() {
+                self.confirm_color_ramp.set_enable(false);
+                ramp_mode.clear_the_ramp(&mut self.undo_redo);
+            }
+        }
+
         self.color_grid.update();
 
         self.check_settings_and_load_file_if_necessary();
+        self.check_settings_and_save_file_if_necessary();
+        self.check_quick_save_file_name_and_update_if_necessary();
+        self.check_export_file_status_and_export_if_necessary();
     }
 
     pub fn render(&mut self, window: &mut RenderWindow) {
@@ -278,8 +310,14 @@ impl PalleteBuilder {
             }
             Event::KeyPressed { code, .. } if code == &Key::Space => {
                 self.view.set_center(Vector2f::new(
-                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.x).unwrap()) as f32,
-                    (self.color_grid[0].len() / 2 * usize::try_from(CELL_SIZE.y).unwrap()) as f32,
+                    (self.color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.x)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
+                    (self.color_grid[0].len() / 2
+                        * usize::try_from(CELL_SIZE.y)
+                            .expect("Crashes immediately bad CELL_SIZE definition"))
+                        as f32,
                 ))
             }
             _ => {}
@@ -288,9 +326,19 @@ impl PalleteBuilder {
 
     fn erase_event_handler(&mut self, event: &Event) {
         match event {
+            // Enable erase
+            &Event::KeyReleased {
+                code,
+                ctrl,
+                alt,
+                system,
+                ..
+            } if code == Key::E && !ctrl && !alt && !system => {
+                self.erase_mode.toggle_erase();
+            }
             // Erase color
             &Event::MouseButtonPressed { button, x, y }
-                if self.erase_mode.erase_mode_enabled() && button == Button::Left =>
+                if self.erase_mode.is_erase_mode_enabled() && button == Button::Left =>
             {
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
                     color_cell.borrow_mut().empty_the_cell(&mut self.undo_redo);
@@ -300,14 +348,14 @@ impl PalleteBuilder {
 
             // Make sure it is still dragging
             Event::MouseMoved { x: _, y: _ }
-                if self.erase_mode.erase_mode_enabled() && !Button::Left.is_pressed() =>
+                if self.erase_mode.is_erase_mode_enabled() && !Button::Left.is_pressed() =>
             {
                 self.is_dragging_erase = false;
             }
 
             // Dragging erase
             &Event::MouseMoved { x, y }
-                if self.erase_mode.erase_mode_enabled() && self.is_dragging_erase =>
+                if self.erase_mode.is_erase_mode_enabled() && self.is_dragging_erase =>
             {
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
                     color_cell.borrow_mut().empty_the_cell(&mut self.undo_redo);
@@ -316,7 +364,7 @@ impl PalleteBuilder {
 
             // Finish dragging erase
             &Event::MouseButtonReleased { button: _, x, y }
-                if self.erase_mode.erase_mode_enabled() && self.is_dragging_erase =>
+                if self.erase_mode.is_erase_mode_enabled() && self.is_dragging_erase =>
             {
                 self.is_dragging_erase = false;
                 if let Some(color_cell) = self.color_grid.coord_to_cell_mut(Vector2::new(x, y)) {
@@ -423,6 +471,32 @@ impl PalleteBuilder {
             _ => false,
         }
     }
+
+    fn general_other_key_event_handler(&mut self, event: &Event, ui_settings: &UISettings) {
+        match *event {
+            // Quick Save
+            Event::KeyPressed { code, ctrl, .. } if code == Key::S && ctrl => {
+                if !self.settings.save_file().is_empty() {
+                    if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+                        error!(err);
+                    }
+                } else {
+                    self.settings.open_save_menu(ui_settings)
+                }
+            }
+            // Enable erase
+            Event::KeyReleased {
+                code,
+                ctrl,
+                alt,
+                system,
+                ..
+            } if code == Key::A && !ctrl && !alt && !system => {
+                self.config_selector.toggle_auto_ramping();
+            }
+            _ => {}
+        }
+    }
 }
 
 #[macro_export]
@@ -443,9 +517,9 @@ macro_rules! generate_ramp_mode_event_handler_arguments {
 // General utility
 impl PalleteBuilder {
     fn check_settings_and_load_file_if_necessary(&mut self) {
-        let mut file_loaded = false;
+        let mut exterior_file_to_load = None;
         if let Some(file_to_load) = self.settings.file_to_load() {
-            file_loaded = true;
+            exterior_file_to_load = Some(file_to_load.to_string());
             if let Err(err) =
                 load_color_grid(&mut self.color_grid, file_to_load, &mut self.undo_redo)
             {
@@ -453,8 +527,38 @@ impl PalleteBuilder {
             }
         }
 
-        if file_loaded {
+        if let Some(file_to_load) = exterior_file_to_load {
             self.settings.clear_file_to_load();
+            self.settings.set_save_file(&file_to_load)
         }
+    }
+
+    fn check_settings_and_save_file_if_necessary(&mut self) {
+        if !self.settings.trigger_save_event() || self.settings.save_file().is_empty() {
+            return;
+        }
+
+        if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+            error!(err);
+        }
+        self.settings.untrigger_save_event();
+    }
+
+    fn check_quick_save_file_name_and_update_if_necessary(&mut self) {
+        if self.current_quick_save_file.current_quick_save_file() != self.settings.save_file() {
+            self.current_quick_save_file
+                .set_current_quick_save_file(self.settings.save_file());
+        }
+    }
+
+    fn check_export_file_status_and_export_if_necessary(&mut self) {
+        if !self.settings.trigger_export_event() || self.settings.export_file().is_empty() {
+            return;
+        }
+
+        if let Err(err) = export_color_grid(&self.color_grid, &self.settings.export_file()) {
+            error!(err);
+        }
+        self.settings.untrigger_export_event();
     }
 }

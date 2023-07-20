@@ -70,16 +70,22 @@ impl EmptyCell {
 
     pub fn update(&mut self) {
         if !self.is_hover {
-            self.color = if self.last_animation_frame.elapsed() > DURATION_BETWEEN_FRAMES
+            if self.color.a == u8::MIN {
+                return;
+            }
+
+            if self.last_animation_frame.elapsed() > DURATION_BETWEEN_FRAMES
                 && self.color.a > u8::MIN
             {
                 self.last_animation_frame = Instant::now();
-                Color::rgba(self.color.r, self.color.g, self.color.b, self.color.a - 1)
-            } else {
-                self.color
-            };
+                self.set_color(Color::rgba(
+                    self.color.r,
+                    self.color.g,
+                    self.color.b,
+                    self.color.a - 1,
+                ));
+            }
 
-            self.set_color(self.color);
             return;
         }
 

@@ -59,6 +59,16 @@
             Controls
           </Text>
         </Button>
+        <Button
+          type="PrimitiveFillButton"
+          color="#242336"
+          hover_color="#51507a"
+          click_color="#8482c1"
+          event_id='6'>
+          <Text>
+            Export
+          </Text>
+        </Button> 
       </Grid>
       <Primitive
           type="TriangleFan"
@@ -67,10 +77,7 @@
           color="#f7e5e4"/>
 
 
-
       <Sets position="l:56,r:43" size="x:680,y:400" sync_id='1'>
-
-        
         <Div set="General">
           <Grid
             size="x:680,y:400"
@@ -95,12 +102,6 @@
                 options="21x9,17x9,16x10,16x9,4x3,1x1"/>
             </Div>
             <Div layout='2'>
-              <Text position="l:0,t:0">
-                21x9 may not work with
-              </Text>
-              <Text position="l:0,t:20">
-                all GPUs
-              </Text>
             </Div>
             <Div layout='3'>
             </Div>
@@ -158,20 +159,74 @@
           </Grid>
         </Div>
 
-        
         <Div set="Save / Load">
           <Grid
             size="x:680,y:400"
             pagination_size="x:2,y:1"
             grid_layout="x:2,y:1">
+
             <Div info="Save">
               <Text position="t:0">
                 Save
               </Text>
-              <Text>
-                Not Implemented
+              <Text position="l:0,t:3,b:7">
+                Current file:
               </Text>
+              <TextBox
+                type="FixedSizeOneLineTextbox"
+                position="l:0,t:4,b:6"
+                color="#091d1e"
+                size="x:300"
+                event_id='2000'
+                sync_id='2000'/>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                position="l:0"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='2001'>
+                <Div padding="t:5,b:5,l:10,r:10">
+                  <Text>
+                    Save
+                  </Text>
+                </Div>
+              </Button>
+
+              <Div>
+                <Button
+                  type="TilingButton"
+                  asset="3x3_tilable_button_on_background.png"
+                  frame_id='0'
+                  position='b:40'
+                  hover_frame_id='1'
+                  click_frame_id='2'
+                  event_id='300'>
+                  <Div padding='b:5,t:5,l:10,r:10'>
+                    <Text>
+                      Open Files
+                    </Text>
+                  </Div>
+                </Button>
+                <Button
+                  type="TilingButton"
+                  asset="3x3_tilable_button_on_background.png"
+                  frame_id='0'
+                  position='b:0'
+                  hover_frame_id='1'
+                  click_frame_id='2'
+                  event_id='301'>
+                  <Div padding='b:5,t:5,l:10,r:10'>
+                    <Text>
+                      Copy File Path
+                    </Text>
+                  </Div>
+                </Button>
+              </Div>
+              
             </Div>
+
             <Div info="Load">
               <Text position="t:0">
                 Load
@@ -366,7 +421,6 @@
               vertices="(x:0,y:0),(x:4,y:0),(x:4,y:400),(x:0,y:400)"
               color="#f7e5e4"/>
         </Div>
-
         
         <Div set="Controls">
           <Div position="t:-20">
@@ -432,10 +486,101 @@
                 : E
               </Text>
             </Div>
+            <Div info="Auto ramp">
+              <Image type="Icon" position="l:0" name="staircase"/>
+              <Text position="l:35">
+                : A
+              </Text>
+            </Div>          
           </Grid>
         </Div>
 
-        
+        <Div set="Export">
+          <Grid
+            size="x:680,y:400"
+            pagination_size="x:2,y:2"
+            grid_layout="x:2,y:2">
+            <Div>
+              <Text position="l:38,r:62">
+                Export as:
+              </Text>
+              <ListBox
+                scale='4'
+                type="UpDownScrollListbox"
+                asset="scroll_up_down_listbox.png"
+                frame_id='0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                position='l:6,r:4'
+                number_of_buttons='1'
+                event_id='200'
+                padding="t:5,b:5,l:10,r:10"
+                options="bmp,png,tga"/>
+            </Div>
+            <Div>
+              <Text position="l:0,b:6,t:4">
+                Export file name:
+              </Text>
+              <TextBox
+                type="FixedSizeOneLineTextbox"
+                position="l:0"
+                color="#091d1e"
+                size="x:300"
+                event_id='201'/>
+            </Div>
+            <Div>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                frame_id='0'
+                position='b:0,r:0'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='202'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Export
+                  </Text>
+                </Div>
+              </Button>
+              <Text position="t:0,l:0">
+                File name:
+              </Text>
+              <Text position="t:22,l:0" sync_id='200'>
+              </Text>
+            </Div>
+            <Div>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                frame_id='0'
+                position='t:4,b:6'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='300'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Open Files
+                  </Text>
+                </Div>
+              </Button>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                frame_id='0'
+                position='t:6,b:4'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='301'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Copy File Path
+                  </Text>
+                </Div>
+              </Button>
+            </Div>
+          </Grid>
+        </Div>
       </Sets>
     </Div>
   </Background>

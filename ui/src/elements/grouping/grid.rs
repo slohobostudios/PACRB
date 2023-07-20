@@ -175,6 +175,10 @@ impl Grid {
     pub fn mut_children(&mut self) -> impl Iterator<Item = &mut Element> {
         self.elements.iter_mut().flatten()
     }
+
+    pub fn children(&self) -> impl Iterator<Item = &Element> {
+        self.elements.iter().flatten()
+    }
 }
 
 impl ElementTrait for Grid {

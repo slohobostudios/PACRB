@@ -24,7 +24,7 @@ features = ["serde"]
 # main package 
 [package]
 name = "pacrb"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 
@@ -37,3 +37,4 @@ serde_json = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 sfml = { workspace = true }
+open = "5.0.0"

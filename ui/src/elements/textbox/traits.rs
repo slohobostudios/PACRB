@@ -156,6 +156,10 @@ pub trait TextBox: ActionableElement + Debug {
                 self.text_entered(event);
                 (vec![self.triggered_event()], true)
             }
+            // if it is selected, and a key is being pressed, more than likely, text is being entered
+            SFMLEvent::KeyPressed { .. } | SFMLEvent::KeyReleased { .. } if self.is_selected() => {
+                (vec![self.triggered_event()], false)
+            }
             _ => Default::default(),
         }
     }

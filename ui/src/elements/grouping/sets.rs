@@ -22,6 +22,7 @@ use super::div::Div;
 #[derive(Clone, Default, Debug)]
 pub struct Sets {
     sets: Vec<Vec<Element>>,
+    current_set: usize,
     div: Div,
     relative_rect: IntRect,
     sync_id: SyncId,
@@ -39,10 +40,12 @@ impl Sets {
             warn!("Number of sets is 0! Making sets have 1 element!");
             sets = vec![vec![Default::default()]];
         }
-        let div = Div::new(position, sets[0].clone(), padding, size);
+        let current_set = 0;
+        let div = Div::new(position, sets[current_set].clone(), padding, size);
 
         let mut s = Sets {
             sets,
+            current_set,
             div,
             relative_rect: Default::default(),
             sync_id,
@@ -50,6 +53,10 @@ impl Sets {
         s.update_size();
 
         s
+    }
+
+    pub fn div(&self) -> &Div {
+        &self.div
     }
 
     pub fn mut_div(&mut self) -> &mut Div {
@@ -66,6 +73,8 @@ impl Sets {
             return;
         }
 
+        self.sets[self.current_set] = self.div.children().cloned().collect();
+
         let mut div = Div::new(
             self.div.position(),
             self.sets[new_set].clone(),
@@ -75,6 +84,8 @@ impl Sets {
         div.update_size();
         div.update_position(self.relative_rect);
         self.div = div;
+
+        self.current_set = new_set;
     }
 }
 

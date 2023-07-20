@@ -34,6 +34,34 @@ impl Settings {
         }
     }
 
+    pub fn trigger_export_event(&self) -> bool {
+        self.settings_menu.trigger_export_event()
+    }
+
+    pub fn untrigger_export_event(&mut self) {
+        self.settings_menu.untrigger_export_event()
+    }
+
+    pub fn export_file(&self) -> String {
+        self.settings_menu.export_file()
+    }
+
+    pub fn trigger_save_event(&self) -> bool {
+        self.settings_menu.trigger_save_event()
+    }
+
+    pub fn untrigger_save_event(&mut self) {
+        self.settings_menu.untrigger_save_event()
+    }
+
+    pub fn set_save_file(&mut self, new_save_file: &str) {
+        self.settings_menu.set_save_file(new_save_file)
+    }
+
+    pub fn save_file(&self) -> &str {
+        self.settings_menu.save_file()
+    }
+
     pub fn is_displayed(&self) -> bool {
         self.settings_menu.display
     }
@@ -44,6 +72,10 @@ impl Settings {
 
     pub fn clear_file_to_load(&mut self) {
         self.settings_menu.clear_file_to_load()
+    }
+
+    pub fn open_save_menu(&mut self, ui_settings: &UISettings) {
+        self.settings_menu.open_save_menu(ui_settings);
     }
 }
 

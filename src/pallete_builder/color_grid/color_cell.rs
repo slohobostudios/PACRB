@@ -1,12 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
+use crate::pallete_builder::hsv_color::Hsv;
 use sfml::{
     graphics::{IntRect, RenderWindow},
-    system::{Vector2, Vector2i, Vector2u},
+    system::{Vector2, Vector2u},
 };
 use utils::sfml_util_functions::vector2i_from_vector2u;
-
-use crate::pallete_builder::hsv_color::Hsv;
 
 use self::{empty_cell::EmptyCell, full_cell::FullCell};
 
@@ -21,6 +20,7 @@ pub type RcColorCell = Rc<RefCell<ColorCell>>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ColorCell {
+    pub(super) coords: Vector2u,
     pub(super) global_bounds: IntRect,
     pub(super) empty_cell: EmptyCell,
     pub(super) full_cell: FullCell,
@@ -28,9 +28,14 @@ pub struct ColorCell {
 }
 
 impl ColorCell {
-    pub fn new(position: Vector2i) -> Self {
+    pub fn new(coords: Vector2u) -> Self {
+        let position = vector2i_from_vector2u(Vector2u::new(
+            coords.x * CELL_SIZE.x,
+            coords.y * CELL_SIZE.y,
+        ));
         let global_bounds = IntRect::from_vecs(position, vector2i_from_vector2u(CELL_SIZE));
         Self {
+            coords,
             empty_cell: EmptyCell::new(global_bounds),
             full_cell: FullCell::new(global_bounds),
             draw_full_cell: false,
@@ -43,7 +48,9 @@ impl ColorCell {
     }
 
     pub fn update(&mut self) {
-        self.empty_cell.update();
+        if !self.draw_full_cell {
+            self.empty_cell.update();
+        }
     }
 
     pub fn render(&self, window: &mut RenderWindow) {

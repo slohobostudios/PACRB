@@ -108,7 +108,7 @@ impl RampMode {
         self.hover_handler
             .event_handler(args.event, args.color_grid);
 
-        if args.erase_mode.erase_mode_enabled() {
+        if args.erase_mode.is_erase_mode_enabled() {
             return;
         }
 
@@ -150,8 +150,7 @@ impl RampMode {
     }
 
     pub fn update(&mut self, args: &mut RampModeEventHandlerArguments) {
-        if !self.ramp.ramp_being_shown() {
-        } else {
+        if self.ramp.ramp_being_shown() {
             self.ramp_update(args);
         }
     }

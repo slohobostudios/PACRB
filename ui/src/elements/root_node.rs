@@ -37,6 +37,10 @@ impl RootNode {
         w
     }
 
+    pub fn children(&self) -> impl Iterator<Item = &Element> {
+        self.div.children()
+    }
+
     pub fn mut_children(&mut self) -> impl Iterator<Item = &mut Element> {
         self.div.mut_children()
     }

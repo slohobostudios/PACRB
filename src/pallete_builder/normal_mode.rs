@@ -50,7 +50,7 @@ impl NormalMode {
     pub fn event_handler(&mut self, args: &mut NormalModeEventHandlerArguments) {
         self.hover_handler
             .event_handler(args.event, args.color_grid);
-        if !args.erase_mode.erase_mode_enabled() {
+        if !args.erase_mode.is_erase_mode_enabled() {
             self.mouse_actions_handler(args);
         }
     }
