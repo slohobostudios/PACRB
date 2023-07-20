@@ -486,6 +486,12 @@
                 : E
               </Text>
             </Div>
+            <Div info="Auto ramp">
+              <Image type="Icon" position="l:0" name="staircase"/>
+              <Text position="l:35">
+                : A
+              </Text>
+            </Div>          
           </Grid>
         </Div>
 

@@ -106,14 +106,23 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
     "sourceSize": { "w": 16, "h": 16 },
     "duration": 100
+   },
+   {
+    "filename": "icons 12.aseprite",
+    "frame": { "x": 192, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 100
    }
  ],
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.3-rc4-x64",
+  "version": "1.3-rc5-x64",
   "image": "icons.png",
   "format": "RGBA8888",
-  "size": { "w": 192, "h": 16 },
+  "size": { "w": 208, "h": 16 },
   "scale": "1",
   "frameTags": [
    { "name": "gear", "from": 0, "to": 0, "direction": "forward", "color": "#000000ff" },
@@ -127,7 +136,8 @@
    { "name": "reset", "from": 8, "to": 8, "direction": "forward", "color": "#000000ff" },
    { "name": "curve_forward_arrow", "from": 9, "to": 9, "direction": "forward", "color": "#000000ff" },
    { "name": "curve_reverse_arrow", "from": 10, "to": 10, "direction": "forward", "color": "#000000ff" },
-   { "name": "erase", "from": 11, "to": 11, "direction": "forward", "color": "#000000ff" }
+   { "name": "erase", "from": 11, "to": 11, "direction": "forward", "color": "#000000ff" },
+   { "name": "staircase", "from": 12, "to": 12, "direction": "forward", "color": "#000000ff" }
   ],
   "slices": [
   ]

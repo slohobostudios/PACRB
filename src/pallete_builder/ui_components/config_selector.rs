@@ -54,6 +54,11 @@ impl ConfigSelector {
     pub fn current_config(&self) -> Config {
         self.current_config
     }
+
+    pub fn toggle_auto_ramping(&mut self) {
+        self.current_config.auto_ramping = !self.current_config.auto_ramping;
+        config_selector_content::sync_events(&mut self.config_selector_dom, &self.current_config);
+    }
 }
 
 impl DomControllerInterface for ConfigSelector {

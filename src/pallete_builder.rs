@@ -484,6 +484,16 @@ impl PalleteBuilder {
                     self.settings.open_save_menu(ui_settings)
                 }
             }
+            // Enable erase
+            Event::KeyReleased {
+                code,
+                ctrl,
+                alt,
+                system,
+                ..
+            } if code == Key::A && !ctrl && !alt && !system => {
+                self.config_selector.toggle_auto_ramping();
+            }
             _ => {}
         }
     }
