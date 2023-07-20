@@ -193,6 +193,38 @@
                   </Text>
                 </Div>
               </Button>
+
+              <Div>
+                <Button
+                  type="TilingButton"
+                  asset="3x3_tilable_button_on_background.png"
+                  frame_id='0'
+                  position='b:40'
+                  hover_frame_id='1'
+                  click_frame_id='2'
+                  event_id='300'>
+                  <Div padding='b:5,t:5,l:10,r:10'>
+                    <Text>
+                      Open Files
+                    </Text>
+                  </Div>
+                </Button>
+                <Button
+                  type="TilingButton"
+                  asset="3x3_tilable_button_on_background.png"
+                  frame_id='0'
+                  position='b:0'
+                  hover_frame_id='1'
+                  click_frame_id='2'
+                  event_id='301'>
+                  <Div padding='b:5,t:5,l:10,r:10'>
+                    <Text>
+                      Copy File Path
+                    </Text>
+                  </Div>
+                </Button>
+              </Div>
+              
             </Div>
 
             <Div info="Load">
@@ -510,6 +542,36 @@
               </Text>
               <Text position="t:22,l:0" sync_id='200'>
               </Text>
+            </Div>
+            <Div>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                frame_id='0'
+                position='t:4,b:6'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='300'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Open Files
+                  </Text>
+                </Div>
+              </Button>
+              <Button
+                type="TilingButton"
+                asset="3x3_tilable_button_on_background.png"
+                frame_id='0'
+                position='t:6,b:4'
+                hover_frame_id='1'
+                click_frame_id='2'
+                event_id='301'>
+                <Div padding='b:5,t:5,l:10,r:10'>
+                  <Text>
+                    Copy File Path
+                  </Text>
+                </Div>
+              </Button>
             </Div>
           </Grid>
         </Div>

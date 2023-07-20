@@ -2,7 +2,7 @@ use std::{
     error::Error,
     fs::{self, DirEntry, File},
     io::{self, BufRead, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use sfml::{
@@ -217,4 +217,10 @@ pub fn export_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), 
             "Failed to save image to file!".to_string(),
         )))
     }
+}
+
+pub fn full_file_path() -> Result<PathBuf, Box<dyn Error>> {
+    let mut dir = std::env::current_dir()?;
+    dir.push(FILE_DIR);
+    Ok(dir)
 }

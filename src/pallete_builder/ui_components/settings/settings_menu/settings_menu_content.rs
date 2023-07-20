@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use sfml::graphics::RenderWindow;
+use sfml::{graphics::RenderWindow, window::clipboard};
 use tracing::{error, warn};
 use ui::{
     dom_controller::{DomController, DomControllerInterface},
@@ -14,7 +14,9 @@ use ui::{
     utils::consts::DUMMY_MOUSE_MOVED_EVENT,
 };
 
-use crate::pallete_builder::color_grid::load_save::list_of_files_with_pacrb_extension;
+use crate::pallete_builder::color_grid::load_save::{
+    full_file_path, list_of_files_with_pacrb_extension,
+};
 
 use super::{SettingsMenu, TriggerFileStates};
 
@@ -51,6 +53,10 @@ fn perform_event(
         200 => event200(event, settings_menu, ui_settings),
         201 => event201(event, settings_menu, ui_settings),
         202 => event202(settings_menu),
+        // Open file directory
+        300 => event300(),
+        // Copy file directory
+        301 => event301(),
         // Refresh
         1097 => event1097(settings_menu),
         // Next
@@ -175,6 +181,34 @@ fn event201(event: &Event, settings_menu: &mut SettingsMenu, ui_settings: &UISet
 
 fn event202(settings_menu: &mut SettingsMenu) {
     settings_menu.trigger_export_event = TriggerFileStates::Save;
+}
+
+fn event300() {
+    let full_file_path = full_file_path();
+    let Ok(full_file_path) = full_file_path else {
+        error!("{:#?}", full_file_path);
+        return;
+    };
+
+    if let Err(err) = open::that(full_file_path) {
+        error!("{:#?}", err);
+    }
+}
+
+fn event301() {
+    let full_file_path = full_file_path();
+    let Ok(full_file_path) = full_file_path else {
+        error!("{:#?}", full_file_path);
+        return;
+    };
+
+    let full_file_path = full_file_path.into_os_string().into_string();
+    let Ok(full_file_path) = full_file_path else {
+        error!("{:#?}", full_file_path);
+        return;
+    };
+
+    clipboard::set_string(&full_file_path);
 }
 
 fn event1097(settings_menu: &mut SettingsMenu) {
