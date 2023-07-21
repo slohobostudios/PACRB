@@ -10,9 +10,9 @@ use sfml::{
     system::Vector2,
 };
 use tracing::error;
-use utils::simple_error::SimpleError;
+use utils::{simple_error::SimpleError, string_util_functions::get_tuple_list_from_string};
 
-use crate::pallete_builder::color_grid::GRID_SIZE;
+use crate::pallete_builder::{color_grid::GRID_SIZE, ui_components::config_selector::Config};
 
 use super::{undo_redo::UndoRedoCell, ColorGrid};
 
@@ -66,17 +66,31 @@ pub fn remove_pacrb_file(file_name: &str) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-/// Load and saving will follow this format. Every line will be like this:
+/// Load and saving will follow this format. For the color grid.
 ///
 /// (x_index,y_index):(r,g,b)
+///
+/// Then the file will have a line that has:
+/// *************************
+/// h:-1,s:1,v:2,n:4
+///
+/// The last line describes the color ramp configuration used.
 ///
 /// if x/y comboniation does not have an rgb value, mark it empty
 /// my_file.pacrb:
 /// 1 (25,25):(255,255,255)
 /// 2 (26,25):(250,250,250)
+/// 3 **************************
+/// 4 h:-1,s:0,v:8,n:20
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Box<dyn Error>> {
+const SECTION_PARTITION_STRING: &str = "*******************";
+
+pub fn save_color_grid(
+    color_grid: &ColorGrid,
+    ramp_config: &Config,
+    file_name: &str,
+) -> Result<(), Box<dyn Error>> {
     ensure_folder_exists()?;
 
     let mut data = String::new();
@@ -89,12 +103,18 @@ pub fn save_color_grid(color_grid: &ColorGrid, file_name: &str) -> Result<(), Bo
             }
         }
     }
+    data.push_str(&format!("{SECTION_PARTITION_STRING}\n"));
+    data.push_str(&format!(
+        "h:{},s:{},v:{}\n",
+        ramp_config.hue_shift, ramp_config.saturation_shift, ramp_config.value_shift,
+    ));
 
     Ok(fs::write(format!("{}/{}", FILE_DIR, file_name), data)?)
 }
 
 pub fn load_color_grid(
     color_grid: &mut ColorGrid,
+    ramp_config: &mut Config,
     file_name: &str,
     undo_redo: &mut UndoRedoCell,
 ) -> Result<(), Box<dyn Error>> {
@@ -109,8 +129,32 @@ pub fn load_color_grid(
     let file = File::open(format!("{}/{}", FILE_DIR, file_name))?;
     let reader = BufReader::new(file);
 
+    let mut ramp_config_section = false;
     for line in reader.lines() {
         let line = line?;
+        if ramp_config_section {
+            let tuple_list = get_tuple_list_from_string(&line);
+            for tuple in tuple_list {
+                let tuple = tuple?;
+                let amt = tuple.1.parse::<i8>()?;
+                match tuple.0 {
+                    "h" => ramp_config.hue_shift = amt,
+                    "s" => ramp_config.saturation_shift = amt,
+                    "v" => ramp_config.value_shift = amt,
+                    string => {
+                        return Err(Box::new(io::Error::new(
+                            io::ErrorKind::InvalidData,
+                            format!("{} is not a support type into hsv", string),
+                        )));
+                    }
+                }
+            }
+            continue;
+        }
+        if line == SECTION_PARTITION_STRING {
+            ramp_config_section = true;
+            continue;
+        }
         let mut split = line.split(':');
         let (mut coordinates_string, mut color_string) = (
             split.next().ok_or("x/y index missing")?,
@@ -183,7 +227,6 @@ pub fn load_color_grid(
             );
         }
     }
-
     Ok(())
 }
 

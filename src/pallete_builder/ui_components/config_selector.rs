@@ -51,6 +51,11 @@ impl ConfigSelector {
         }
     }
 
+    pub fn set_config(&mut self, new_config: Config) {
+        self.current_config = new_config;
+        config_selector_content::sync_events(&mut self.config_selector_dom, &self.current_config);
+    }
+
     pub fn current_config(&self) -> Config {
         self.current_config
     }
