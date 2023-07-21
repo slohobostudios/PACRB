@@ -71,13 +71,13 @@ impl DomControllerInterface for ConfigSelector {
         let events = self
             .config_selector_dom
             .event_handler(window, ui_settings, event);
-        config_selector_content::perform_events(&events, &mut self.current_config);
+        config_selector_content::perform_events(&events, self);
         events
     }
 
     fn update(&mut self, resource_manager: &ResourceManager) -> Vec<Event> {
         let events = self.config_selector_dom.update(resource_manager);
-        config_selector_content::perform_events(&events, &mut self.current_config);
+        config_selector_content::perform_events(&events, self);
         events
     }
 

@@ -8,6 +8,20 @@
         <Text font_size="26" position="t:10">
             CONFIGURATION
         </Text>
+        <Button
+            type="TilingButton"
+            asset="3x3_tilable_button_on_background.png"
+            frame_id='0'
+            hover_frame_id='1'
+            click_frame_id='2'
+            position='r:5,t:25,b:75'
+            event_id='6'>
+          <Div padding='b:5,t:5,l:10,r:10'>
+            <Text>
+                Invert
+            </Text>
+          </Div>
+        </Button>
         <Grid
              pagination_size="x:1,y:5"
              grid_layout="x:1,y:5"
