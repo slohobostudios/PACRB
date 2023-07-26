@@ -1,4 +1,4 @@
-use super::Config;
+use super::{Config, ConfigSelector};
 
 use tracing::warn;
 use ui::{
@@ -8,20 +8,21 @@ use ui::{
     syncs::Syncs,
 };
 
-pub fn perform_events(events: &Vec<Event>, config: &mut Config) {
+pub fn perform_events(events: &Vec<Event>, config_selector: &mut ConfigSelector) {
     for event in events {
-        perform_event(event, config);
+        perform_event(event, config_selector);
     }
 }
 
-fn perform_event(event: &Event, config: &mut Config) {
+fn perform_event(event: &Event, config_selector: &mut ConfigSelector) {
     match event.id {
         0 => {}
-        1 => event1(event.clone(), config),
-        2 => event2(event.clone(), config),
-        3 => event3(event.clone(), config),
-        4 => event4(event.clone(), config),
-        5 => event5(event.clone(), config),
+        1 => event1(event.clone(), &mut config_selector.current_config),
+        2 => event2(event.clone(), &mut config_selector.current_config),
+        3 => event3(event.clone(), &mut config_selector.current_config),
+        4 => event4(event.clone(), &mut config_selector.current_config),
+        5 => event5(event.clone(), &mut config_selector.current_config),
+        6 => event6(config_selector),
         _ => {
             warn!("Event: {:#?} is not yet implemented", event)
         }
@@ -52,6 +53,16 @@ fn event5(event: Event, config: &mut Config) {
     if let Events::NumericalEvent(val) = event.event {
         config.value_shift = val as i8;
     }
+}
+fn event6(config_selector: &mut ConfigSelector) {
+    config_selector.current_config.hue_shift *= -1;
+    config_selector.current_config.saturation_shift *= -1;
+    config_selector.current_config.value_shift *= -1;
+
+    sync_events(
+        &mut config_selector.config_selector_dom,
+        &config_selector.current_config,
+    );
 }
 
 pub fn sync_events(dom_controller: &mut DomController, config: &Config) {

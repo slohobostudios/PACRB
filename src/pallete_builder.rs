@@ -477,7 +477,11 @@ impl PalleteBuilder {
             // Quick Save
             Event::KeyPressed { code, ctrl, .. } if code == Key::S && ctrl => {
                 if !self.settings.save_file().is_empty() {
-                    if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+                    if let Err(err) = save_color_grid(
+                        &self.color_grid,
+                        &self.config_selector.current_config(),
+                        self.settings.save_file(),
+                    ) {
                         error!(err);
                     }
                 } else {
@@ -520,11 +524,17 @@ impl PalleteBuilder {
         let mut exterior_file_to_load = None;
         if let Some(file_to_load) = self.settings.file_to_load() {
             exterior_file_to_load = Some(file_to_load.to_string());
-            if let Err(err) =
-                load_color_grid(&mut self.color_grid, file_to_load, &mut self.undo_redo)
-            {
+            let ramp_config = &mut Default::default();
+            if let Err(err) = load_color_grid(
+                &mut self.color_grid,
+                ramp_config,
+                file_to_load,
+                &mut self.undo_redo,
+            ) {
                 error!("{:#?}", err);
             }
+
+            self.config_selector.set_config(*ramp_config);
         }
 
         if let Some(file_to_load) = exterior_file_to_load {
@@ -538,7 +548,11 @@ impl PalleteBuilder {
             return;
         }
 
-        if let Err(err) = save_color_grid(&self.color_grid, self.settings.save_file()) {
+        if let Err(err) = save_color_grid(
+            &self.color_grid,
+            &self.config_selector.current_config(),
+            self.settings.save_file(),
+        ) {
             error!(err);
         }
         self.settings.untrigger_save_event();
